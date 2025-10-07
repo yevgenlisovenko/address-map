@@ -4,10 +4,12 @@ A real-time web application that displays USA addresses as pins on an interactiv
 
 ## Features
 
+- **Dual Input Modes**: Toggle between Address mode (with geocoding) and Coordinates mode (direct lat/lon input)
 - **Real-time Updates**: All connected clients see new pins instantly via WebSocket
 - **Interactive Map**: Built with Leaflet, showing OpenStreetMap tiles
 - **Address Geocoding**: Automatic conversion of addresses to coordinates using Nominatim API
-- **Multiple Input Methods**: Submit addresses via web interface, WebSocket, or REST API
+- **Direct Coordinate Input**: Place pins by entering latitude and longitude with optional labels
+- **Multiple Input Methods**: Submit via web interface, WebSocket, or REST API
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Technology Stack
@@ -131,16 +133,30 @@ http://localhost:5173
 
 ## Usage
 
-### Method 1: Web Interface
+### Method 1: Web Interface - Address Mode
 
 1. Open the application in your browser
 2. Wait for the "Connected" status in the sidebar
-3. Enter a USA address in the input field (e.g., "1600 Pennsylvania Avenue NW, Washington, DC")
-4. Click "Add Pin"
-5. The address will be geocoded and displayed on the map
-6. All connected clients will see the new pin in real-time
+3. Click "▶ Add Address" to expand the input form
+4. Ensure "Address" mode is selected (default)
+5. Enter a USA address in the input field (e.g., "1600 Pennsylvania Avenue NW, Washington, DC")
+6. Click "Add Pin"
+7. The address will be geocoded and displayed on the map
+8. All connected clients will see the new pin in real-time
 
-### Method 2: REST API
+### Method 2: Web Interface - Coordinates Mode
+
+1. Open the application in your browser
+2. Wait for the "Connected" status in the sidebar
+3. Click "▶ Add Address" to expand the input form
+4. Click the "Coordinates" button to switch input mode
+5. Enter latitude (-90 to 90) and longitude (-180 to 180)
+6. Optionally, enter a label for the pin
+7. Click "Add Pin"
+8. The pin will be displayed at the specified coordinates
+9. All connected clients will see the new pin in real-time
+
+### Method 3: REST API - Address Geocoding
 
 Send a POST request to the backend API:
 
@@ -162,10 +178,34 @@ curl -X POST http://localhost:3001/api/address \
 }
 ```
 
-### Method 3: WebSocket (Socket.IO)
+### Method 4: REST API - Direct Coordinates
+
+Send coordinates directly without geocoding:
+
+```bash
+curl -X POST http://localhost:3001/api/coordinates \
+  -H "Content-Type: application/json" \
+  -d '{"lat": 40.748817, "lon": -73.985428, "label": "Empire State Building"}'
+```
+
+**Response Example:**
+```json
+{
+  "success": true,
+  "data": {
+    "lat": 40.748817,
+    "lon": -73.985428
+  }
+}
+```
+
+**Note:** The `label` parameter is optional. If omitted, the pin will be labeled with "Coordinates: lat, lon".
+
+### Method 5: WebSocket (Socket.IO)
 
 Connect to the WebSocket server and emit events:
 
+**For Address Geocoding:**
 ```javascript
 import { io } from 'socket.io-client';
 
@@ -180,9 +220,24 @@ socket.on('add-pin', (data) => {
 });
 ```
 
+**For Direct Coordinates:**
+```javascript
+socket.emit('new-coordinates', {
+  lat: 37.8199,
+  lon: -122.4783,
+  label: 'Golden Gate Bridge' // optional
+});
+
+socket.on('add-pin', (data) => {
+  console.log('New pin:', data);
+});
+```
+
 ## Testing Examples
 
-Try these addresses to test the application:
+Try these examples to test the application:
+
+### Address Geocoding Examples
 
 ```bash
 # Famous landmarks
@@ -197,6 +252,20 @@ curl -X POST http://localhost:3001/api/address -H "Content-Type: application/jso
 curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"address": "Alamo, San Antonio, TX"}'
 ```
 
+### Direct Coordinates Examples
+
+```bash
+# Famous landmarks with coordinates
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 40.689247, "lon": -74.044502, "label": "Statue of Liberty"}'
+
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 34.134117, "lon": -118.321495, "label": "Hollywood Sign"}'
+
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 47.620506, "lon": -122.349277, "label": "Space Needle"}'
+
+# Without label (will show "Coordinates: lat, lon")
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 41.878876, "lon": -87.635915}'
+```
+
 ## Project Structure
 
 ```
@@ -205,6 +274,7 @@ address-map/
 │   ├── src/
 │   │   ├── server.js       # Main Express + Socket.IO server
 │   │   ├── geocode.js      # Geocoding service (Nominatim)
+│   │   ├── validation.js   # Coordinate validation
 │   │   └── config.js       # Configuration settings
 │   └── package.json
 ├── frontend/
@@ -271,6 +341,36 @@ Submit a new address for geocoding and broadcasting
 }
 ```
 
+#### POST /api/coordinates
+Submit coordinates directly for pin placement
+
+**Request Body:**
+```json
+{
+  "lat": number (required, -90 to 90),
+  "lon": number (required, -180 to 180),
+  "label": "string (optional)"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "lat": number,
+    "lon": number
+  }
+}
+```
+
+**Error Response (400/500):**
+```json
+{
+  "error": "Error message"
+}
+```
+
 #### GET /health
 Health check endpoint
 
@@ -293,19 +393,30 @@ socket.emit('new-address', {
 });
 ```
 
+**Event: `new-coordinates`**
+```javascript
+socket.emit('new-coordinates', {
+  lat: number (required, -90 to 90),
+  lon: number (required, -180 to 180),
+  label: 'string (optional)'
+});
+```
+
 #### Server → Client
 
 **Event: `add-pin`**
 ```javascript
 socket.on('add-pin', (data) => {
-  // data contains: { address, lat, lon, displayName, timestamp }
+  // data contains: { type, lat, lon, displayName, timestamp }
+  // type is either 'address' or 'coordinates'
+  // if type is 'address', also includes: { address }
 });
 ```
 
 **Event: `error`**
 ```javascript
 socket.on('error', (error) => {
-  // error contains: { message, address }
+  // error contains: { message, address? }
 });
 ```
 
