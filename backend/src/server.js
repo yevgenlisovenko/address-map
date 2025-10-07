@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import { config } from './config.js';
 import { geocodeAddress } from './geocode.js';
+import { validateCoordinates } from './validation.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -36,6 +37,7 @@ app.post('/api/address', async (req, res) => {
 
     // Broadcast to all connected clients
     io.emit('add-pin', {
+      type: 'address',
       address,
       ...coordinates,
       timestamp: new Date().toISOString()
@@ -44,6 +46,45 @@ app.post('/api/address', async (req, res) => {
     res.json({
       success: true,
       data: coordinates
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+});
+
+// REST API endpoint to submit coordinates
+app.post('/api/coordinates', async (req, res) => {
+  const { lat, lon, label } = req.body;
+
+  if (lat === undefined || lon === undefined) {
+    return res.status(400).json({ error: 'Latitude and longitude are required' });
+  }
+
+  // Validate coordinates
+  const validation = validateCoordinates(lat, lon);
+
+  if (!validation.valid) {
+    return res.status(400).json({ error: validation.error });
+  }
+
+  try {
+    // Broadcast to all connected clients
+    io.emit('add-pin', {
+      type: 'coordinates',
+      lat: validation.lat,
+      lon: validation.lon,
+      displayName: label || `Coordinates: ${validation.lat}, ${validation.lon}`,
+      timestamp: new Date().toISOString()
+    });
+
+    res.json({
+      success: true,
+      data: {
+        lat: validation.lat,
+        lon: validation.lon
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -71,6 +112,7 @@ io.on('connection', (socket) => {
 
       // Broadcast to all clients including sender
       io.emit('add-pin', {
+        type: 'address',
         address,
         ...coordinates,
         timestamp: new Date().toISOString()
@@ -82,6 +124,44 @@ io.on('connection', (socket) => {
       socket.emit('error', {
         message: error.message,
         address
+      });
+    }
+  });
+
+  // Handle new coordinate submissions via WebSocket
+  socket.on('new-coordinates', (data) => {
+    const { lat, lon, label } = data;
+
+    if (lat === undefined || lon === undefined) {
+      socket.emit('error', { message: 'Latitude and longitude are required' });
+      return;
+    }
+
+    // Validate coordinates
+    const validation = validateCoordinates(lat, lon);
+
+    if (!validation.valid) {
+      socket.emit('error', { message: validation.error });
+      return;
+    }
+
+    try {
+      console.log('Adding coordinate pin:', validation.lat, validation.lon);
+
+      // Broadcast to all clients including sender
+      io.emit('add-pin', {
+        type: 'coordinates',
+        lat: validation.lat,
+        lon: validation.lon,
+        displayName: label || `Coordinates: ${validation.lat}, ${validation.lon}`,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log('Coordinate pin added');
+    } catch (error) {
+      console.error('Error processing coordinates:', error.message);
+      socket.emit('error', {
+        message: error.message
       });
     }
   });

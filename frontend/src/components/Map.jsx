@@ -56,9 +56,19 @@ export default function Map({ markers }) {
           <Marker key={index} position={[marker.lat, marker.lon]}>
             <Popup>
               <div>
-                <strong>{marker.address}</strong>
-                <br />
-                <small>{marker.displayName}</small>
+                {marker.type === 'address' ? (
+                  <>
+                    <strong>{marker.address}</strong>
+                    <br />
+                    <small>{marker.displayName}</small>
+                  </>
+                ) : (
+                  <>
+                    <strong>{marker.displayName}</strong>
+                    <br />
+                    <small>Lat: {marker.lat}, Lon: {marker.lon}</small>
+                  </>
+                )}
                 <br />
                 <small>Added: {new Date(marker.timestamp).toLocaleString()}</small>
               </div>

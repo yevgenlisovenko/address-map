@@ -35,7 +35,35 @@
 }
 
 .address-section.expanded {
-  max-height: 500px;
+  max-height: 600px;
+}
+
+.input-mode-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.mode-button {
+  flex: 1;
+  padding: 8px 16px;
+  background: white;
+  color: #646cff;
+  border: 2px solid #646cff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.mode-button:hover {
+  background: #e8eaff;
+}
+
+.mode-button.active {
+  background: #646cff;
+  color: white;
 }
 
 .sidebar h1 {
@@ -77,6 +105,27 @@
 }
 
 .address-input:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.coordinates-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.coordinate-input,
+.label-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.coordinate-input:focus,
+.label-input:focus {
   outline: none;
   border-color: #646cff;
 }

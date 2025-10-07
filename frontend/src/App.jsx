@@ -15,6 +15,10 @@ function App() {
   const [showAllPins, setShowAllPins] = useState(false);
   const [pinsToShow] = useState(DEFAULT_PINS_TO_SHOW);
   const [showAddressForm, setShowAddressForm] = useState(false);
+  const [inputMode, setInputMode] = useState('address');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [label, setLabel] = useState('');
 
   useEffect(() => {
     // Initialize Socket.IO connection
@@ -72,28 +76,98 @@ function App() {
     setAddress('');
   };
 
+  const handleCoordinatesSubmit = (e) => {
+    e.preventDefault();
+
+    if (!latitude.trim() || !longitude.trim()) {
+      setStatus('Please enter latitude and longitude');
+      return;
+    }
+
+    if (!socket || !isConnected) {
+      setStatus('Not connected to server');
+      return;
+    }
+
+    // Send coordinates to server
+    socket.emit('new-coordinates', {
+      lat: latitude,
+      lon: longitude,
+      label: label.trim() || undefined
+    });
+    setStatus(`Adding pin at: ${latitude}, ${longitude}...`);
+    setLatitude('');
+    setLongitude('');
+    setLabel('');
+  };
+
   return (
     <div className="app">
       <div className="sidebar">
-        <div className={`address-section ${showAddressForm ? 'expanded' : 'collapsed'}`}>
-          <h1>USA Address Map</h1>
 
-          <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-            {isConnected ? '● Connected' : '○ Disconnected'}
+        <h1>Address Map</h1>
+
+        <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
+          {isConnected ? '● Connected' : '○ Disconnected'}
+        </div>
+
+        <div className={`address-section ${showAddressForm ? 'expanded' : 'collapsed'}`}>
+          <div className="input-mode-toggle">
+            <button
+              className={`mode-button ${inputMode === 'address' ? 'active' : ''}`}
+              onClick={() => setInputMode('address')}
+            >
+              Address
+            </button>
+            <button
+              className={`mode-button ${inputMode === 'coordinates' ? 'active' : ''}`}
+              onClick={() => setInputMode('coordinates')}
+            >
+              Coordinates
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="address-form">
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Enter USA address..."
-              className="address-input"
-            />
-            <button type="submit" disabled={!isConnected} className="submit-button">
-              Add Pin
-            </button>
-          </form>
+          {inputMode === 'address' ? (
+            <form onSubmit={handleSubmit} className="address-form">
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter USA address..."
+                className="address-input"
+              />
+              <button type="submit" disabled={!isConnected} className="submit-button">
+                Add Pin
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleCoordinatesSubmit} className="coordinates-form">
+              <input
+                type="text"
+                value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}
+                placeholder="Latitude (-90 to 90)..."
+                className="coordinate-input"
+              />
+              <input
+                type="text"
+                value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}
+                placeholder="Longitude (-180 to 180)..."
+                className="coordinate-input"
+              />
+              <input
+                type="text"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                placeholder="Label (optional)..."
+                className="label-input"
+              />
+              <button type="submit" disabled={!isConnected} className="submit-button">
+                Add Pin
+              </button>
+            </form>
+          )}
 
           <div className="status">
             {status && <p>{status}</p>}
@@ -116,7 +190,7 @@ function App() {
               : [...markers].reverse().slice(0, pinsToShow)
             ).map((marker, index) => (
               <li key={index}>
-                {marker.address}
+                {marker.type === 'address' ? marker.address : marker.displayName}
                 <br />
                 <small>{new Date(marker.timestamp).toLocaleTimeString()}</small>
               </li>
@@ -135,10 +209,11 @@ function App() {
         <div className="info">
           <h3>How to use:</h3>
           <ul>
-            <li>Enter a USA address in the form above</li>
+            <li>Toggle between Address or Coordinates mode</li>
+            <li>Address mode: Enter a USA address and geocode it</li>
+            <li>Coordinates mode: Enter lat/lon directly with optional label</li>
             <li>Click "Add Pin" to add it to the map</li>
             <li>Pins are shared in real-time with all connected clients</li>
-            <li>You can also send addresses via API (see README)</li>
           </ul>
         </div>
       </div>
