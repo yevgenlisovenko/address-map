@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import Map from './components/Map';
+import Info from './components/Info';
+import ConnectionStatus from './components/ConnectionStatus';
+import AddressCoordinatesInput from './components/AddressCoordinatesInput';
+import MarkersList from './components/MarkersList';
 import './App.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -107,115 +111,35 @@ function App() {
 
         <h1>Address Map</h1>
 
-        <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-          {isConnected ? '● Connected' : '○ Disconnected'}
-        </div>
+        <ConnectionStatus isConnected={isConnected} />
 
-        <div className={`address-section ${showAddressForm ? 'expanded' : 'collapsed'}`}>
-          <div className="input-mode-toggle">
-            <button
-              className={`mode-button ${inputMode === 'address' ? 'active' : ''}`}
-              onClick={() => setInputMode('address')}
-            >
-              Address
-            </button>
-            <button
-              className={`mode-button ${inputMode === 'coordinates' ? 'active' : ''}`}
-              onClick={() => setInputMode('coordinates')}
-            >
-              Coordinates
-            </button>
-          </div>
+        <AddressCoordinatesInput
+          showAddressForm={showAddressForm}
+          inputMode={inputMode}
+          address={address}
+          latitude={latitude}
+          longitude={longitude}
+          label={label}
+          status={status}
+          isConnected={isConnected}
+          onToggleForm={() => setShowAddressForm(!showAddressForm)}
+          onInputModeChange={setInputMode}
+          onAddressChange={setAddress}
+          onLatitudeChange={setLatitude}
+          onLongitudeChange={setLongitude}
+          onLabelChange={setLabel}
+          onAddressSubmit={handleSubmit}
+          onCoordinatesSubmit={handleCoordinatesSubmit}
+        />
 
-          {inputMode === 'address' ? (
-            <form onSubmit={handleSubmit} className="address-form">
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter USA address..."
-                className="address-input"
-              />
-              <button type="submit" disabled={!isConnected} className="submit-button">
-                Add Pin
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleCoordinatesSubmit} className="coordinates-form">
-              <input
-                type="text"
-                value={latitude}
-                onChange={(e) => setLatitude(e.target.value)}
-                placeholder="Latitude (-90 to 90)..."
-                className="coordinate-input"
-              />
-              <input
-                type="text"
-                value={longitude}
-                onChange={(e) => setLongitude(e.target.value)}
-                placeholder="Longitude (-180 to 180)..."
-                className="coordinate-input"
-              />
-              <input
-                type="text"
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                placeholder="Label (optional)..."
-                className="label-input"
-              />
-              <button type="submit" disabled={!isConnected} className="submit-button">
-                Add Pin
-              </button>
-            </form>
-          )}
+        <MarkersList
+          markers={markers}
+          showAllPins={showAllPins}
+          pinsToShow={pinsToShow}
+          onToggleShowAll={() => setShowAllPins(!showAllPins)}
+        />
 
-          <div className="status">
-            {status && <p>{status}</p>}
-          </div>
-        </div>
-
-        <div className="markers-list">
-          <div className="markers-header">
-            <h3>Pins ({markers.length})</h3>
-            <button
-              className="toggle-form-button"
-              onClick={() => setShowAddressForm(!showAddressForm)}
-            >
-              {showAddressForm ? '▼' : '▶'} Add Address
-            </button>
-          </div>
-          <ul>
-            {(showAllPins
-              ? [...markers].reverse()
-              : [...markers].reverse().slice(0, pinsToShow)
-            ).map((marker, index) => (
-              <li key={index}>
-                {marker.type === 'address' ? marker.address : marker.displayName}
-                <br />
-                <small>{new Date(marker.timestamp).toLocaleTimeString()}</small>
-              </li>
-            ))}
-          </ul>
-          {markers.length > pinsToShow && (
-            <button
-              className="show-more-button"
-              onClick={() => setShowAllPins(!showAllPins)}
-            >
-              {showAllPins ? 'Show Less' : `Show All (${markers.length})`}
-            </button>
-          )}
-        </div>
-
-        <div className="info">
-          <h3>How to use:</h3>
-          <ul>
-            <li>Toggle between Address or Coordinates mode</li>
-            <li>Address mode: Enter a USA address and geocode it</li>
-            <li>Coordinates mode: Enter lat/lon directly with optional label</li>
-            <li>Click "Add Pin" to add it to the map</li>
-            <li>Pins are shared in real-time with all connected clients</li>
-          </ul>
-        </div>
+        <Info />
       </div>
 
       <div className="map-container">

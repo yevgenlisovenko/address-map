@@ -169,9 +169,6 @@
 }
 
 .markers-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 10px;
 }
 
@@ -182,14 +179,16 @@
 }
 
 .toggle-form-button {
-  padding: 5px 10px;
+  width: 100%;
+  padding: 8px 12px;
   background: transparent;
   color: #646cff;
   border: 1px solid #646cff;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
+  margin-bottom: 15px;
 }
 
 .toggle-form-button:hover {
