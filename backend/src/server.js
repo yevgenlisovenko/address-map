@@ -26,10 +26,15 @@ app.get('/health', (req, res) => {
 
 // REST API endpoint to submit addresses
 app.post('/api/address', async (req, res) => {
-  const { address } = req.body;
+  const { address, properties } = req.body;
 
   if (!address) {
     return res.status(400).json({ error: 'Address is required' });
+  }
+
+  // Validate properties if provided
+  if (properties !== undefined && (typeof properties !== 'object' || Array.isArray(properties))) {
+    return res.status(400).json({ error: 'Properties must be an object' });
   }
 
   try {
@@ -40,6 +45,7 @@ app.post('/api/address', async (req, res) => {
       type: 'address',
       address,
       ...coordinates,
+      properties: properties || {},
       timestamp: new Date().toISOString()
     });
 
@@ -56,10 +62,15 @@ app.post('/api/address', async (req, res) => {
 
 // REST API endpoint to submit coordinates
 app.post('/api/coordinates', async (req, res) => {
-  const { lat, lon, label } = req.body;
+  const { lat, lon, label, properties } = req.body;
 
   if (lat === undefined || lon === undefined) {
     return res.status(400).json({ error: 'Latitude and longitude are required' });
+  }
+
+  // Validate properties if provided
+  if (properties !== undefined && (typeof properties !== 'object' || Array.isArray(properties))) {
+    return res.status(400).json({ error: 'Properties must be an object' });
   }
 
   // Validate coordinates
@@ -76,6 +87,7 @@ app.post('/api/coordinates', async (req, res) => {
       lat: validation.lat,
       lon: validation.lon,
       displayName: label || `Coordinates: ${validation.lat}, ${validation.lon}`,
+      properties: properties || {},
       timestamp: new Date().toISOString()
     });
 
@@ -99,10 +111,16 @@ io.on('connection', (socket) => {
 
   // Handle new address submissions via WebSocket
   socket.on('new-address', async (data) => {
-    const { address } = data;
+    const { address, properties } = data;
 
     if (!address) {
       socket.emit('error', { message: 'Address is required' });
+      return;
+    }
+
+    // Validate properties if provided
+    if (properties !== undefined && (typeof properties !== 'object' || Array.isArray(properties))) {
+      socket.emit('error', { message: 'Properties must be an object' });
       return;
     }
 
@@ -115,6 +133,7 @@ io.on('connection', (socket) => {
         type: 'address',
         address,
         ...coordinates,
+        properties: properties || {},
         timestamp: new Date().toISOString()
       });
 
@@ -130,10 +149,16 @@ io.on('connection', (socket) => {
 
   // Handle new coordinate submissions via WebSocket
   socket.on('new-coordinates', (data) => {
-    const { lat, lon, label } = data;
+    const { lat, lon, label, properties } = data;
 
     if (lat === undefined || lon === undefined) {
       socket.emit('error', { message: 'Latitude and longitude are required' });
+      return;
+    }
+
+    // Validate properties if provided
+    if (properties !== undefined && (typeof properties !== 'object' || Array.isArray(properties))) {
+      socket.emit('error', { message: 'Properties must be an object' });
       return;
     }
 
@@ -154,6 +179,7 @@ io.on('connection', (socket) => {
         lat: validation.lat,
         lon: validation.lon,
         displayName: label || `Coordinates: ${validation.lat}, ${validation.lon}`,
+        properties: properties || {},
         timestamp: new Date().toISOString()
       });
 

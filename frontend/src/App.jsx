@@ -5,6 +5,7 @@ import Info from './components/Info';
 import ConnectionStatus from './components/ConnectionStatus';
 import AddressCoordinatesInput from './components/AddressCoordinatesInput';
 import MarkersList from './components/MarkersList';
+import Stats from './components/Stats';
 import './App.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -23,6 +24,7 @@ function App() {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [label, setLabel] = useState('');
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
   useEffect(() => {
     // Initialize Socket.IO connection
@@ -107,43 +109,53 @@ function App() {
 
   return (
     <div className="app">
-      <div className="sidebar">
+      <button
+        className="sidebar-toggle-button"
+        onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+      >
+        {isSidebarVisible ? '▶' : '◀'}
+      </button>
 
-        <h1>Address Map</h1>
+      {isSidebarVisible && (
+        <div className="sidebar">
+          {/* <h1>Address Map</h1> */}
 
-        <ConnectionStatus isConnected={isConnected} />
+          <ConnectionStatus isConnected={isConnected} />
 
-        <AddressCoordinatesInput
-          showAddressForm={showAddressForm}
-          inputMode={inputMode}
-          address={address}
-          latitude={latitude}
-          longitude={longitude}
-          label={label}
-          status={status}
-          isConnected={isConnected}
-          onToggleForm={() => setShowAddressForm(!showAddressForm)}
-          onInputModeChange={setInputMode}
-          onAddressChange={setAddress}
-          onLatitudeChange={setLatitude}
-          onLongitudeChange={setLongitude}
-          onLabelChange={setLabel}
-          onAddressSubmit={handleSubmit}
-          onCoordinatesSubmit={handleCoordinatesSubmit}
-        />
+          {/* <AddressCoordinatesInput
+            showAddressForm={showAddressForm}
+            inputMode={inputMode}
+            address={address}
+            latitude={latitude}
+            longitude={longitude}
+            label={label}
+            status={status}
+            isConnected={isConnected}
+            onToggleForm={() => setShowAddressForm(!showAddressForm)}
+            onInputModeChange={setInputMode}
+            onAddressChange={setAddress}
+            onLatitudeChange={setLatitude}
+            onLongitudeChange={setLongitude}
+            onLabelChange={setLabel}
+            onAddressSubmit={handleSubmit}
+            onCoordinatesSubmit={handleCoordinatesSubmit}
+          /> */}
 
-        <MarkersList
-          markers={markers}
-          showAllPins={showAllPins}
-          pinsToShow={pinsToShow}
-          onToggleShowAll={() => setShowAllPins(!showAllPins)}
-        />
+          <MarkersList
+            markers={markers}
+            showAllPins={showAllPins}
+            pinsToShow={pinsToShow}
+            onToggleShowAll={() => setShowAllPins(!showAllPins)}
+          />
 
-        <Info />
-      </div>
+          <Stats markers={markers} />
+
+          {/* <Info /> */}
+        </div>
+      )}
 
       <div className="map-container">
-        <Map markers={markers} />
+        <Map markers={markers} sidebarVisible={isSidebarVisible} />
       </div>
     </div>
   );

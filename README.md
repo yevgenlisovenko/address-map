@@ -266,6 +266,34 @@ curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application
 curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 41.878876, "lon": -87.635915}'
 ```
 
+### Examples with Custom Properties
+
+```bash
+# Address with properties
+curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{
+  "address": "Empire State Building, New York, NY",
+  "properties": {
+    "category": "landmark",
+    "rating": 4.8,
+    "verified": true,
+    "year_built": 1931
+  }
+}'
+
+# Coordinates with properties
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{
+  "lat": 40.748817,
+  "lon": -73.985428,
+  "label": "Empire State Building",
+  "properties": {
+    "category": "landmark",
+    "height": "381m",
+    "floors": 102,
+    "notes": "Visited on vacation"
+  }
+}'
+```
+
 ## Project Structure
 
 ```
@@ -318,7 +346,21 @@ Submit a new address for geocoding and broadcasting
 **Request Body:**
 ```json
 {
-  "address": "string (required)"
+  "address": "string (required)",
+  "properties": "object (optional) - custom key-value metadata"
+}
+```
+
+**Example with properties:**
+```json
+{
+  "address": "Empire State Building, New York, NY",
+  "properties": {
+    "category": "landmark",
+    "rating": 4.8,
+    "verified": true,
+    "notes": "Famous skyscraper"
+  }
 }
 ```
 
@@ -349,7 +391,22 @@ Submit coordinates directly for pin placement
 {
   "lat": number (required, -90 to 90),
   "lon": number (required, -180 to 180),
-  "label": "string (optional)"
+  "label": "string (optional)",
+  "properties": "object (optional) - custom key-value metadata"
+}
+```
+
+**Example with properties:**
+```json
+{
+  "lat": 40.748817,
+  "lon": -73.985428,
+  "label": "Empire State Building",
+  "properties": {
+    "category": "landmark",
+    "height": "381m",
+    "floors": 102
+  }
 }
 ```
 
@@ -389,7 +446,8 @@ Health check endpoint
 **Event: `new-address`**
 ```javascript
 socket.emit('new-address', {
-  address: 'string (required)'
+  address: 'string (required)',
+  properties: { /* optional custom metadata */ }
 });
 ```
 
@@ -398,7 +456,8 @@ socket.emit('new-address', {
 socket.emit('new-coordinates', {
   lat: number (required, -90 to 90),
   lon: number (required, -180 to 180),
-  label: 'string (optional)'
+  label: 'string (optional)',
+  properties: { /* optional custom metadata */ }
 });
 ```
 
@@ -407,9 +466,10 @@ socket.emit('new-coordinates', {
 **Event: `add-pin`**
 ```javascript
 socket.on('add-pin', (data) => {
-  // data contains: { type, lat, lon, displayName, timestamp }
+  // data contains: { type, lat, lon, displayName, properties, timestamp }
   // type is either 'address' or 'coordinates'
   // if type is 'address', also includes: { address }
+  // properties is an object with custom metadata (may be empty)
 });
 ```
 

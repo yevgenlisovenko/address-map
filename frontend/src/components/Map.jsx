@@ -1,15 +1,11 @@
-import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../config/markerColorMapping";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
 
 // Component to handle map bounds when new markers are added
 function MapBoundsUpdater({ markers }) {
@@ -17,7 +13,7 @@ function MapBoundsUpdater({ markers }) {
 
   useEffect(() => {
     if (markers.length > 0) {
-      const bounds = L.latLngBounds(markers.map(m => [m.lat, m.lon]));
+      const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lon]));
       map.fitBounds(bounds, { padding: [50, 50] });
     }
   }, [markers, map]);
@@ -25,23 +21,64 @@ function MapBoundsUpdater({ markers }) {
   return null;
 }
 
-export default function Map({ markers }) {
+// Function to determine marker icon based on properties
+function getMarkerIcon(marker) {
+  // Check if marker has properties
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return defaultMarkerIcon;
+  }
+
+  // Loop through PROPERTY_MARKERS_MAP keys to find matching property
+  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_MARKERS_MAP)) {
+    // Check if marker has this property
+    if (marker.properties[propertyName] !== undefined) {
+      const propertyValue = marker.properties[propertyName];
+      const icon = valueToIconMap[propertyValue];
+
+      // Return icon if mapping found
+      if (icon) {
+        return icon;
+      }
+    }
+  }
+
+  // No mapping found, return default
+  return defaultMarkerIcon;
+}
+
+export default function Map({ markers, sidebarVisible }) {
   // Default center: Continental USA (excludes Alaska and Hawaii)
   const defaultCenter = [39.8283, -98.5795];
   const defaultZoom = 5;
 
   // USA boundary coordinates (includes Alaska & Hawaii region)
   const usaBounds = [
-    [24.396308, -125.0],   // Southwest corner
-    [49.384358, -66.93457] // Northeast corner
+    [24.396308, -125.0], // Southwest corner
+    [49.384358, -66.93457], // Northeast corner
   ];
 
+  // Component to handle map resize when sidebar visibility changes
+  function MapResizeHandler() {
+    const map = useMap();
+
+    useEffect(() => {
+      // Small delay to allow CSS transition to complete
+      const timer = setTimeout(() => {
+        map.invalidateSize();
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }, [sidebarVisible, map]);
+
+    return null;
+  }
+
   return (
-    <div style={{ height: '100vh', width: '100%' }}>
+    <div style={{ height: "100vh", width: "100%" }}>
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: "100%", width: "100%" }}
         maxBounds={usaBounds}
         maxBoundsViscosity={1.0}
         minZoom={4}
@@ -53,10 +90,14 @@ export default function Map({ markers }) {
         />
 
         {markers.map((marker, index) => (
-          <Marker key={index} position={[marker.lat, marker.lon]}>
+          <Marker
+            key={index}
+            position={[marker.lat, marker.lon]}
+            icon={getMarkerIcon(marker)}
+          >
             <Popup>
               <div>
-                {marker.type === 'address' ? (
+                {marker.type === "address" ? (
                   <>
                     <strong>{marker.address}</strong>
                     <br />
@@ -66,17 +107,38 @@ export default function Map({ markers }) {
                   <>
                     <strong>{marker.displayName}</strong>
                     <br />
-                    <small>Lat: {marker.lat}, Lon: {marker.lon}</small>
+                    <small>
+                      Lat: {marker.lat}, Lon: {marker.lon}
+                    </small>
                   </>
                 )}
                 <br />
-                <small>Added: {new Date(marker.timestamp).toLocaleString()}</small>
+                <small>
+                  Added: {new Date(marker.timestamp).toLocaleString()}
+                </small>
+                {marker.properties &&
+                  Object.keys(marker.properties).length > 0 && (
+                    <>
+                      <br />
+                      <br />
+                      <strong>Properties:</strong>
+                      <br />
+                      {Object.entries(marker.properties).map(([key, value]) => (
+                        <div key={key}>
+                          <small>
+                            <strong>{key}:</strong> {String(value)}
+                          </small>
+                        </div>
+                      ))}
+                    </>
+                  )}
               </div>
             </Popup>
           </Marker>
         ))}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
+        <MapResizeHandler />
       </MapContainer>
     </div>
   );
