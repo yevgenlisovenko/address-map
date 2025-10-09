@@ -5,6 +5,8 @@ import cors from 'cors';
 import { config } from './config.js';
 import { geocodeAddress } from './geocode.js';
 import { validateCoordinates } from './validation.js';
+import { initializeDatabase, closeDatabase } from './database.js';
+import { initializePollingService, stopPollingService, triggerPoll, getPollingStatus } from './pollingService.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -105,6 +107,28 @@ app.post('/api/coordinates', async (req, res) => {
   }
 });
 
+// TODO remove later
+// REST API endpoint to get polling status
+app.get('/api/polling/status', (req, res) => {
+  try {
+    const status = getPollingStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// TODO remove later
+// REST API endpoint to manually trigger a poll
+app.post('/api/polling/trigger', async (req, res) => {
+  try {
+    const result = await triggerPoll();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
@@ -197,8 +221,44 @@ io.on('connection', (socket) => {
   });
 });
 
+// Initialize database and polling service
+async function initializeServices() {
+  try {
+    // Initialize database connection if enabled
+    if (config.database.enabled) {
+      await initializeDatabase();
+    }
+
+    // Initialize polling service if enabled
+    if (config.polling.enabled) {
+      initializePollingService(io);
+    }
+  } catch (error) {
+    console.error('Error initializing services:', error.message);
+    console.error('Server will continue without database/polling features');
+  }
+}
+
+// Handle graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\nShutting down gracefully...');
+  stopPollingService();
+  await closeDatabase();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('\nShutting down gracefully...');
+  stopPollingService();
+  await closeDatabase();
+  process.exit(0);
+});
+
 // Start server
-httpServer.listen(config.port, () => {
+httpServer.listen(config.port, async () => {
   console.log(`Server running on http://localhost:${config.port}`);
   console.log(`WebSocket server ready for connections`);
+
+  // Initialize database and polling after server starts
+  await initializeServices();
 });

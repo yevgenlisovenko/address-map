@@ -7,7 +7,7 @@ import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../config/markerColorMa
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 
-// Component to handle map bounds when new markers are added
+/* // Component to handle map bounds when new markers are added
 function MapBoundsUpdater({ markers }) {
   const map = useMap();
 
@@ -19,7 +19,7 @@ function MapBoundsUpdater({ markers }) {
   }, [markers, map]);
 
   return null;
-}
+} */
 
 // Function to determine marker icon based on properties
 function getMarkerIcon(marker) {
