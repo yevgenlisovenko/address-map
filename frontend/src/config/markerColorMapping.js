@@ -16,9 +16,18 @@
   9. Black - marker-icon-2x-black.png
 */
 
+import blueMarkerIconImage from '../assets/markerIcons/marker-icon-2x-blue.png';
+import goldMarkerIconImage from '../assets/markerIcons/marker-icon-2x-gold.png';
+import redMarkerIconImage from '../assets/markerIcons/marker-icon-2x-red.png';
+import greenMarkerIconImage from '../assets/markerIcons/marker-icon-2x-green.png';
+import orangeMarkerIconImage from '../assets/markerIcons/marker-icon-2x-orange.png';
+import yellowMarkerIconImage from '../assets/markerIcons/marker-icon-2x-yellow.png';
+import violetMarkerIconImage from '../assets/markerIcons/marker-icon-2x-violet.png';
+import greyMarkerIconImage from '../assets/markerIcons/marker-icon-2x-grey.png';
+import blackMarkerIconImage from '../assets/markerIcons/marker-icon-2x-black.png';
+
 const blueMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+  iconUrl: blueMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -27,8 +36,7 @@ const blueMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 const goldMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+  iconUrl: goldMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -37,8 +45,7 @@ const goldMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 const redMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+  iconUrl: redMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -47,8 +54,7 @@ const redMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 const greenMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+  iconUrl: greenMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -57,8 +63,7 @@ const greenMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 const orangeMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+  iconUrl: orangeMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -67,8 +72,7 @@ const orangeMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 const yellowMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png",
+  iconUrl: yellowMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -77,8 +81,7 @@ const yellowMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 const violetMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png",
+  iconUrl: violetMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -87,8 +90,7 @@ const violetMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 const greyMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png",
+  iconUrl: greyMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -97,8 +99,7 @@ const greyMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 const blackMarkerIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png",
+  iconUrl: blackMarkerIconImage,
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
