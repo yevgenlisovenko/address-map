@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../config/markerColorMapping";
+import MapLegend from "./MapLegend";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -74,7 +75,7 @@ export default function Map({ markers, sidebarVisible }) {
   }
 
   return (
-    <div style={{ height: "100vh", width: "100%" }}>
+    <div style={{ height: "100vh", width: "100%", position: "relative" }}>
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
@@ -140,6 +141,9 @@ export default function Map({ markers, sidebarVisible }) {
         {/* <MapBoundsUpdater markers={markers} /> */}
         <MapResizeHandler />
       </MapContainer>
+
+      {/* Map Legend Overlay */}
+      <MapLegend />
     </div>
   );
 }

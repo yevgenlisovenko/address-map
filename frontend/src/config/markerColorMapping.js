@@ -95,8 +95,8 @@ const blackMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// Export blue as the default marker
-export const defaultMarkerIcon = blueMarkerIcon;
+// Export grey as the default marker
+export const defaultMarkerIcon = greyMarkerIcon;
 
 export const PROPERTY_MARKERS_MAP = {
   formCode: {
