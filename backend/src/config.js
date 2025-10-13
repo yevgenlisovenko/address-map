@@ -18,19 +18,21 @@ export const config = {
     password: process.env.DB_PASSWORD,
     options: {
       encrypt: process.env.DB_ENCRYPT === 'true' || true,
-      trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' || false,
+      trustServerCertificate: true,//process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' || false,
       enableArithAbort: true
     },
     pool: {
       max: 10,
       min: 0,
       idleTimeoutMillis: 30000
+
     }
   },
   polling: {
     enabled: process.env.POLLING_ENABLED === 'true' || false,
     interval: parseInt(process.env.POLLING_INTERVAL) || 15000, // 15 seconds
-    query: process.env.POLLING_QUERY || 'SELECT * FROM coordinates WHERE created_at > @lastPoll',
+    initQuery: process.env.INIT_QUERY || `SELECT max(id) max_id FROM coordinates`,
+    query: process.env.POLLING_QUERY || `SELECT id, * FROM coordinates WHERE id > @lastPoll ORDER BY id DESC`,
     columnMapping: {
       latitude: process.env.POLLING_COL_LAT || 'latitude',
       longitude: process.env.POLLING_COL_LON || 'longitude',

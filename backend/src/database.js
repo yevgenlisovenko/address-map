@@ -64,26 +64,9 @@ export function transformRowToPin(row) {
 
   const lat = parseFloat(row[mapping.latitude]);
   const lon = parseFloat(row[mapping.longitude]);
-  const label = row[mapping.label] || `${lat}, ${lon}`;
-
-  // Extract properties if properties column is specified
-  let properties = {};
-  if (mapping.properties && row[mapping.properties]) {
-    try {
-      // If it's already an object, use it directly
-      if (typeof row[mapping.properties] === 'object') {
-        properties = row[mapping.properties];
-      } else {
-        // Otherwise, try to parse it as JSON
-        properties = JSON.parse(row[mapping.properties]);
-      }
-    } catch (e) {
-      console.warn('Failed to parse properties as JSON:', e.message);
-      properties = {};
-    }
-  }
 
   // Include all other columns as properties
+  let properties = {};
   for (const [key, value] of Object.entries(row)) {
     if (
       key !== mapping.latitude &&
@@ -94,6 +77,8 @@ export function transformRowToPin(row) {
       properties[key] = value;
     }
   }
+  
+  const label = row[mapping.label] || `***, ${row['city']}, ${row['state']}`;
 
   return {
     type: 'coordinates',
