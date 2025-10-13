@@ -77,8 +77,27 @@ export function transformRowToPin(row) {
       properties[key] = value;
     }
   }
-  
-  const label = row[mapping.label] || `***, ${row['city']}, ${row['state']}`;
+
+  // Safe label construction with fallbacks
+  let label;
+  if (row[mapping.label]) {
+    label = row[mapping.label];
+  } else {
+    // Attempt to build label from city/state if available
+    const city = row['city'] || row['City'] || '';
+    const state = row['state'] || row['State'] || '';
+
+    if (city && state) {
+      label = `${city}, ${state}`;
+    } else if (city) {
+      label = city;
+    } else if (state) {
+      label = state;
+    } else {
+      // Fallback to coordinates
+      label = `${lat}, ${lon}`;
+    }
+  }
 
   return {
     type: 'coordinates',

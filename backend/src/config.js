@@ -18,7 +18,7 @@ export const config = {
     password: process.env.DB_PASSWORD,
     options: {
       encrypt: process.env.DB_ENCRYPT === 'true' || true,
-      trustServerCertificate: true,//process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' || false,
+      trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' || false,
       enableArithAbort: true
     },
     pool: {
