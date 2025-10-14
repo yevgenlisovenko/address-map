@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { PROPERTY_MARKERS_MAP, defaultMarkerIcon } from '../config/markerColorMapping';
 
-export default function MapLegend() {
+export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] } }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Get all marker icon URLs for display
@@ -30,7 +30,13 @@ export default function MapLegend() {
   // Check if there are any mappings to display
   const hasMappings = Object.keys(PROPERTY_MARKERS_MAP).length > 0;
 
-  if (!hasMappings) {
+  // Check if we have state highlight groups with labels
+  const hasStateHighlights = stateHighlightData?.groups?.length > 0;
+
+  // Show legend if we have either marker mappings or state highlights
+  const hasAnyLegendItems = hasMappings || hasStateHighlights;
+
+  if (!hasAnyLegendItems) {
     return null;
   }
 
@@ -47,45 +53,52 @@ export default function MapLegend() {
 
       {isExpanded && (
         <div className="legend-content">
-          {Object.entries(PROPERTY_MARKERS_MAP).map(([propertyName, valueMap]) => (
-            <div key={propertyName} className="legend-section">
-              {/* <div className="legend-section-title">{formatPropertyName(propertyName)}</div> */}
+          {/* Marker property legends */}
+          {hasMappings && (
+            <div className="legend-section">
+              <div className="legend-section-title">Markers</div>
               <div className="legend-items">
-                {Object.entries(valueMap).map(([value, icon]) => {
-                  const iconUrl = getIconUrl(icon);
-                  return (
-                    <div key={value} className="legend-item">
-                      {iconUrl && (
-                        <img
-                          src={iconUrl}
-                          alt={value}
-                          className="legend-marker-icon"
-                        />
-                      )}
-                      <span className="legend-marker-label">{value}</span>
-                    </div>
-                  );
-                })}
+                {Object.entries(PROPERTY_MARKERS_MAP).map(([propertyName, valueMap]) => (
+                  <div key={propertyName}>
+                    {Object.entries(valueMap).map(([value, icon]) => {
+                      const iconUrl = getIconUrl(icon);
+                      return (
+                        <div key={value} className="legend-item">
+                          {iconUrl && (
+                            <img
+                              src={iconUrl}
+                              alt={value}
+                              className="legend-marker-icon"
+                            />
+                          )}
+                          <span className="legend-marker-label">{value}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
+          )}
 
-          {/* Show default marker */}
-          {/* <div className="legend-section">
-            <div className="legend-section-title">Default</div>
-            <div className="legend-items">
-              <div className="legend-item">
-                {getIconUrl(defaultMarkerIcon) && (
-                  <img
-                    src={getIconUrl(defaultMarkerIcon)}
-                    alt="Default"
-                    className="legend-marker-icon"
-                  />
-                )}
-                <span className="legend-marker-label">No match</span>
+          {/* State highlights legend */}
+          {hasStateHighlights && (
+            <div className="legend-section">
+              <div className="legend-section-title">State Highlights</div>
+              <div className="legend-items">
+                {stateHighlightData.groups.map((group, index) => (
+                  <div key={index} className="legend-item">
+                    <div
+                      className="legend-color-box"
+                      style={{ backgroundColor: group.color }}
+                      title={`${group.states.length} states`}
+                    />
+                    <span className="legend-state-label">{group.label}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div> */}
+          )}
         </div>
       )}
     </div>

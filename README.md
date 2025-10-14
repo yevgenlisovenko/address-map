@@ -7,6 +7,7 @@ A real-time web application that displays USA locations as pins on an interactiv
 - **Dual Input Modes**: Toggle between Address mode (with geocoding) and Coordinates mode (direct lat/lon input)
 - **Real-time Updates**: All connected clients see new pins instantly via WebSocket
 - **Interactive Map**: Built with Leaflet, showing OpenStreetMap tiles
+- **State Highlighting**: Highlight groups of US states with custom colors via API
 - **Address Geocoding**: Automatic conversion of addresses to coordinates using Nominatim API
 - **Direct Coordinate Input**: Place pins by entering latitude and longitude with optional labels
 - **Multiple Input Methods**: Submit via web interface, WebSocket, or REST API
@@ -428,6 +429,162 @@ Submit coordinates directly for pin placement
 }
 ```
 
+#### POST /api/highlight
+Highlight groups of US states with colors
+
+**Request Body:**
+```json
+{
+  "colorConfig": [
+    {
+      "states": ["CA", "OR", "WA"],
+      "color": "#FF0000",
+      "label": "West Coast"
+    },
+    {
+      "states": ["TX", "LA", "OK"],
+      "color": "#0000FF",
+      "label": "South Central"
+    },
+    {
+      "states": ["NY", "NJ", "PA"],
+      "label": "Northeast"
+      // No color specified - uses default color (#FF0000)
+    }
+  ]
+}
+```
+
+**Behavior:**
+- Each group contains an array of state abbreviations (2-letter postal codes)
+- Optional `color` field for each group (hex format: #RGB, #RRGGBB, or #RRGGBBAA)
+- Optional `label` field for each group (shown in map legend)
+- If `color` is omitted, the default color is used (configured via `DEFAULT_STATE_COLOR` env variable, default: #FF0000)
+- If `label` is omitted, the group won't appear in the legend (but states will still be colored)
+- States not in any group will be unhighlighted
+- If a state appears in multiple groups, the last group's color wins
+- Only "winning" groups (with at least one visible state) appear in the legend
+- Empty `colorConfig` array clears all highlights
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "colors": {
+      "CA": "#FF0000",
+      "OR": "#FF0000",
+      "WA": "#FF0000",
+      "TX": "#0000FF",
+      "LA": "#0000FF",
+      "OK": "#0000FF",
+      "NY": "#FF0000",
+      "NJ": "#FF0000",
+      "PA": "#FF0000"
+    },
+    "groups": [
+      {
+        "color": "#FF0000",
+        "label": "West Coast",
+        "states": ["CA", "OR", "WA"]
+      },
+      {
+        "color": "#0000FF",
+        "label": "South Central",
+        "states": ["TX", "LA", "OK"]
+      },
+      {
+        "color": "#FF0000",
+        "label": "Northeast",
+        "states": ["NY", "NJ", "PA"]
+      }
+    ]
+  },
+  "groupCount": 3
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "error": "Validation failed",
+  "details": [
+    "Group 0: Invalid state abbreviation 'XY'",
+    "Group 1: Invalid color format 'not-a-color'"
+  ]
+}
+```
+
+**Example - Highlight West Coast states with label:**
+```bash
+curl -X POST http://localhost:3001/api/highlight \
+  -H "Content-Type: application/json" \
+  -d '{
+    "colorConfig": [
+      {
+        "states": ["CA", "OR", "WA"],
+        "color": "#FF0000",
+        "label": "West Coast"
+      }
+    ]
+  }'
+```
+
+**Example - Multiple groups with labels:**
+```bash
+curl -X POST http://localhost:3001/api/highlight \
+  -H "Content-Type: application/json" \
+  -d '{
+    "colorConfig": [
+      {
+        "states": ["CA", "OR", "WA"],
+        "color": "#FF0000",
+        "label": "West Coast"
+      },
+      {
+        "states": ["TX", "LA", "OK", "AR"],
+        "color": "#0000FF",
+        "label": "South Central"
+      },
+      {
+        "states": ["NY", "NJ", "PA", "CT"],
+        "label": "Northeast"
+      }
+    ]
+  }'
+```
+
+**Example - Clear all highlights:**
+```bash
+curl -X POST http://localhost:3001/api/highlight \
+  -H "Content-Type: application/json" \
+  -d '{ "colorConfig": [] }'
+```
+
+#### GET /api/highlight
+Get current state highlights
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "colors": {
+      "CA": "#FF0000",
+      "OR": "#FF0000",
+      "WA": "#FF0000"
+    },
+    "groups": [
+      {
+        "color": "#FF0000",
+        "label": "West Coast",
+        "states": ["CA", "OR", "WA"]
+      }
+    ]
+  }
+}
+```
+
 #### GET /health
 Health check endpoint
 
@@ -477,6 +634,22 @@ socket.on('add-pin', (data) => {
 ```javascript
 socket.on('error', (error) => {
   // error contains: { message, address? }
+});
+```
+
+**Event: `state-highlights-update`**
+```javascript
+socket.on('state-highlights-update', (data) => {
+  // data contains colors and groups with labels
+  // Example:
+  // {
+  //   "colors": { "CA": "#FF0000", "TX": "#0000FF" },
+  //   "groups": [
+  //     { "color": "#FF0000", "label": "West Coast", "states": ["CA", "OR", "WA"] },
+  //     { "color": "#0000FF", "label": "South", "states": ["TX", "LA"] }
+  //   ]
+  // }
+  console.log('State highlights updated:', data);
 });
 ```
 

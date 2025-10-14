@@ -39,5 +39,8 @@ export const config = {
       label: process.env.POLLING_COL_LABEL || 'label',
       properties: process.env.POLLING_COL_PROPERTIES || null // Optional: JSON column name
     }
+  },
+  stateHighlight: {
+    defaultColor: process.env.DEFAULT_STATE_COLOR || '#FF0000' // Red
   }
 };

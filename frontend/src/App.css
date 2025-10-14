@@ -469,6 +469,20 @@
   color: #555;
 }
 
+/* State highlight legend styles */
+.legend-color-box {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #333;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-state-label {
+  font-size: 12px;
+  color: #555;
+}
+
 @media (max-width: 768px) {
   .app {
     flex-direction: column;

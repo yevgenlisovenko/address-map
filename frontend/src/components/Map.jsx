@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../config/markerColorMapping";
 import MapLegend from "./MapLegend";
+import StatesLayer from "./StatesLayer";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -47,7 +48,7 @@ function getMarkerIcon(marker) {
   return defaultMarkerIcon;
 }
 
-export default function Map({ markers, sidebarVisible }) {
+export default function Map({ markers, sidebarVisible, stateHighlightData }) {
   // Default center: Continental USA (excludes Alaska and Hawaii)
   const defaultCenter = [39.8283, -98.5795];
   const defaultZoom = 5;
@@ -89,6 +90,9 @@ export default function Map({ markers, sidebarVisible }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        {/* State highlighting layer - renders BEFORE markers so markers appear on top */}
+        <StatesLayer stateColors={stateHighlightData?.colors || {}} />
 
         {[...markers]
           .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
@@ -145,7 +149,7 @@ export default function Map({ markers, sidebarVisible }) {
       </MapContainer>
 
       {/* Map Legend Overlay */}
-      <MapLegend />
+      <MapLegend stateHighlightData={stateHighlightData} />
     </div>
   );
 }

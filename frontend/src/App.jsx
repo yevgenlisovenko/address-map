@@ -25,6 +25,10 @@ function App() {
   const [longitude, setLongitude] = useState('');
   const [label, setLabel] = useState('');
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [stateHighlightData, setStateHighlightData] = useState({
+    colors: {},
+    groups: []
+  });
 
   // Set document title from environment variable
   useEffect(() => {
@@ -67,6 +71,14 @@ function App() {
       console.log('New pin received:', data);
       setMarkers((prev) => [...prev, data]);
       setStatus(`Pin added: ${data.displayName}`);
+    });
+
+    // Listen for state highlight updates
+    socketInstance.on('state-highlights-update', (data) => {
+      console.log('State highlights updated:', data);
+      setStateHighlightData(data);
+      const count = Object.keys(data.colors || {}).length;
+      setStatus(count > 0 ? `${count} states highlighted` : 'State highlights cleared');
     });
 
     // Listen for errors
@@ -175,7 +187,7 @@ function App() {
       )}
 
       <div className="map-container">
-        <Map markers={markers} sidebarVisible={isSidebarVisible} />
+        <Map markers={markers} sidebarVisible={isSidebarVisible} stateHighlightData={stateHighlightData} />
       </div>
     </div>
   );
