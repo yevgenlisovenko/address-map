@@ -90,12 +90,14 @@ export default function Map({ markers, sidebarVisible }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {markers.map((marker, index) => (
-          <Marker
-            key={index}
-            position={[marker.lat, marker.lon]}
-            icon={getMarkerIcon(marker)}
-          >
+        {[...markers]
+          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+          .map((marker, index) => (
+            <Marker
+              key={index}
+              position={[marker.lat, marker.lon]}
+              icon={getMarkerIcon(marker)}
+            >
             <Popup>
               <div>
                 {marker.type === "address" ? (
