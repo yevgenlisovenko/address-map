@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: address-map-backend
+    container_name: real-time-map-backend
     ports:
       - "3001:3001"
     environment:
@@ -14,7 +14,7 @@ services:
       - NODE_ENV=production
     restart: unless-stopped
     networks:
-      - address-map-network
+      - real-time-map-network
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_BACKEND_URL=${VITE_BACKEND_URL:-http://localhost:3001}
-    container_name: address-map-frontend
+    container_name: real-time-map-frontend
     ports:
       - "3000:80"
     depends_on:
@@ -36,7 +36,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - address-map-network
+      - real-time-map-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 30s
@@ -45,6 +45,6 @@ services:
       start_period: 20s
 
 networks:
-  address-map-network:
+  real-time-map-network:
     driver: bridge
-    name: address-map-network
+    name: real-time-map-network

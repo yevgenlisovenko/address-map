@@ -3,15 +3,15 @@
  * Maps property values to marker colors
  */
 
-import blueMarkerIconImage from '../assets/markerIcons/marker-icon-2x-blue.png';
-import goldMarkerIconImage from '../assets/markerIcons/marker-icon-2x-gold.png';
-import redMarkerIconImage from '../assets/markerIcons/marker-icon-2x-red.png';
-import greenMarkerIconImage from '../assets/markerIcons/marker-icon-2x-green.png';
-import orangeMarkerIconImage from '../assets/markerIcons/marker-icon-2x-orange.png';
-import yellowMarkerIconImage from '../assets/markerIcons/marker-icon-2x-yellow.png';
-import violetMarkerIconImage from '../assets/markerIcons/marker-icon-2x-violet.png';
-import greyMarkerIconImage from '../assets/markerIcons/marker-icon-2x-grey.png';
-import blackMarkerIconImage from '../assets/markerIcons/marker-icon-2x-black.png';
+import blueMarkerIconImage from "../assets/markerIcons/marker-icon-2x-blue.png";
+import goldMarkerIconImage from "../assets/markerIcons/marker-icon-2x-gold.png";
+import redMarkerIconImage from "../assets/markerIcons/marker-icon-2x-red.png";
+import greenMarkerIconImage from "../assets/markerIcons/marker-icon-2x-green.png";
+import orangeMarkerIconImage from "../assets/markerIcons/marker-icon-2x-orange.png";
+import yellowMarkerIconImage from "../assets/markerIcons/marker-icon-2x-yellow.png";
+import violetMarkerIconImage from "../assets/markerIcons/marker-icon-2x-violet.png";
+import greyMarkerIconImage from "../assets/markerIcons/marker-icon-2x-grey.png";
+import blackMarkerIconImage from "../assets/markerIcons/marker-icon-2x-black.png";
 
 const blueMarkerIcon = new L.Icon({
   iconUrl: blueMarkerIconImage,
@@ -100,9 +100,9 @@ export const defaultMarkerIcon = greyMarkerIcon;
 
 export const PROPERTY_MARKERS_MAP = {
   formCode: {
-    'HO3': blueMarkerIcon,
-    'HO4': redMarkerIcon,
-    'HO6': violetMarkerIcon,
-    'HF9': greenMarkerIcon,
+    HO3: blueMarkerIcon,
+    HO4: yellowMarkerIcon,
+    HO6: greenMarkerIcon,
+    HF9: redMarkerIcon,
   },
 };

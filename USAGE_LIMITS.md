@@ -1,6 +1,6 @@
 # API Usage Limits and Compliance
 
-This document outlines the usage limits, requirements, and compliance status for external services used in the USA Address Map project.
+This document outlines the usage limits, requirements, and compliance status for external services used in the USA Real-time Map project.
 
 ---
 
@@ -41,7 +41,7 @@ Both services have usage policies that must be followed to avoid being blocked.
 #### 1. User-Agent Header (✅ Implemented)
 ```javascript
 // backend/src/config.js
-userAgent: 'USA-Address-Map-App/1.0'
+userAgent: 'USA-Real-time-Map-App/1.0'
 ```
 
 #### 2. Rate Limiting (✅ Implemented)

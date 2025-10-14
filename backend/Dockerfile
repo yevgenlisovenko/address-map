@@ -9,8 +9,8 @@ RUN npm install --omit=dev && \
 
 # Stage 2: Production
 FROM node:20-alpine
-LABEL maintainer="Address Map"
-LABEL description="Backend server for real-time address mapping"
+LABEL maintainer="Real-time Map"
+LABEL description="Backend server for Real-time Map"
 
 # Create app directory
 WORKDIR /app

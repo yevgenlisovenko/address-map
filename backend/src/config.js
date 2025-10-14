@@ -7,7 +7,7 @@ export const config = {
     nominatimUrl: 'https://nominatim.openstreetmap.org/search',
     // Rate limiting: Max 1 request per second for Nominatim
     requestDelay: 1000,
-    userAgent: 'Address-Map-App/1.0'
+    userAgent: 'Real-time-Map-App/1.0'
   },
   database: {
     enabled: process.env.DB_ENABLED === 'true' || false,

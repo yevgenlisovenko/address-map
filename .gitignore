@@ -42,6 +42,9 @@ coverage/
 *~
 *.iml
 
+# Claude
+CLAUDE.md
+
 # Operating System - macOS
 .DS_Store
 .AppleDouble

@@ -1,6 +1,6 @@
-# Address Map - Real-time Address Mapping Application
+# Real-time Map - Real-time Mapping Application
 
-A real-time web application that displays USA addresses as pins on an interactive map. The application uses WebSocket technology to instantly broadcast new addresses to all connected clients.
+A real-time web application that displays USA locations as pins on an interactive map. The application uses WebSocket technology to instantly broadcast new locations to all connected clients.
 
 ## Features
 
@@ -54,7 +54,7 @@ open http://localhost:3000
 #### 1. Clone or Download the Project
 
 ```bash
-cd address-map
+cd real-time-map
 ```
 
 #### 2. Install Backend Dependencies
@@ -297,7 +297,7 @@ curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application
 ## Project Structure
 
 ```
-address-map/
+real-time-map/
 ├── backend/
 │   ├── src/
 │   │   ├── server.js       # Main Express + Socket.IO server

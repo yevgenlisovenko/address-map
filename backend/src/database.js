@@ -88,11 +88,11 @@ export function transformRowToPin(row) {
     const state = row['state'] || row['State'] || '';
 
     if (city && state) {
-      label = `${city}, ${state}`;
+      label = `${city.trim()}, ${state.trim()}`;
     } else if (city) {
-      label = city;
+      label = city.trim();
     } else if (state) {
-      label = state;
+      label = state.trim();
     } else {
       // Fallback to coordinates
       label = `${lat}, ${lon}`;

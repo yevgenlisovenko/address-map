@@ -23,8 +23,8 @@ RUN npm run build
 
 # Stage 2: Production with Nginx
 FROM nginx:alpine
-LABEL maintainer="Address Map"
-LABEL description="Frontend application for real-time address mapping"
+LABEL maintainer="Real-time Map"
+LABEL description="Frontend application for Real-time Map"
 
 # Copy built assets from build stage
 COPY --from=build /app/dist /usr/share/nginx/html

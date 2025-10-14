@@ -1,6 +1,6 @@
 # Docker Deployment Guide
 
-Complete guide for running the Address Map application using Docker containers.
+Complete guide for running the Real-time Map application using Docker containers.
 
 ---
 
@@ -42,7 +42,7 @@ docker compose version
 ### 1. Clone and Navigate
 
 ```bash
-cd address-map
+cd real-time-map
 ```
 
 ### 2. Build and Run
@@ -73,7 +73,7 @@ docker compose down
 ```
 ┌─────────────────────────────────────┐
 │         Docker Network              │
-│  (address-map-network - bridge)         │
+│  (real-time-map-network - bridge)         │
 │                                     │
 │  ┌──────────────────────────────┐  │
 │  │  Frontend Container          │  │
@@ -335,8 +335,8 @@ docker compose exec backend sh
 docker compose exec frontend sh
 
 # View container details
-docker inspect address-map-backend
-docker inspect address-map-frontend
+docker inspect real-time-map-backend
+docker inspect real-time-map-frontend
 
 # Check health status
 docker compose ps
@@ -385,7 +385,7 @@ docker system prune -a --volumes
 
 3. **Check network:**
    ```bash
-   docker network inspect address-map-network
+   docker network inspect real-time-map-network
    ```
 
 ### Port Already in Use
@@ -438,7 +438,7 @@ docker system prune -a
 docker compose logs --tail=100 backend
 
 # Check health status
-docker inspect address-map-backend | grep -A 10 Health
+docker inspect real-time-map-backend | grep -A 10 Health
 
 # Disable health check temporarily
 # Comment out healthcheck in docker-compose.yml
@@ -504,7 +504,7 @@ Containers communicate via bridge network:
 
 ```bash
 # Inspect network
-docker network inspect address-map-network
+docker network inspect real-time-map-network
 
 # From backend, ping frontend
 docker compose exec backend ping frontend
@@ -528,23 +528,23 @@ volumes:
 #### 1. Tag Images
 
 ```bash
-docker tag address-map-backend:latest yourusername/address-map-backend:latest
-docker tag address-map-frontend:latest yourusername/address-map-frontend:latest
+docker tag real-time-map-backend:latest yourusername/real-time-map-backend:latest
+docker tag real-time-map-frontend:latest yourusername/real-time-map-frontend:latest
 ```
 
 #### 2. Push to Docker Hub
 
 ```bash
 docker login
-docker push yourusername/address-map-backend:latest
-docker push yourusername/address-map-frontend:latest
+docker push yourusername/real-time-map-backend:latest
+docker push yourusername/real-time-map-frontend:latest
 ```
 
 #### 3. Pull and Run
 
 ```bash
-docker pull yourusername/address-map-backend:latest
-docker pull yourusername/address-map-frontend:latest
+docker pull yourusername/real-time-map-backend:latest
+docker pull yourusername/real-time-map-frontend:latest
 docker compose up -d
 ```
 
@@ -629,8 +629,8 @@ deploy:
 
 1. **Scan images for vulnerabilities:**
    ```bash
-   docker scan address-map-backend:latest
-   docker scan address-map-frontend:latest
+   docker scan real-time-map-backend:latest
+   docker scan real-time-map-frontend:latest
    ```
 
 2. **Use Docker secrets for sensitive data:**
@@ -662,7 +662,7 @@ deploy:
 docker stats
 
 # Specific container
-docker stats address-map-backend
+docker stats real-time-map-backend
 
 # Export to JSON
 docker stats --format "{{json .}}" --no-stream

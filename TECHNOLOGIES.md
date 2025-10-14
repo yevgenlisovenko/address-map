@@ -1,6 +1,6 @@
-# Technologies Used in Address Map
+# Technologies Used in Real-time Map
 
-This document provides detailed information about all technologies, libraries, and tools used in the Address Map project.
+This document provides detailed information about all technologies, libraries, and tools used in the Real-time Map project.
 
 ## Project Architecture
 

@@ -1,7 +1,7 @@
 {
-  "name": "address-map-backend",
+  "name": "real-time-map-backend",
   "version": "1.0.0",
-  "description": "Backend server for real-time address mapping",
+  "description": "Backend server for Real-time Map application",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

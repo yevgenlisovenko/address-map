@@ -49,7 +49,7 @@ export default function MapLegend() {
         <div className="legend-content">
           {Object.entries(PROPERTY_MARKERS_MAP).map(([propertyName, valueMap]) => (
             <div key={propertyName} className="legend-section">
-              <div className="legend-section-title">{formatPropertyName(propertyName)}</div>
+              {/* <div className="legend-section-title">{formatPropertyName(propertyName)}</div> */}
               <div className="legend-items">
                 {Object.entries(valueMap).map(([value, icon]) => {
                   const iconUrl = getIconUrl(icon);
@@ -71,7 +71,7 @@ export default function MapLegend() {
           ))}
 
           {/* Show default marker */}
-          <div className="legend-section">
+          {/* <div className="legend-section">
             <div className="legend-section-title">Default</div>
             <div className="legend-items">
               <div className="legend-item">
@@ -85,7 +85,7 @@ export default function MapLegend() {
                 <span className="legend-marker-label">No match</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       )}
     </div>

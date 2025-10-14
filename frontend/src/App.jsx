@@ -138,7 +138,7 @@ function App() {
 
       {isSidebarVisible && (
         <div className="sidebar">
-          {/* <h1>Address Map</h1> */}
+          {/* <h1>Real-time Map</h1> */}
 
           <ConnectionStatus isConnected={isConnected} />
 
