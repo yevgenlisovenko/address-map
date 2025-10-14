@@ -38,32 +38,36 @@ export default function Stats({ markers }) {
   }
 
   return (
-    <div className="stats">
+    <div className="sidebar-group">
+
       <h3>Statistics</h3>
 
-      {enabledProperties.map(property => {
-        const stats = aggregateStats(markers, property.propertyName);
+      <div className="stats">
 
-        // Don't show section if no data
-        if (stats.length === 0) {
-          return null;
-        }
+        {enabledProperties.map(property => {
+          const stats = aggregateStats(markers, property.propertyName);
 
-        return (
-          <div key={property.propertyName} className="stat-section">
-            <h4>{property.displayName}</h4>
-            <ul className="leaderboard">
-              {stats.map(([value, count], index) => (
-                <li key={value} className="leaderboard-item">
-                  <span className="rank">#{index + 1}</span>
-                  <span className="value">{String(value)}</span>
-                  <span className="count">{count}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
+          // Don't show section if no data
+          if (stats.length === 0) {
+            return null;
+          }
+
+          return (
+            <div key={property.propertyName} className="stat-section">
+              <h4>{property.displayName}</h4>
+              <ul className="leaderboard">
+                {stats.map(([value, count], index) => (
+                  <li key={value} className="leaderboard-item">
+                    <span className="rank">#{index + 1}</span>
+                    <span className="value">{String(value)}</span>
+                    <span className="count">{count}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

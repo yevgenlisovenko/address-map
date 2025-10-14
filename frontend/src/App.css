@@ -17,7 +17,7 @@
 }
 
 .sidebar {
-  width: 350px;
+  width: 300px;
   padding: 20px;
   background: #f5f5f5;
   overflow-y: auto;
@@ -36,7 +36,7 @@
   border: 2px solid #646cff;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 11px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   font-weight: bold;
 }
@@ -97,6 +97,7 @@
   padding: 8px 12px;
   border-radius: 4px;
   margin-bottom: 20px;
+  margin-right: 50px;
   font-weight: bold;
   text-align: center;
 }
@@ -183,6 +184,18 @@
 .status p {
   margin: 0;
   color: #0066cc;
+}
+
+.sidebar-group {
+  margin-bottom: 20px;
+}
+
+.sidebar-group h3 {
+  font-size: 16px;
+
+  margin: 0;
+
+  color: #333;
 }
 
 .markers-list {
@@ -282,7 +295,7 @@
 }
 
 .stats {
-  margin-top: 20px;
+  margin-top: 10px;
   padding: 15px;
   background: white;
   border-radius: 4px;
@@ -291,7 +304,7 @@
 
 .stats h3 {
   font-size: 16px;
-  margin-bottom: 15px;
+  margin: 0;
   color: #333;
 }
 
@@ -305,9 +318,8 @@
 
 .stat-section h4 {
   font-size: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   color: #646cff;
-  border-bottom: 1px solid #eee;
   padding-bottom: 5px;
 }
 
@@ -369,10 +381,10 @@
   right: 3px;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.95);
-  border: 2px solid #f5f5f5;;
+  border: 2px solid #f5f5f5;
   border-radius: 6px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  min-width: 150px;
+  min-width: 100px;
   max-width: 280px;
 }
 
@@ -381,7 +393,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  background: #f5f5f5;;
+  background: #f5f5f5;
   cursor: pointer;
   border-radius: 4px 4px 0 0;
   user-select: none;

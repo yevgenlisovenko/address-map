@@ -13,7 +13,7 @@ export const STATS_CONFIG = {
     },
     {
       propertyName: 'formCode',
-      displayName: 'Form Code',
+      displayName: 'Form',
       enabled: true
     }
   ],
