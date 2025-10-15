@@ -5,6 +5,7 @@
 
 import { validateCoordinates } from '../../validation.js';
 import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
+import logger from '../../utils/logger.js';
 
 export const setupCoordinatesHandler = (io, socket) => {
   socket.on(SOCKET_EVENTS.NEW_COORDINATES, (data) => {
@@ -30,7 +31,12 @@ export const setupCoordinatesHandler = (io, socket) => {
     }
 
     try {
-      console.log('Adding coordinate pin:', validation.lat, validation.lon);
+      logger.info('Adding coordinate pin via WebSocket', {
+        lat: validation.lat,
+        lon: validation.lon,
+        label: label || 'none',
+        socketId: socket.id
+      });
 
       // Broadcast to all clients including sender
       io.emit(SOCKET_EVENTS.ADD_PIN, {
@@ -42,9 +48,16 @@ export const setupCoordinatesHandler = (io, socket) => {
         timestamp: new Date().toISOString()
       });
 
-      console.log('Coordinate pin added');
+      logger.info('Coordinate pin added via WebSocket', {
+        lat: validation.lat,
+        lon: validation.lon,
+        socketId: socket.id
+      });
     } catch (error) {
-      console.error('Error processing coordinates:', error.message);
+      logger.error('Error processing coordinates via WebSocket', {
+        message: error.message,
+        socketId: socket.id
+      });
       socket.emit(SOCKET_EVENTS.ERROR, {
         message: error.message
       });

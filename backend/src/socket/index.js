@@ -9,6 +9,7 @@ import { SOCKET_EVENTS } from '../utils/constants.js';
 import { setupConnectionHandler } from './handlers/connection.handler.js';
 import { setupAddressHandler } from './handlers/address.handler.js';
 import { setupCoordinatesHandler } from './handlers/coordinates.handler.js';
+import logger from '../utils/logger.js';
 
 /**
  * Initialize Socket.IO server
@@ -31,7 +32,9 @@ export const initializeSocket = (httpServer) => {
     setupCoordinatesHandler(io, socket);
   });
 
-  console.log('Socket.IO server initialized');
+  logger.info('Socket.IO server initialized', {
+    corsOrigin: config.corsOrigin
+  });
 
   return io;
 };

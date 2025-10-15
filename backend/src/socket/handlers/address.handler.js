@@ -5,6 +5,7 @@
 
 import { geocodeAddress } from '../../geocode.js';
 import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
+import logger from '../../utils/logger.js';
 
 export const setupAddressHandler = (io, socket) => {
   socket.on(SOCKET_EVENTS.NEW_ADDRESS, async (data) => {
@@ -22,7 +23,7 @@ export const setupAddressHandler = (io, socket) => {
     }
 
     try {
-      console.log('Geocoding address:', address);
+      logger.info('Geocoding address via WebSocket', { address, socketId: socket.id });
       const coordinates = await geocodeAddress(address);
 
       // Broadcast to all clients including sender
@@ -34,9 +35,19 @@ export const setupAddressHandler = (io, socket) => {
         timestamp: new Date().toISOString()
       });
 
-      console.log('Pin added:', coordinates.displayName);
+      logger.info('Pin added via WebSocket', {
+        address,
+        displayName: coordinates.displayName,
+        lat: coordinates.lat,
+        lon: coordinates.lon,
+        socketId: socket.id
+      });
     } catch (error) {
-      console.error('Error processing address:', error.message);
+      logger.error('Error processing address via WebSocket', {
+        message: error.message,
+        address,
+        socketId: socket.id
+      });
       socket.emit(SOCKET_EVENTS.ERROR, {
         message: error.message,
         address

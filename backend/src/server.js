@@ -12,6 +12,8 @@ import { initializeDatabase, closeDatabase } from './database.js';
 import { initializePollingService, stopPollingService } from './pollingService.js';
 import { setDefaultColor } from './stateColorManager.js';
 import routes from './routes/index.js';
+import logger from './utils/logger.js';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 // Initialize Express app
 const app = express();
@@ -30,6 +32,12 @@ app.use(express.json());
 // Mount all routes
 app.use('/api', routes);
 
+// 404 handler for undefined routes (must be after all routes)
+app.use(notFoundHandler);
+
+// Centralized error handling middleware (must be last)
+app.use(errorHandler);
+
 /**
  * Initialize database and polling services
  */
@@ -38,7 +46,7 @@ async function initializeServices() {
     // Initialize default state highlight color
     if (config.stateHighlight && config.stateHighlight.defaultColor) {
       setDefaultColor(config.stateHighlight.defaultColor);
-      console.log(`Default state highlight color: ${config.stateHighlight.defaultColor}`);
+      logger.info(`Default state highlight color: ${config.stateHighlight.defaultColor}`);
     }
 
     // Initialize database connection if enabled
@@ -51,8 +59,8 @@ async function initializeServices() {
       initializePollingService(io);
     }
   } catch (error) {
-    console.error('Error initializing services:', error.message);
-    console.error('Server will continue without database/polling features');
+    logger.error('Error initializing services:', { message: error.message, stack: error.stack });
+    logger.warn('Server will continue without database/polling features');
   }
 }
 
@@ -60,7 +68,7 @@ async function initializeServices() {
  * Graceful shutdown handler
  */
 async function gracefulShutdown() {
-  console.log('\nShutting down gracefully...');
+  logger.info('Shutting down gracefully...');
   stopPollingService();
   await closeDatabase();
   process.exit(0);
@@ -72,8 +80,9 @@ process.on('SIGTERM', gracefulShutdown);
 
 // Start server
 httpServer.listen(config.port, async () => {
-  console.log(`Server running on http://localhost:${config.port}`);
-  console.log(`WebSocket server ready for connections`);
+  logger.info(`Server running on http://localhost:${config.port}`);
+  logger.info('WebSocket server ready for connections');
+  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
 
   // Initialize database and polling after server starts
   await initializeServices();
