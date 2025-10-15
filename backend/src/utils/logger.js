@@ -6,6 +6,7 @@
 import winston from 'winston';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { config } from '../config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,20 +79,39 @@ const transports = [
   }),
 ];
 
-// Determine log level based on environment
-const level = () => {
-  const env = process.env.NODE_ENV || 'development';
-  const isDevelopment = env === 'development';
-  return isDevelopment ? 'debug' : 'info';
+// Valid log levels (Winston order from highest to lowest priority)
+const VALID_LOG_LEVELS = ['error', 'warn', 'info', 'http', 'debug'];
+
+/**
+ * Validate and get log level from configuration
+ * Falls back to 'info' if invalid level is provided
+ * @returns {string} Valid log level
+ */
+const getLogLevel = () => {
+  const configLevel = config.logging.level;
+
+  if (!VALID_LOG_LEVELS.includes(configLevel)) {
+    console.warn(`[Logger] Invalid LOG_LEVEL "${configLevel}". Valid levels: ${VALID_LOG_LEVELS.join(', ')}. Falling back to "info".`);
+    return 'info';
+  }
+
+  return configLevel;
 };
 
 // Create the logger instance
 const logger = winston.createLogger({
-  level: level(),
+  level: getLogLevel(),
   levels,
   transports,
   // Don't exit on handled exceptions
   exitOnError: false,
+});
+
+// Log the logger initialization (will only show if level allows info or higher)
+logger.info('Logger initialized', {
+  level: logger.level,
+  environment: process.env.NODE_ENV || 'development',
+  configuredLevel: config.logging.level
 });
 
 // Handle uncaught exceptions and unhandled rejections

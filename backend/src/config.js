@@ -42,5 +42,11 @@ export const config = {
   },
   stateHighlight: {
     defaultColor: process.env.DEFAULT_STATE_COLOR || '#FF0000' // Red
+  },
+  logging: {
+    // Log level priority: error (0) > warn (1) > info (2) > http (3) > debug (4)
+    // Default: 'debug' in development, 'info' in production
+    // Can be overridden with LOG_LEVEL environment variable
+    level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug')
   }
 };
