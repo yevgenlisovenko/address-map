@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GeoJSON } from 'react-leaflet';
+import usStatesGeoJson from '../assets/geoJSON/us-states.json';
 
 // Mapping from GeoJSON property names to state abbreviations
 const STATE_NAME_TO_ABBR = {
@@ -62,21 +63,7 @@ const STATE_NAME_TO_ABBR = {
  * @param {Object} stateColors - Object mapping state abbreviations to colors
  */
 export default function StatesLayer({ stateColors }) {
-  const [geoJsonData, setGeoJsonData] = useState(null);
   const [key, setKey] = useState(0);
-
-  useEffect(() => {
-    // Fetch US states GeoJSON from public CDN
-    fetch('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json')
-      .then(response => response.json())
-      .then(data => {
-        console.log('US States GeoJSON loaded');
-        setGeoJsonData(data);
-      })
-      .catch(error => {
-        console.error('Error loading states GeoJSON:', error);
-      });
-  }, []);
 
   // Force re-render when colors change
   // This ensures the layer updates when state colors are modified
@@ -123,14 +110,10 @@ export default function StatesLayer({ stateColors }) {
     }
   };
 
-  if (!geoJsonData) {
-    return null;
-  }
-
   return (
     <GeoJSON
       key={key}
-      data={geoJsonData}
+      data={usStatesGeoJson}
       style={styleFeature}
       onEachFeature={onEachFeature}
     />
