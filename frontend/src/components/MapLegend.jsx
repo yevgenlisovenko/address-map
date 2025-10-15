@@ -56,7 +56,7 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
           {/* Marker property legends */}
           {hasMappings && (
             <div className="legend-section">
-              <div className="legend-section-title">Markers</div>
+              {/* <div className="legend-section-title">Markers</div> */}
               <div className="legend-items">
                 {Object.entries(PROPERTY_MARKERS_MAP).map(([propertyName, valueMap]) => (
                   <div key={propertyName}>
