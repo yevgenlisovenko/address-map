@@ -98,9 +98,10 @@ export default function Map({ markers, sidebarVisible, stateHighlightData }) {
           .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
           .map((marker, index) => (
             <Marker
-              key={index}
+              key={marker.timestamp}
               position={[marker.lat, marker.lon]}
               icon={getMarkerIcon(marker)}
+              zIndexOffset={new Date(marker.timestamp).getTime()}
             >
             <Popup>
               <div>
