@@ -95,7 +95,7 @@ export default function Map({ markers, sidebarVisible, stateHighlightData }) {
         <StatesLayer stateColors={stateHighlightData?.colors || {}} />
 
         {[...markers]
-          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
           .map((marker, index) => (
             <Marker
               key={index}
