@@ -9,6 +9,7 @@ import { SOCKET_EVENTS } from '../utils/constants.js';
 import { setupConnectionHandler } from './handlers/connection.handler.js';
 import { setupAddressHandler } from './handlers/address.handler.js';
 import { setupCoordinatesHandler } from './handlers/coordinates.handler.js';
+import { setupInitialStateHandler } from './handlers/initialState.handler.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -30,6 +31,7 @@ export const initializeSocket = (httpServer) => {
     setupConnectionHandler(io, socket);
     setupAddressHandler(io, socket);
     setupCoordinatesHandler(io, socket);
+    setupInitialStateHandler(io, socket);
   });
 
   logger.info('Socket.IO server initialized', {

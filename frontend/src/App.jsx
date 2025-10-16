@@ -58,6 +58,9 @@ function App() {
       console.log('Connected to server');
       setIsConnected(true);
       setStatus('Connected to server');
+
+      // Request initial state highlights from server
+      socketInstance.emit('request-initial-state');
     });
 
     socketInstance.on('disconnect', () => {

@@ -10,6 +10,7 @@ export const SOCKET_EVENTS = {
   NEW_COORDINATES: 'new-coordinates',
   ADD_PIN: 'add-pin',
   STATE_HIGHLIGHTS_UPDATE: 'state-highlights-update',
+  REQUEST_INITIAL_STATE: 'request-initial-state',
   ERROR: 'error'
 };
 
