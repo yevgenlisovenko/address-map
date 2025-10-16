@@ -3,10 +3,10 @@
  * Provides structured logging with multiple transports and log levels
  */
 
-import winston from 'winston';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { config } from '../config.js';
+import winston from "winston";
+import path from "path";
+import { fileURLToPath } from "url";
+import { config } from "../config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,11 +22,11 @@ const levels = {
 
 // Define colors for each level
 const colors = {
-  error: 'red',
-  warn: 'yellow',
-  info: 'green',
-  http: 'magenta',
-  debug: 'blue',
+  error: "red",
+  warn: "yellow",
+  info: "green",
+  http: "magenta",
+  debug: "blue",
 };
 
 // Tell winston about the custom colors
@@ -34,7 +34,7 @@ winston.addColors(colors);
 
 // Define log format
 const logFormat = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.errors({ stack: true }),
   winston.format.splat(),
   winston.format.printf((info) => {
@@ -48,7 +48,7 @@ const logFormat = winston.format.combine(
 
     // Add metadata if present
     if (Object.keys(meta).length > 0) {
-      log += `\n${JSON.stringify(meta, null, 2)}`;
+      log += ` ${JSON.stringify(meta)}`;
     }
 
     return log;
@@ -67,20 +67,26 @@ const transports = [
 
   // File transport for errors
   new winston.transports.File({
-    filename: path.join(__dirname, '../../logs/error.log'),
-    level: 'error',
+    filename: path.join(__dirname, "../../logs/error.log"),
+    level: "error",
     format: logFormat,
+    maxsize: 10 * 10 * 1024, // 10MB
+    maxFiles: 10,
+    rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
   }),
 
   // File transport for all logs
   new winston.transports.File({
-    filename: path.join(__dirname, '../../logs/combined.log'),
+    filename: path.join(__dirname, "../../logs/combined.log"),
     format: logFormat,
+    maxsize: 10 * 10 * 1024, // 10MB
+    maxFiles: 10,
+    rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
   }),
 ];
 
 // Valid log levels (Winston order from highest to lowest priority)
-const VALID_LOG_LEVELS = ['error', 'warn', 'info', 'http', 'debug'];
+const VALID_LOG_LEVELS = ["error", "warn", "info", "http", "debug"];
 
 /**
  * Validate and get log level from configuration
@@ -91,8 +97,12 @@ const getLogLevel = () => {
   const configLevel = config.logging.level;
 
   if (!VALID_LOG_LEVELS.includes(configLevel)) {
-    console.warn(`[Logger] Invalid LOG_LEVEL "${configLevel}". Valid levels: ${VALID_LOG_LEVELS.join(', ')}. Falling back to "info".`);
-    return 'info';
+    console.warn(
+      `[Logger] Invalid LOG_LEVEL "${configLevel}". Valid levels: ${VALID_LOG_LEVELS.join(
+        ", "
+      )}. Falling back to "info".`
+    );
+    return "info";
   }
 
   return configLevel;
@@ -108,30 +118,30 @@ const logger = winston.createLogger({
 });
 
 // Log the logger initialization (will only show if level allows info or higher)
-logger.info('Logger initialized', {
+logger.info("Logger initialized", {
   level: logger.level,
-  environment: process.env.NODE_ENV || 'development',
-  configuredLevel: config.logging.level
+  environment: process.env.NODE_ENV || "development",
+  configuredLevel: config.logging.level,
 });
 
 // Handle uncaught exceptions and unhandled rejections
 logger.exceptions.handle(
   new winston.transports.File({
-    filename: path.join(__dirname, '../../logs/exceptions.log'),
+    filename: path.join(__dirname, "../../logs/exceptions.log"),
     format: logFormat,
   })
 );
 
 logger.rejections.handle(
   new winston.transports.File({
-    filename: path.join(__dirname, '../../logs/rejections.log'),
+    filename: path.join(__dirname, "../../logs/rejections.log"),
     format: logFormat,
   })
 );
 
 // Create logs directory if it doesn't exist
-import fs from 'fs';
-const logsDir = path.join(__dirname, '../../logs');
+import fs from "fs";
+const logsDir = path.join(__dirname, "../../logs");
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
 }
