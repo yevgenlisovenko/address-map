@@ -10,7 +10,7 @@ import { config } from './config.js';
 import { initializeSocket } from './socket/index.js';
 import { initializeDatabase, closeDatabase } from './database.js';
 import { initializePollingService, stopPollingService } from './pollingService.js';
-import { setDefaultColor } from './stateColorManager.js';
+import { setDefaultColor, loadStateFromFile } from './stateColorManager.js';
 import routes from './routes/index.js';
 import logger from './utils/logger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
@@ -48,6 +48,9 @@ async function initializeServices() {
       setDefaultColor(config.stateHighlight.defaultColor);
       logger.info(`Default state highlight color: ${config.stateHighlight.defaultColor}`);
     }
+
+    // Load state highlights from file (persisted from previous session)
+    loadStateFromFile();
 
     // Initialize database connection if enabled
     if (config.database.enabled) {
