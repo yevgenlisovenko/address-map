@@ -34,7 +34,7 @@ winston.addColors(colors);
 
 // Define log format
 const logFormat = winston.format.combine(
-  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
   winston.format.errors({ stack: true }),
   winston.format.splat(),
   winston.format.printf((info) => {
@@ -70,7 +70,7 @@ const transports = [
     filename: path.join(__dirname, "../../logs/error.log"),
     level: "error",
     format: logFormat,
-    maxsize: 10 * 10 * 1024, // 10MB
+    maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
     rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
   }),
@@ -79,7 +79,7 @@ const transports = [
   new winston.transports.File({
     filename: path.join(__dirname, "../../logs/combined.log"),
     format: logFormat,
-    maxsize: 10 * 10 * 1024, // 10MB
+    maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
     rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
   }),

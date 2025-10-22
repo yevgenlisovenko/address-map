@@ -92,10 +92,7 @@ async function pollDatabase() {
   }
 
   try {
-    logger.debug('Polling database', {
-      timestamp: new Date().toISOString(),
-      lastPollId
-    });
+    logger.debug('Polling database', { lastPollId });
 
     // Execute the configured query with lastPollPrimeKey as a parameter
     const query = config.polling.query;

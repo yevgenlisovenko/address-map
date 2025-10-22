@@ -1,4 +1,5 @@
 export default function MarkersList({ markers, showAllPins, pinsToShow, onToggleShowAll }) {
+  markers.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
   return (
     <div className="markers-list">
       <div className="markers-header">
