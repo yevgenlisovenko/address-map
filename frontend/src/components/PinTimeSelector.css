@@ -1,0 +1,132 @@
+.pin-time-selector {
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.pin-time-selector-header {
+  margin-bottom: 10px;
+}
+
+.pin-time-selector-header label {
+  display: block;
+  font-size: 13px;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.mode-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.mode-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  color: #555;
+}
+
+.mode-option input[type="radio"] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.mode-option span {
+  user-select: none;
+}
+
+.preset-mode,
+.custom-mode {
+  margin-top: 10px;
+}
+
+.preset-mode label,
+.custom-mode label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.time-window-select,
+.custom-time-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.time-window-select:hover,
+.custom-time-input:hover {
+  border-color: #999;
+}
+
+.time-window-select:focus,
+.custom-time-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.time-window-select:disabled,
+.custom-time-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.custom-time-input {
+  margin-bottom: 8px;
+}
+
+.helper-text {
+  font-size: 11px;
+  color: #888;
+  margin: 5px 0;
+  font-style: italic;
+}
+
+.error-text {
+  font-size: 11px;
+  color: #d32f2f;
+  margin: 5px 0;
+  font-weight: 500;
+}
+
+.load-pins-button {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.load-pins-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.load-pins-button:active:not(:disabled) {
+  background-color: #3d8b40;
+}
+
+.load-pins-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

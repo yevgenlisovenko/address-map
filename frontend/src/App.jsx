@@ -6,7 +6,7 @@ import ConnectionStatus from './components/ConnectionStatus';
 import AddressCoordinatesInput from './components/AddressCoordinatesInput';
 import MarkersList from './components/MarkersList';
 import Stats from './components/Stats';
-import TimeWindowSelector from './components/TimeWindowSelector';
+import PinTimeSelector from './components/PinTimeSelector';
 import './App.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -34,6 +34,8 @@ function App() {
   const [config, setConfig] = useState(null);
   const [selectedTimeWindow, setSelectedTimeWindow] = useState('1hr');
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [timeSelectionMode, setTimeSelectionMode] = useState('preset');
+  const [customStartTime, setCustomStartTime] = useState(null);
 
   // Set document title from environment variable
   useEffect(() => {
@@ -130,20 +132,27 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Filter markers based on selected time window
+  // Filter markers based on selected time window or custom start time
   const visibleMarkers = useMemo(() => {
     if (!config) return markers;
 
-    const timeWindowMs = config.timeWindowOptions[selectedTimeWindow];
-    if (!timeWindowMs) return markers;
+    let cutoffTime;
 
-    const cutoffTime = currentTime - timeWindowMs;
+    if (timeSelectionMode === 'custom' && customStartTime) {
+      // Custom mode: use custom start time as cutoff
+      cutoffTime = customStartTime;
+    } else {
+      // Preset mode: use time window calculation
+      const timeWindowMs = config.timeWindowOptions[selectedTimeWindow];
+      if (!timeWindowMs) return markers;
+      cutoffTime = currentTime - timeWindowMs;
+    }
 
     return markers.filter(pin => {
       const pinTime = new Date(pin.timestamp).getTime();
       return pinTime >= cutoffTime;
     });
-  }, [markers, selectedTimeWindow, config, currentTime]);
+  }, [markers, selectedTimeWindow, config, currentTime, timeSelectionMode, customStartTime]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -191,6 +200,7 @@ function App() {
 
   const handleTimeWindowChange = (newTimeWindow) => {
     setSelectedTimeWindow(newTimeWindow);
+    setTimeSelectionMode('preset');
 
     if (socket && isConnected) {
       const timeWindowMs = config.timeWindowOptions[newTimeWindow];
@@ -203,6 +213,25 @@ function App() {
       socket.emit('request-pins', { timeWindow: newTimeWindow, startingTime: time });
       setStatus(`Loading pins from last ${newTimeWindow}...`);
     }
+  };
+
+  const handleCustomTimeSubmit = (customTimestamp) => {
+    if (!socket || !isConnected) {
+      setStatus('Not connected to server');
+      return;
+    }
+
+    // Store custom time and set mode
+    setCustomStartTime(customTimestamp);
+    setTimeSelectionMode('custom');
+
+    // Format the custom time for display
+    const customDate = new Date(customTimestamp);
+    const formattedTime = customDate.toLocaleString();
+
+    // Request pins from custom start time
+    socket.emit('request-pins', { startingTime: customTimestamp });
+    setStatus(`Loading pins from ${formattedTime}...`);
   };
 
   return (
@@ -221,10 +250,12 @@ function App() {
           <ConnectionStatus isConnected={isConnected} />
 
           {config && (
-            <TimeWindowSelector
-              value={selectedTimeWindow}
-              options={config.timeWindowOptions}
-              onChange={handleTimeWindowChange}
+            <PinTimeSelector
+              config={config}
+              selectedTimeWindow={selectedTimeWindow}
+              onPresetChange={handleTimeWindowChange}
+              onCustomTimeSubmit={handleCustomTimeSubmit}
+              isConnected={isConnected}
             />
           )}
 

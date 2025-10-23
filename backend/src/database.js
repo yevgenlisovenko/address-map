@@ -114,11 +114,11 @@ export function transformRowToPin(row) {
     const state = row['state'] || row['State'] || '';
 
     if (city && state) {
-      label = `${city.trim()}, ${state.trim()}`;
+      label = `${city.toUpperCase()}, ${state.toUpperCase()}`;
     } else if (city) {
-      label = city.trim();
+      label = city.toUpperCase();
     } else if (state) {
-      label = state.trim();
+      label = state.toUpperCase();
     } else {
       // Fallback to coordinates
       label = `${lat}, ${lon}`;
