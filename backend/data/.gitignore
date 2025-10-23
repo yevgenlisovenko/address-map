@@ -1,0 +1,3 @@
+# Exclude state data files from git
+# Keep directory structure but not the actual data
+*.json

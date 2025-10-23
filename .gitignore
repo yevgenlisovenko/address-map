@@ -23,6 +23,9 @@ build/
 logs/
 *.log
 
+# Data Files
+backend/data/*.json
+
 # Testing & Coverage
 coverage/
 .nyc_output/

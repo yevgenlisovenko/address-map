@@ -3,8 +3,22 @@
  * Handles in-memory storage and processing of state highlight colors
  */
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import logger from './utils/logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// File path for persisting state highlights
+const STATE_FILE_PATH = path.join(__dirname, '../data/state-highlights.json');
+
 // In-memory storage: Map of state abbreviation -> color
 const stateHighlights = new Map();
+
+// Store original colorConfig for persistence
+let currentColorConfig = [];
 
 // In-memory storage: Array of group metadata { color, label, states }
 const highlightGroups = [];
@@ -25,8 +39,14 @@ export function processColorConfig(colorConfig) {
   highlightGroups.length = 0;
 
   if (!colorConfig || !Array.isArray(colorConfig) || colorConfig.length === 0) {
+    // Store empty config
+    currentColorConfig = [];
+    saveStateToFile();
     return;
   }
+
+  // Store original config for persistence
+  currentColorConfig = colorConfig;
 
   // Process groups in order
   // Later groups override earlier groups for overlapping states
@@ -54,6 +74,9 @@ export function processColorConfig(colorConfig) {
       });
     }
   }
+
+  // Persist to file
+  saveStateToFile();
 }
 
 /**
@@ -148,4 +171,75 @@ export function clearAllColors() {
  */
 export function getHighlightedStateCount() {
   return stateHighlights.size;
+}
+
+/**
+ * Save current state configuration to file
+ * Persists state highlights across server restarts
+ */
+function saveStateToFile() {
+  try {
+    const data = {
+      colorConfig: currentColorConfig,
+      savedAt: new Date().toISOString()
+    };
+
+    fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(data, null, 2), 'utf8');
+
+    logger.debug('State highlights saved to file', {
+      filePath: STATE_FILE_PATH,
+      groupCount: currentColorConfig.length,
+      stateCount: stateHighlights.size
+    });
+  } catch (error) {
+    logger.error('Failed to save state highlights to file', {
+      filePath: STATE_FILE_PATH,
+      error: error.message,
+      stack: error.stack
+    });
+  }
+}
+
+/**
+ * Load state configuration from file
+ * Restores state highlights from previous session
+ */
+export function loadStateFromFile() {
+  try {
+    // Check if file exists
+    if (!fs.existsSync(STATE_FILE_PATH)) {
+      logger.debug('No state highlights file found, starting with empty state', {
+        filePath: STATE_FILE_PATH
+      });
+      return;
+    }
+
+    // Read and parse file
+    const fileContent = fs.readFileSync(STATE_FILE_PATH, 'utf8');
+    const data = JSON.parse(fileContent);
+
+    // Validate data structure
+    if (!data || !data.colorConfig || !Array.isArray(data.colorConfig)) {
+      logger.warn('Invalid state highlights file format, ignoring', {
+        filePath: STATE_FILE_PATH
+      });
+      return;
+    }
+
+    // Restore state
+    processColorConfig(data.colorConfig);
+
+    logger.info('State highlights loaded from file', {
+      filePath: STATE_FILE_PATH,
+      groupCount: data.colorConfig.length,
+      stateCount: stateHighlights.size,
+      savedAt: data.savedAt
+    });
+  } catch (error) {
+    logger.error('Failed to load state highlights from file', {
+      filePath: STATE_FILE_PATH,
+      error: error.message,
+      stack: error.stack
+    });
+  }
 }

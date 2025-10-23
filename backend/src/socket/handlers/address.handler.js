@@ -1,0 +1,57 @@
+/**
+ * Address socket handler
+ * Handles new address submissions via WebSocket
+ */
+
+import { geocodeAddress } from '../../geocode.js';
+import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
+import logger from '../../utils/logger.js';
+
+export const setupAddressHandler = (io, socket) => {
+  socket.on(SOCKET_EVENTS.NEW_ADDRESS, async (data) => {
+    const { address, properties } = data;
+
+    if (!address) {
+      socket.emit(SOCKET_EVENTS.ERROR, { message: ERROR_MESSAGES.ADDRESS_REQUIRED });
+      return;
+    }
+
+    // Validate properties if provided
+    if (properties !== undefined && (typeof properties !== 'object' || Array.isArray(properties))) {
+      socket.emit(SOCKET_EVENTS.ERROR, { message: ERROR_MESSAGES.PROPERTIES_INVALID });
+      return;
+    }
+
+    try {
+      logger.info('Geocoding address via WebSocket', { address, socketId: socket.id });
+      const coordinates = await geocodeAddress(address);
+
+      // Broadcast to all clients including sender
+      io.emit(SOCKET_EVENTS.ADD_PIN, {
+        type: PIN_TYPES.ADDRESS,
+        address,
+        ...coordinates,
+        properties: properties || {},
+        timestamp: new Date().toISOString()
+      });
+
+      logger.info('Pin added via WebSocket', {
+        address,
+        displayName: coordinates.displayName,
+        lat: coordinates.lat,
+        lon: coordinates.lon,
+        socketId: socket.id
+      });
+    } catch (error) {
+      logger.error('Error processing address via WebSocket', {
+        message: error.message,
+        address,
+        socketId: socket.id
+      });
+      socket.emit(SOCKET_EVENTS.ERROR, {
+        message: error.message,
+        address
+      });
+    }
+  });
+};

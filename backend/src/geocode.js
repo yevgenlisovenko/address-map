@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { config } from './config.js';
+import logger from './utils/logger.js';
+import { GeocodingError } from './utils/errors.js';
 
 let lastRequestTime = 0;
 
@@ -18,7 +20,7 @@ export async function geocodeAddress(address) {
   const cached = geocodeCache.get(cacheKey);
 
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log('Geocoding cache hit:', address);
+    logger.debug('Geocoding cache hit', { address });
     return cached.data;
   }
   // Respect rate limiting for Nominatim
@@ -60,13 +62,28 @@ export async function geocodeAddress(address) {
         timestamp: Date.now()
       });
 
-      console.log('Geocoding API call:', address);
+      logger.info('Geocoding API call successful', {
+        address,
+        lat: data.lat,
+        lon: data.lon
+      });
       return data;
     } else {
-      throw new Error('Address not found');
+      logger.warn('Address not found', { address });
+      throw new GeocodingError('Address not found', address);
     }
   } catch (error) {
-    console.error('Geocoding error:', error.message);
-    throw new Error(`Failed to geocode address: ${error.message}`);
+    if (error instanceof GeocodingError) {
+      throw error;
+    }
+
+    logger.error('Geocoding error:', {
+      message: error.message,
+      address,
+      status: error.response?.status,
+      statusText: error.response?.statusText
+    });
+
+    throw new GeocodingError(`Failed to geocode address: ${error.message}`, address);
   }
 }

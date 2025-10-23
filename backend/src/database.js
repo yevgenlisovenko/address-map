@@ -1,5 +1,7 @@
 import sql from 'mssql';
 import { config } from './config.js';
+import logger from './utils/logger.js';
+import { DatabaseError } from './utils/errors.js';
 
 let pool = null;
 
@@ -8,7 +10,7 @@ let pool = null;
  */
 export async function initializeDatabase() {
   if (!config.database.enabled) {
-    console.log('Database integration is disabled');
+    logger.info('Database integration is disabled');
     return null;
   }
 
@@ -24,11 +26,19 @@ export async function initializeDatabase() {
     };
 
     pool = await sql.connect(dbConfig);
-    console.log('Database connection established');
+    logger.info('Database connection established', {
+      server: config.database.server,
+      database: config.database.database,
+      port: config.database.port
+    });
     return pool;
   } catch (error) {
-    console.error('Database connection error:', error.message);
-    throw error;
+    logger.error('Database connection error:', {
+      message: error.message,
+      code: error.code,
+      server: config.database.server
+    });
+    throw new DatabaseError('Failed to connect to database', error);
   }
 }
 
@@ -37,7 +47,9 @@ export async function initializeDatabase() {
  */
 export async function executeQuery(query, params = {}) {
   if (!pool) {
-    throw new Error('Database pool not initialized');
+    const error = new DatabaseError('Database pool not initialized');
+    logger.error('Query attempted without active database connection');
+    throw error;
   }
 
   try {
@@ -48,11 +60,25 @@ export async function executeQuery(query, params = {}) {
       request.input(key, value);
     }
 
+    logger.debug('Executing database query', {
+      query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
+      paramCount: Object.keys(params).length
+    });
+
     const result = await request.query(query);
+
+    logger.debug('Query executed successfully', {
+      rowCount: result.recordset?.length || 0
+    });
+
     return result.recordset;
   } catch (error) {
-    console.error('Query execution error:', error.message);
-    throw error;
+    logger.error('Query execution error:', {
+      message: error.message,
+      query: query.substring(0, 100) + (query.length > 100 ? '...' : ''),
+      params: Object.keys(params)
+    });
+    throw new DatabaseError('Query execution failed', error);
   }
 }
 
@@ -115,7 +141,7 @@ export function transformRowToPin(row) {
 export async function closeDatabase() {
   if (pool) {
     await pool.close();
-    console.log('Database connection closed');
+    logger.info('Database connection closed');
   }
 }
 
