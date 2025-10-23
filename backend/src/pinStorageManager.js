@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import logger from './utils/logger.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -166,7 +167,11 @@ class PinStorageManager {
 
       return true;
     } catch (error) {
-      console.error("Failed to persist pins:", error);
+      logger.error('Failed to persist pins to disk', {
+        error: error.message,
+        stack: error.stack,
+        path: this.persistPath
+      });
       return false;
     }
   }
@@ -196,15 +201,25 @@ class PinStorageManager {
         // Cleanup old pins immediately after loading
         const validCount = this.cleanupOldPins();
 
-        console.log(
-          `Loaded ${parsed.pins.length} pins from disk, ${validCount} still valid`
-        );
+        logger.info('Loaded pins from disk', {
+          totalPins: parsed.pins.length,
+          validPins: validCount,
+          expiredPins: parsed.pins.length - validCount,
+          path: this.persistPath
+        });
       }
     } catch (error) {
       if (error.code === "ENOENT") {
-        console.log("No existing pins file found, starting fresh");
+        logger.info('No existing pins file found, starting with empty storage', {
+          path: this.persistPath
+        });
       } else {
-        console.error("Failed to load pins from disk:", error);
+        logger.error('Failed to load pins from disk', {
+          error: error.message,
+          stack: error.stack,
+          path: this.persistPath,
+          code: error.code
+        });
       }
     }
   }
