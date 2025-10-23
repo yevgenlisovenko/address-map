@@ -6,6 +6,7 @@
 import { validateCoordinates } from '../../validation.js';
 import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
 import logger from '../../utils/logger.js';
+import { pinStorageManager } from '../../pinStorageManager.js';
 
 export const setupCoordinatesHandler = (io, socket) => {
   socket.on(SOCKET_EVENTS.NEW_COORDINATES, (data) => {
@@ -38,15 +39,21 @@ export const setupCoordinatesHandler = (io, socket) => {
         socketId: socket.id
       });
 
-      // Broadcast to all clients including sender
-      io.emit(SOCKET_EVENTS.ADD_PIN, {
+      // Create pin object
+      const pin = {
         type: PIN_TYPES.COORDINATES,
         lat: validation.lat,
         lon: validation.lon,
         displayName: label || `Coordinates: ${validation.lat}, ${validation.lon}`,
         properties: properties || {},
         timestamp: new Date().toISOString()
-      });
+      };
+
+      // Broadcast to all clients including sender
+      io.emit(SOCKET_EVENTS.ADD_PIN, pin);
+
+      // Store pin for historical data
+      pinStorageManager.addPin(pin);
 
       logger.info('Coordinate pin added via WebSocket', {
         lat: validation.lat,

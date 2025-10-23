@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import Map from './components/Map';
 import Info from './components/Info';
@@ -6,10 +6,12 @@ import ConnectionStatus from './components/ConnectionStatus';
 import AddressCoordinatesInput from './components/AddressCoordinatesInput';
 import MarkersList from './components/MarkersList';
 import Stats from './components/Stats';
+import TimeWindowSelector from './components/TimeWindowSelector';
 import './App.css';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const DEFAULT_PINS_TO_SHOW = 10; // Configurable
+const PIN_FILTER_UPDATE_INTERVAL = 60000; // 60 seconds - how often to re-evaluate visible pins
 
 function App() {
   const [markers, setMarkers] = useState([]);
@@ -29,6 +31,9 @@ function App() {
     colors: {},
     groups: []
   });
+  const [config, setConfig] = useState(null);
+  const [selectedTimeWindow, setSelectedTimeWindow] = useState('1hr');
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
   // Set document title from environment variable
   useEffect(() => {
@@ -50,6 +55,17 @@ function App() {
     }
   }, []);
 
+  // Fetch config from backend on mount
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/config`)
+      .then(res => res.json())
+      .then(data => {
+        setConfig(data.pinStorage);
+        setSelectedTimeWindow(data.pinStorage.defaultTimeWindow);
+      })
+      .catch(err => console.error('Failed to load config:', err));
+  }, []);
+
   useEffect(() => {
     // Initialize Socket.IO connection
     const socketInstance = io(BACKEND_URL);
@@ -69,10 +85,17 @@ function App() {
       setStatus('Disconnected from server');
     });
 
-    // Listen for new pins
+    // Listen for initial historical pins
+    socketInstance.on('initial-pins', (data) => {
+      console.log(`Received ${data.count} historical pins (newest first)`);
+      setMarkers(data.pins);
+      setStatus(`Loaded ${data.count} pins from last ${selectedTimeWindow}`);
+    });
+
+    // Listen for new pins (newest first, so prepend)
     socketInstance.on('add-pin', (data) => {
       console.log('New pin received:', data);
-      setMarkers((prev) => [...prev, data]);
+      setMarkers((prev) => [data, ...prev]);
       setStatus(`Pin added: ${data.displayName}`);
     });
 
@@ -97,6 +120,30 @@ function App() {
       socketInstance.disconnect();
     };
   }, []);
+
+  // Periodic timer to update current time and re-evaluate visible pins
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, PIN_FILTER_UPDATE_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Filter markers based on selected time window
+  const visibleMarkers = useMemo(() => {
+    if (!config) return markers;
+
+    const timeWindowMs = config.timeWindowOptions[selectedTimeWindow];
+    if (!timeWindowMs) return markers;
+
+    const cutoffTime = currentTime - timeWindowMs;
+
+    return markers.filter(pin => {
+      const pinTime = new Date(pin.timestamp).getTime();
+      return pinTime >= cutoffTime;
+    });
+  }, [markers, selectedTimeWindow, config, currentTime]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -142,6 +189,16 @@ function App() {
     setLabel('');
   };
 
+  const handleTimeWindowChange = (newTimeWindow) => {
+    setSelectedTimeWindow(newTimeWindow);
+
+    if (socket && isConnected) {
+      // Request pins for new time window
+      socket.emit('request-pins', { timeWindow: newTimeWindow });
+      setStatus(`Loading pins from last ${newTimeWindow}...`);
+    }
+  };
+
   return (
     <div className="app">
       <button
@@ -156,6 +213,14 @@ function App() {
           {/* <h1>Real-time Map</h1> */}
 
           <ConnectionStatus isConnected={isConnected} />
+
+          {config && (
+            <TimeWindowSelector
+              value={selectedTimeWindow}
+              options={config.timeWindowOptions}
+              onChange={handleTimeWindowChange}
+            />
+          )}
 
           {/* <AddressCoordinatesInput
             showAddressForm={showAddressForm}
@@ -177,20 +242,20 @@ function App() {
           /> */}
 
           <MarkersList
-            markers={markers}
+            markers={visibleMarkers}
             showAllPins={showAllPins}
             pinsToShow={pinsToShow}
             onToggleShowAll={() => setShowAllPins(!showAllPins)}
           />
 
-          <Stats markers={markers} />
+          <Stats markers={visibleMarkers} />
 
           {/* <Info /> */}
         </div>
       )}
 
       <div className="map-container">
-        <Map markers={markers} sidebarVisible={isSidebarVisible} stateHighlightData={stateHighlightData} />
+        <Map markers={visibleMarkers} sidebarVisible={isSidebarVisible} stateHighlightData={stateHighlightData} />
       </div>
     </div>
   );

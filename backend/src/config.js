@@ -1,3 +1,8 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export const config = {
   port: process.env.PORT || 3001,
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
@@ -42,6 +47,29 @@ export const config = {
   },
   stateHighlight: {
     defaultColor: process.env.DEFAULT_STATE_COLOR || '#FF0000' // Red
+  },
+  pinStorage: {
+    maxAge: parseInt(process.env.PIN_MAX_AGE) || 24 * 60 * 60 * 1000, // 24 hours (ms)
+    cleanupInterval: parseInt(process.env.PIN_CLEANUP_INTERVAL) || 5 * 60 * 1000, // 5 minutes (ms)
+    compactionThreshold: parseInt(process.env.PIN_COMPACTION_THRESHOLD) || 1000, // Compact after 1000 expired
+    persistPath: process.env.PIN_PERSIST_PATH || path.join(__dirname, '../data/pins.json'),
+
+    // Time window options for UI (in milliseconds)
+    timeWindowOptions: process.env.PIN_TIME_WINDOWS
+      ? JSON.parse(process.env.PIN_TIME_WINDOWS)
+      : {
+          '5 min': 5 * 60 * 1000,
+          '15 min': 15 * 60 * 1000,
+          '30 min': 30 * 60 * 1000,
+          '1 hour': 1 * 60 * 60 * 1000,
+          '2 hours': 2 * 60 * 60 * 1000,
+          '4 hours': 4 * 60 * 60 * 1000,
+          '8 hours': 8 * 60 * 60 * 1000,
+          '16 hours': 16 * 60 * 60 * 1000,
+          '24 hours': 24 * 60 * 60 * 1000
+        },
+
+    defaultTimeWindow: process.env.PIN_DEFAULT_TIME_WINDOW || '1 hour'
   },
   logging: {
     // Log level priority: error (0) > warn (1) > info (2) > http (3) > debug (4)

@@ -6,6 +6,7 @@
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { geocodeAddress } from '../geocode.js';
 import { ERROR_MESSAGES, PIN_TYPES, SOCKET_EVENTS } from '../utils/constants.js';
+import { pinStorageManager } from '../pinStorageManager.js';
 
 /**
  * Submit a new address for geocoding
@@ -25,15 +26,21 @@ export const submitAddress = asyncHandler(async (req, res) => {
 
   const coordinates = await geocodeAddress(address);
 
-  // Get io instance from app and broadcast to all connected clients
-  const io = req.app.get('io');
-  io.emit(SOCKET_EVENTS.ADD_PIN, {
+  // Create pin object
+  const pin = {
     type: PIN_TYPES.ADDRESS,
     address,
     ...coordinates,
     properties: properties || {},
     timestamp: new Date().toISOString()
-  });
+  };
+
+  // Get io instance from app and broadcast to all connected clients
+  const io = req.app.get('io');
+  io.emit(SOCKET_EVENTS.ADD_PIN, pin);
+
+  // Store pin for historical data
+  pinStorageManager.addPin(pin);
 
   res.json({
     success: true,

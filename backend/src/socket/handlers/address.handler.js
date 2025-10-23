@@ -6,6 +6,7 @@
 import { geocodeAddress } from '../../geocode.js';
 import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
 import logger from '../../utils/logger.js';
+import { pinStorageManager } from '../../pinStorageManager.js';
 
 export const setupAddressHandler = (io, socket) => {
   socket.on(SOCKET_EVENTS.NEW_ADDRESS, async (data) => {
@@ -26,14 +27,20 @@ export const setupAddressHandler = (io, socket) => {
       logger.info('Geocoding address via WebSocket', { address, socketId: socket.id });
       const coordinates = await geocodeAddress(address);
 
-      // Broadcast to all clients including sender
-      io.emit(SOCKET_EVENTS.ADD_PIN, {
+      // Create pin object
+      const pin = {
         type: PIN_TYPES.ADDRESS,
         address,
         ...coordinates,
         properties: properties || {},
         timestamp: new Date().toISOString()
-      });
+      };
+
+      // Broadcast to all clients including sender
+      io.emit(SOCKET_EVENTS.ADD_PIN, pin);
+
+      // Store pin for historical data
+      pinStorageManager.addPin(pin);
 
       logger.info('Pin added via WebSocket', {
         address,
