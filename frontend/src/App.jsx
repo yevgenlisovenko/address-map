@@ -193,8 +193,14 @@ function App() {
     setSelectedTimeWindow(newTimeWindow);
 
     if (socket && isConnected) {
+      const timeWindowMs = config.timeWindowOptions[newTimeWindow];
+
+      // Ensure time window doesn't exceed max age
+      const effectiveWindow = Math.min(timeWindowMs, config.maxAge);
+      const time = Date.now() - effectiveWindow;
+
       // Request pins for new time window
-      socket.emit('request-pins', { timeWindow: newTimeWindow });
+      socket.emit('request-pins', { timeWindow: newTimeWindow, startingTime: time });
       setStatus(`Loading pins from last ${newTimeWindow}...`);
     }
   };

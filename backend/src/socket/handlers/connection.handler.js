@@ -18,6 +18,7 @@ export const setupConnectionHandler = (io, socket) => {
   socket.on(SOCKET_EVENTS.REQUEST_PINS, (data) => {
     const timeWindowKey = data?.timeWindow || config.pinStorage.defaultTimeWindow;
     const timeWindowMs = config.pinStorage.timeWindowOptions[timeWindowKey];
+    const startingTime = data?.startingTime || Date.now() - config.pinStorage.defaultTimeWindow;
 
     if (!timeWindowMs) {
       logger.warn('Invalid time window requested', {
@@ -31,18 +32,20 @@ export const setupConnectionHandler = (io, socket) => {
       return;
     }
 
-    const pins = pinStorageManager.getPinsForTimeWindow(timeWindowMs);
+    const pins = pinStorageManager.getPinsStartingFrom(startingTime); 
 
     socket.emit(SOCKET_EVENTS.INITIAL_PINS, {
       pins: pins,
       timeWindow: timeWindowKey,
       timeWindowMs: timeWindowMs,
+      startingTime: startingTime,
       count: pins.length
     });
 
     logger.info('Sent pins to client', {
       socketId: socket.id,
       timeWindow: timeWindowKey,
+      startingTime: startingTime,
       pinCount: pins.length,
       oldestPin: pins[pins.length - 1]?.timestamp,
       newestPin: pins[0]?.timestamp
@@ -52,12 +55,14 @@ export const setupConnectionHandler = (io, socket) => {
   // Send default time window on connection
   const defaultTimeWindow = config.pinStorage.defaultTimeWindow;
   const defaultTimeWindowMs = config.pinStorage.timeWindowOptions[defaultTimeWindow];
-  const initialPins = pinStorageManager.getPinsForTimeWindow(defaultTimeWindowMs);
+  const initialStartingTime = Date.now() - config.pinStorage.defaultTimeWindow;
+  const initialPins = pinStorageManager.getPinsStartingFrom(initialStartingTime);
 
   socket.emit(SOCKET_EVENTS.INITIAL_PINS, {
     pins: initialPins,
     timeWindow: defaultTimeWindow,
     timeWindowMs: defaultTimeWindowMs,
+    startingTime: initialStartingTime,
     count: initialPins.length
   });
 

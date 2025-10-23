@@ -1,18 +1,18 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 class PinStorageManager {
   constructor(config) {
-    this.pins = [];                    // Chronological: oldest → newest
-    this.startIndex = 0;               // Points to first valid pin
-    this.maxAge = config.maxAge;       // Maximum age: 24 hours
+    this.pins = []; // Chronological: oldest → newest
+    this.startIndex = 0; // Points to first valid pin
+    this.maxAge = config.maxAge; // Maximum age: 24 hours
     this.compactionThreshold = config.compactionThreshold;
     this.persistPath = config.persistPath;
     this.lastPersistTime = 0;
-    this.persistDebounceMs = 1000;     // Debounce file writes
+    this.persistDebounceMs = 1000; // Debounce file writes
 
     // Load pins from disk on startup
     this.loadFromFile();
@@ -25,7 +25,7 @@ class PinStorageManager {
   addPin(pin) {
     const pinWithTimestamp = {
       ...pin,
-      timestamp: pin.timestamp || new Date().toISOString()
+      timestamp: pin.timestamp || new Date().toISOString(),
     };
 
     this.pins.push(pinWithTimestamp);
@@ -71,13 +71,23 @@ class PinStorageManager {
     const effectiveWindow = Math.min(timeWindowMs, this.maxAge);
     const cutoffTime = Date.now() - effectiveWindow;
 
+    // Return pins starting from the particular time
+    return this.getPinsStartingFrom(cutoffTime);
+  }
+
+  /**
+   * Get pins starting from the given time (newest first)
+   * @param {number} time - Starting time (milliseconds)
+   * @returns {Array} Pins starting from the given time, newest first
+   */
+  getPinsStartingFrom(time) {
     // Get valid pins (from startIndex)
     const validPins = this.pins.slice(this.startIndex);
 
-    // Filter by time window
-    const filteredPins = validPins.filter(pin => {
+    // Filter by time
+    const filteredPins = validPins.filter((pin) => {
       const pinTime = new Date(pin.timestamp).getTime();
-      return pinTime >= cutoffTime;
+      return pinTime >= time;
     });
 
     // Return newest first
@@ -121,8 +131,9 @@ class PinStorageManager {
       validPins: validPins,
       expiredPins: this.startIndex,
       oldestPin: validPins > 0 ? this.pins[this.startIndex]?.timestamp : null,
-      newestPin: validPins > 0 ? this.pins[this.pins.length - 1]?.timestamp : null,
-      memoryWaste: this.startIndex
+      newestPin:
+        validPins > 0 ? this.pins[this.pins.length - 1]?.timestamp : null,
+      memoryWaste: this.startIndex,
     };
   }
 
@@ -138,8 +149,8 @@ class PinStorageManager {
         pins: validPins,
         metadata: {
           lastUpdated: new Date().toISOString(),
-          count: validPins.length
-        }
+          count: validPins.length,
+        },
       };
 
       // Ensure directory exists
@@ -155,7 +166,7 @@ class PinStorageManager {
 
       return true;
     } catch (error) {
-      console.error('Failed to persist pins:', error);
+      console.error("Failed to persist pins:", error);
       return false;
     }
   }
@@ -175,7 +186,7 @@ class PinStorageManager {
    */
   async loadFromFile() {
     try {
-      const data = await fs.readFile(this.persistPath, 'utf-8');
+      const data = await fs.readFile(this.persistPath, "utf-8");
       const parsed = JSON.parse(data);
 
       if (parsed.pins && Array.isArray(parsed.pins)) {
@@ -185,13 +196,15 @@ class PinStorageManager {
         // Cleanup old pins immediately after loading
         const validCount = this.cleanupOldPins();
 
-        console.log(`Loaded ${parsed.pins.length} pins from disk, ${validCount} still valid`);
+        console.log(
+          `Loaded ${parsed.pins.length} pins from disk, ${validCount} still valid`
+        );
       }
     } catch (error) {
-      if (error.code === 'ENOENT') {
-        console.log('No existing pins file found, starting fresh');
+      if (error.code === "ENOENT") {
+        console.log("No existing pins file found, starting fresh");
       } else {
-        console.error('Failed to load pins from disk:', error);
+        console.error("Failed to load pins from disk:", error);
       }
     }
   }
@@ -208,7 +221,8 @@ class PinStorageManager {
 const config = {
   maxAge: parseInt(process.env.PIN_MAX_AGE) || 24 * 60 * 60 * 1000, // 24 hours
   compactionThreshold: parseInt(process.env.PIN_COMPACTION_THRESHOLD) || 1000,
-  persistPath: process.env.PIN_PERSIST_PATH || path.join(__dirname, '../data/pins.json')
+  persistPath:
+    process.env.PIN_PERSIST_PATH || path.join(__dirname, "../data/pins.json"),
 };
 
 export const pinStorageManager = new PinStorageManager(config);
