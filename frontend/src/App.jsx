@@ -245,49 +245,54 @@ function App() {
 
       {isSidebarVisible && (
         <div className="sidebar">
-          {/* <h1>Real-time Map</h1> */}
+          <div className="sidebar-fixed-top">
+            {/* <h1>Real-time Map</h1> */}
 
-          <ConnectionStatus isConnected={isConnected} />
+            <ConnectionStatus isConnected={isConnected} />
 
-          {config && (
-            <PinTimeSelector
-              config={config}
-              selectedTimeWindow={selectedTimeWindow}
-              onPresetChange={handleTimeWindowChange}
-              onCustomTimeSubmit={handleCustomTimeSubmit}
+            {config && (
+              <PinTimeSelector
+                config={config}
+                selectedTimeWindow={selectedTimeWindow}
+                onPresetChange={handleTimeWindowChange}
+                onCustomTimeSubmit={handleCustomTimeSubmit}
+                isConnected={isConnected}
+              />
+            )}
+
+            {/* <AddressCoordinatesInput
+              showAddressForm={showAddressForm}
+              inputMode={inputMode}
+              address={address}
+              latitude={latitude}
+              longitude={longitude}
+              label={label}
+              status={status}
               isConnected={isConnected}
+              onToggleForm={() => setShowAddressForm(!showAddressForm)}
+              onInputModeChange={setInputMode}
+              onAddressChange={setAddress}
+              onLatitudeChange={setLatitude}
+              onLongitudeChange={setLongitude}
+              onLabelChange={setLabel}
+              onAddressSubmit={handleSubmit}
+              onCoordinatesSubmit={handleCoordinatesSubmit}
+            /> */}
+          </div>
+
+          <div className="sidebar-scrollable-middle">
+            <MarkersList
+              markers={visibleMarkers}
+              showAllPins={showAllPins}
+              pinsToShow={pinsToShow}
+              onToggleShowAll={() => setShowAllPins(!showAllPins)}
             />
-          )}
+          </div>
 
-          {/* <AddressCoordinatesInput
-            showAddressForm={showAddressForm}
-            inputMode={inputMode}
-            address={address}
-            latitude={latitude}
-            longitude={longitude}
-            label={label}
-            status={status}
-            isConnected={isConnected}
-            onToggleForm={() => setShowAddressForm(!showAddressForm)}
-            onInputModeChange={setInputMode}
-            onAddressChange={setAddress}
-            onLatitudeChange={setLatitude}
-            onLongitudeChange={setLongitude}
-            onLabelChange={setLabel}
-            onAddressSubmit={handleSubmit}
-            onCoordinatesSubmit={handleCoordinatesSubmit}
-          /> */}
-
-          <MarkersList
-            markers={visibleMarkers}
-            showAllPins={showAllPins}
-            pinsToShow={pinsToShow}
-            onToggleShowAll={() => setShowAllPins(!showAllPins)}
-          />
-
-          <Stats markers={visibleMarkers} />
-
-          {/* <Info /> */}
+          <div className="sidebar-fixed-bottom">
+            <Stats markers={visibleMarkers} />
+            {/* <Info /> */}
+          </div>
         </div>
       )}
 
