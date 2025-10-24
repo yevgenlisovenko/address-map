@@ -95,7 +95,7 @@ const PinTimeSelector = ({
             checked={mode === 'preset'}
             onChange={() => handleModeChange('preset')}
           />
-          <span>Preset Time Window</span>
+          <span>Time Window</span>
         </label>
 
         <label className="mode-option">
@@ -106,7 +106,7 @@ const PinTimeSelector = ({
             checked={mode === 'custom'}
             onChange={() => handleModeChange('custom')}
           />
-          <span>Custom Start Time</span>
+          <span>Start Time</span>
         </label>
       </div>
 

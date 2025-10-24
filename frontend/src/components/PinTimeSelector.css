@@ -18,8 +18,8 @@
 
 .mode-selection {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  gap: 15px;
   margin-bottom: 15px;
 }
 

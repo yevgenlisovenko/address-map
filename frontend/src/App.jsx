@@ -236,19 +236,20 @@ function App() {
 
   return (
     <div className="app">
-      <button
-        className="sidebar-toggle-button"
-        onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-      >
-        {isSidebarVisible ? '▶' : '◀'}
-      </button>
+      <div className={`floating-controls ${isSidebarVisible ? 'sidebar-open' : ''}`}>
+        <ConnectionStatus isConnected={isConnected} />
+        <button
+          className="sidebar-toggle-button"
+          onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+        >
+          {isSidebarVisible ? '▶' : '◀'}
+        </button>
+      </div>
 
       {isSidebarVisible && (
         <div className="sidebar">
           <div className="sidebar-fixed-top">
             {/* <h1>Real-time Map</h1> */}
-
-            <ConnectionStatus isConnected={isConnected} />
 
             {config && (
               <PinTimeSelector
