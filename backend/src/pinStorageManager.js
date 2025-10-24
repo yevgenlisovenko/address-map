@@ -161,6 +161,17 @@ class PinStorageManager {
       // Write to temp file then rename (atomic operation)
       const tempPath = `${this.persistPath}.tmp`;
       await fs.writeFile(tempPath, JSON.stringify(data, null, 2));
+
+      // On Windows, rename fails if destination exists - delete it first
+      try {
+        await fs.unlink(this.persistPath);
+      } catch (error) {
+        // Ignore error if file doesn't exist (first write)
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+
       await fs.rename(tempPath, this.persistPath);
 
       this.lastPersistTime = Date.now();
