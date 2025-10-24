@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { PROPERTY_MARKERS_MAP, defaultMarkerIcon } from '../config/markerColorMapping';
 
 export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] } }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   // Get all marker icon URLs for display
   const getIconUrl = (icon) => {

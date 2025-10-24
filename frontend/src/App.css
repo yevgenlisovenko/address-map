@@ -29,7 +29,7 @@
 
 .sidebar-fixed-top {
   flex-shrink: 0;
-  padding: 20px 20px 0;
+  padding: 0 20px 0;
 }
 
 .sidebar-scrollable-middle {
@@ -43,7 +43,7 @@
 
 .sidebar-fixed-bottom {
   flex-shrink: 0;
-  padding: 0 20px 20px;
+  padding: 0 20px;
   border-top: 2px solid #ddd;
   background: #f5f5f5;
 }
@@ -240,7 +240,7 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  margin-bottom: 0;
+  margin-bottom: 5px;
 }
 
 .markers-header {
@@ -284,7 +284,7 @@
 }
 
 .markers-list li {
-  padding: 8px 0;
+  padding: 2px 0;
   border-bottom: 1px solid #eee;
   font-size: 13px;
 }
@@ -302,6 +302,7 @@
   flex-shrink: 0;
   width: 100%;
   margin-top: 10px;
+  margin-bottom: 10px;
   padding: 8px;
   background: #646cff;
   color: white;
@@ -339,8 +340,8 @@
 }
 
 .stats {
-  margin-top: 15px;
-  padding: 15px;
+  margin-top: 5px;
+  padding: 5px 15px;
   background: white;
   border-radius: 4px;
   border: 1px solid #ddd;

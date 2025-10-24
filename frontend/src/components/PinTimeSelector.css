@@ -1,6 +1,6 @@
 .pin-time-selector {
   padding: 10px 15px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -74,7 +74,7 @@
 .time-window-select:focus,
 .custom-time-input:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #4caf50;
   box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
@@ -109,7 +109,7 @@
   font-size: 14px;
   font-weight: 500;
   color: white;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   border: none;
   border-radius: 4px;
   cursor: pointer;
