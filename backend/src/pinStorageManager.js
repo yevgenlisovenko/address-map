@@ -14,6 +14,8 @@ class PinStorageManager {
     this.persistPath = config.persistPath;
     this.lastPersistTime = 0;
     this.persistDebounceMs = 1000; // Debounce file writes
+    this.isPersisting = false; // Mutex lock for persist operations
+    this.pendingPersist = false; // Flag for queued persist
 
     // Load pins from disk on startup
     this.loadFromFile();
@@ -139,9 +141,17 @@ class PinStorageManager {
   }
 
   /**
-   * Persist pins to disk
+   * Persist pins to disk (mutex-protected to prevent race conditions)
    */
   async persistToFile() {
+    // If already persisting, mark as pending and return
+    if (this.isPersisting) {
+      this.pendingPersist = true;
+      return;
+    }
+
+    this.isPersisting = true;
+
     try {
       // Only persist valid pins
       const validPins = this.pins.slice(this.startIndex);
@@ -158,21 +168,13 @@ class PinStorageManager {
       const dir = path.dirname(this.persistPath);
       await fs.mkdir(dir, { recursive: true });
 
-      // Write to temp file then rename (atomic operation)
+      // Write to temp file
       const tempPath = `${this.persistPath}.tmp`;
       await fs.writeFile(tempPath, JSON.stringify(data, null, 2));
 
-      // On Windows, rename fails if destination exists - delete it first
-      try {
-        await fs.unlink(this.persistPath);
-      } catch (error) {
-        // Ignore error if file doesn't exist (first write)
-        if (error.code !== 'ENOENT') {
-          throw error;
-        }
-      }
-
-      await fs.rename(tempPath, this.persistPath);
+      // On Windows, use copyFile + unlink pattern (more reliable than rename)
+      await fs.copyFile(tempPath, this.persistPath);
+      await fs.unlink(tempPath);
 
       this.lastPersistTime = Date.now();
 
@@ -181,9 +183,19 @@ class PinStorageManager {
       logger.error('Failed to persist pins to disk', {
         error: error.message,
         stack: error.stack,
-        path: this.persistPath
+        path: this.persistPath,
+        code: error.code
       });
       return false;
+    } finally {
+      this.isPersisting = false;
+
+      // If persist was requested while we were running, do it now
+      if (this.pendingPersist) {
+        this.pendingPersist = false;
+        // Use setImmediate to avoid deep recursion
+        setImmediate(() => this.persistToFile());
+      }
     }
   }
 
