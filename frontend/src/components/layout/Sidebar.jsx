@@ -59,8 +59,8 @@ export default function Sidebar({
 
       {/* Stats Tab Content */}
       {activeTab === 'stats' && (
-        <>
-          <div className="sidebar-fixed-top">
+        <div className="stats-tab-layout">
+          <div className="pins-scrollable-section">
             <MarkersList
               markers={visibleMarkers}
               showAllPins={showAllPins}
@@ -68,11 +68,10 @@ export default function Sidebar({
               onToggleShowAll={onToggleShowAll}
             />
           </div>
-          <div className={`sidebar-scrollable-middle ${activeTab === 'stats' ? 'scrollable-content' : ''}`}>
+          <div className="stats-fixed-section">
             <Stats markers={visibleMarkers} />
           </div>
-          <div className="sidebar-fixed-bottom"></div>
-        </>
+        </div>
       )}
     </div>
   );
