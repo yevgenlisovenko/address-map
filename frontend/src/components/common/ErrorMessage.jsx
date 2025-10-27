@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import './ErrorMessage.css';
 
 export default function ErrorMessage({ error }) {
@@ -14,3 +15,7 @@ export default function ErrorMessage({ error }) {
     </div>
   );
 }
+
+ErrorMessage.propTypes = {
+  error: PropTypes.string.isRequired,
+};

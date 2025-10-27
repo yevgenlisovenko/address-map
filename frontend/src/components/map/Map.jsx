@@ -1,4 +1,5 @@
 import { useEffect, useRef, memo } from "react";
+import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -153,6 +154,31 @@ function Map({ markers, sidebarVisible, stateHighlightData }) {
     </div>
   );
 }
+
+Map.propTypes = {
+  markers: PropTypes.arrayOf(
+    PropTypes.shape({
+      lat: PropTypes.number.isRequired,
+      lon: PropTypes.number.isRequired,
+      timestamp: PropTypes.string.isRequired,
+      displayName: PropTypes.string,
+      type: PropTypes.string,
+      address: PropTypes.string,
+      properties: PropTypes.object,
+    })
+  ).isRequired,
+  sidebarVisible: PropTypes.bool.isRequired,
+  stateHighlightData: PropTypes.shape({
+    colors: PropTypes.object,
+    groups: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string,
+        color: PropTypes.string,
+        states: PropTypes.arrayOf(PropTypes.string),
+      })
+    ),
+  }),
+};
 
 // Memoize Map component to prevent unnecessary re-renders
 export default memo(Map, (prevProps, nextProps) => {

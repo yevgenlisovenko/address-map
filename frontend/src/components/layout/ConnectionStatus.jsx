@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import './ConnectionStatus.css';
 
 export default function ConnectionStatus({ isConnected }) {
@@ -7,3 +8,7 @@ export default function ConnectionStatus({ isConnected }) {
     </div>
   );
 }
+
+ConnectionStatus.propTypes = {
+  isConnected: PropTypes.bool.isRequired,
+};

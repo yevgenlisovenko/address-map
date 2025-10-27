@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import PropTypes from 'prop-types';
 import { STATS_CONFIG } from '../../config/statsConfig';
 import './Stats.css';
 
@@ -73,6 +74,14 @@ function Stats({ markers }) {
     </div>
   );
 }
+
+Stats.propTypes = {
+  markers: PropTypes.arrayOf(
+    PropTypes.shape({
+      properties: PropTypes.object,
+    })
+  ).isRequired,
+};
 
 // Memoize Stats to prevent recalculation when markers haven't changed
 export default memo(Stats, (prevProps, nextProps) => {

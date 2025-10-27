@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import PinTimeSelector from '../pins/PinTimeSelector';
 import MarkersList from '../pins/MarkersList';
 import Stats from '../stats/Stats';
@@ -74,3 +75,19 @@ export default function Sidebar({
     </div>
   );
 }
+
+Sidebar.propTypes = {
+  config: PropTypes.shape({
+    timeWindowOptions: PropTypes.object,
+    defaultTimeWindow: PropTypes.string,
+    maxAge: PropTypes.number,
+  }),
+  selectedTimeWindow: PropTypes.string.isRequired,
+  onTimeWindowChange: PropTypes.func.isRequired,
+  onCustomTimeSubmit: PropTypes.func.isRequired,
+  isConnected: PropTypes.bool.isRequired,
+  visibleMarkers: PropTypes.array.isRequired,
+  showAllPins: PropTypes.bool.isRequired,
+  pinsToShow: PropTypes.number.isRequired,
+  onToggleShowAll: PropTypes.func.isRequired,
+};

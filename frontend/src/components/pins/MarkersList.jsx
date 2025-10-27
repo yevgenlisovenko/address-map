@@ -1,7 +1,8 @@
+import PropTypes from 'prop-types';
 import './MarkersList.css';
 
 export default function MarkersList({ markers, showAllPins, pinsToShow, onToggleShowAll }) {
-  markers.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  const sortedMarkers = [...markers].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
   return (
     <div className="markers-list">
       <div className="markers-header">
@@ -9,8 +10,8 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
       </div>
       <ul>
         {(showAllPins
-          ? [...markers].reverse()
-          : [...markers].reverse().slice(0, pinsToShow)
+          ? [...sortedMarkers].reverse()
+          : [...sortedMarkers].reverse().slice(0, pinsToShow)
         ).map((marker, index) => (
           <li key={index}>
             {marker.type === 'address' ? marker.address : marker.displayName}
@@ -30,3 +31,17 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
     </div>
   );
 }
+
+MarkersList.propTypes = {
+  markers: PropTypes.arrayOf(
+    PropTypes.shape({
+      timestamp: PropTypes.string.isRequired,
+      type: PropTypes.string,
+      address: PropTypes.string,
+      displayName: PropTypes.string,
+    })
+  ).isRequired,
+  showAllPins: PropTypes.bool.isRequired,
+  pinsToShow: PropTypes.number.isRequired,
+  onToggleShowAll: PropTypes.func.isRequired,
+};

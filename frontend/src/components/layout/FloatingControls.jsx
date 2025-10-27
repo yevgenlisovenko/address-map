@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import ConnectionStatus from './ConnectionStatus';
 import './FloatingControls.css';
 
@@ -14,3 +15,9 @@ export default function FloatingControls({ isConnected, isSidebarVisible, onTogg
     </div>
   );
 }
+
+FloatingControls.propTypes = {
+  isConnected: PropTypes.bool.isRequired,
+  isSidebarVisible: PropTypes.bool.isRequired,
+  onToggleSidebar: PropTypes.func.isRequired,
+};
