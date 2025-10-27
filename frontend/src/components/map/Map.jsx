@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../../config/markerColorMapping";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
+import MarkerPopup from "./MarkerPopup";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -49,7 +50,7 @@ function getMarkerIcon(marker) {
   return defaultMarkerIcon;
 }
 
-function Map({ markers, sidebarVisible, stateHighlightData }) {
+function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords }) {
   // Default center: Continental USA (excludes Alaska and Hawaii)
   const defaultCenter = [39.8283, -98.5795];
   const defaultZoom = 5;
@@ -72,6 +73,21 @@ function Map({ markers, sidebarVisible, stateHighlightData }) {
 
       return () => clearTimeout(timer);
     }, [sidebarVisible, map]);
+
+    return null;
+  }
+
+  // Component to handle map panning when marker is clicked from list
+  function MapPanHandler() {
+    const map = useMap();
+
+    useEffect(() => {
+      if (selectedMarkerCoords) {
+        map.flyTo([selectedMarkerCoords.lat, selectedMarkerCoords.lon], 12, {
+          duration: 1.5 // smooth animation duration in seconds
+        });
+      }
+    }, [selectedMarkerCoords, map]);
 
     return null;
   }
@@ -103,50 +119,15 @@ function Map({ markers, sidebarVisible, stateHighlightData }) {
               position={[marker.lat, marker.lon]}
               icon={getMarkerIcon(marker)}
             >
-            <Popup>
-              <div>
-                {marker.type === "address" ? (
-                  <>
-                    <strong>{marker.address}</strong>
-                    <br />
-                    <small>{marker.displayName}</small>
-                  </>
-                ) : (
-                  <>
-                    <strong>{marker.displayName}</strong>
-                    <br />
-                    <small>
-                      Lat: {marker.lat}, Lon: {marker.lon}
-                    </small>
-                  </>
-                )}
-                <br />
-                <small>
-                  Added: {new Date(marker.timestamp).toLocaleString()}
-                </small>
-                {marker.properties &&
-                  Object.keys(marker.properties).length > 0 && (
-                    <>
-                      <br />
-                      <br />
-                      <strong>Properties:</strong>
-                      <br />
-                      {Object.entries(marker.properties).map(([key, value]) => (
-                        <div key={key}>
-                          <small>
-                            <strong>{key}:</strong> {String(value)}
-                          </small>
-                        </div>
-                      ))}
-                    </>
-                  )}
-              </div>
-            </Popup>
+              <Popup>
+                <MarkerPopup marker={marker} />
+              </Popup>
           </Marker>
         ))}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
         <MapResizeHandler />
+        <MapPanHandler />
       </MapContainer>
 
       {/* Map Legend Overlay */}
@@ -178,6 +159,10 @@ Map.propTypes = {
       })
     ),
   }),
+  selectedMarkerCoords: PropTypes.shape({
+    lat: PropTypes.number.isRequired,
+    lon: PropTypes.number.isRequired,
+  }),
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -185,6 +170,7 @@ export default memo(Map, (prevProps, nextProps) => {
   return (
     prevProps.markers === nextProps.markers &&
     prevProps.sidebarVisible === nextProps.sidebarVisible &&
-    prevProps.stateHighlightData === nextProps.stateHighlightData
+    prevProps.stateHighlightData === nextProps.stateHighlightData &&
+    prevProps.selectedMarkerCoords === nextProps.selectedMarkerCoords
   );
 });

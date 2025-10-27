@@ -47,13 +47,64 @@
 }
 
 .markers-list li {
-  padding: 2px 0;
+  padding: 8px 10px;
   border-bottom: 1px solid #eee;
   font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.markers-list li:hover {
+  background-color: #f9f9f9;
+}
+
+.markers-list li.expanded {
+  background-color: #f0f8ff;
+  border-left: 3px solid #646cff;
+  padding-left: 7px;
 }
 
 .markers-list li:last-child {
   border-bottom: none;
+}
+
+.marker-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.marker-summary-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.marker-name {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expand-icon {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.marker-details {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
 }
 
 .markers-list small {

@@ -1,0 +1,108 @@
+/* Popup Container */
+.marker-popup {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 300px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Header Section */
+.popup-header {
+  margin-bottom: 12px;
+}
+
+.popup-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.popup-subtitle,
+.popup-coordinates {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.popup-timestamp {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+}
+
+/* Properties Section */
+.popup-properties {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.popup-section-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* Properties Table */
+.popup-properties-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.popup-properties-table thead {
+  background-color: #f5f5f5;
+}
+
+.popup-properties-table th {
+  text-align: left;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  font-weight: 600;
+  color: #555;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.popup-properties-table td {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+}
+
+.popup-properties-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.popup-properties-table tbody tr:hover {
+  background-color: #f0f0f0;
+}
+
+.property-name {
+  font-weight: 500;
+  color: #555;
+  white-space: nowrap;
+}
+
+.property-value {
+  color: #333;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Scrolling for many properties */
+.popup-properties-table tbody {
+  display: block;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.popup-properties-table thead,
+.popup-properties-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}

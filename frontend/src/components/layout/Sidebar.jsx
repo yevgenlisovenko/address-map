@@ -13,7 +13,8 @@ export default function Sidebar({
   visibleMarkers,
   showAllPins,
   pinsToShow,
-  onToggleShowAll
+  onToggleShowAll,
+  onMarkerClick
 }) {
   // Get config and connection status from contexts
   const { config } = useAppConfig();
@@ -66,6 +67,7 @@ export default function Sidebar({
               showAllPins={showAllPins}
               pinsToShow={pinsToShow}
               onToggleShowAll={onToggleShowAll}
+              onMarkerClick={onMarkerClick}
             />
           </div>
           <div className="stats-fixed-section">
@@ -85,4 +87,5 @@ Sidebar.propTypes = {
   showAllPins: PropTypes.bool.isRequired,
   pinsToShow: PropTypes.number.isRequired,
   onToggleShowAll: PropTypes.func.isRequired,
+  onMarkerClick: PropTypes.func,
 };

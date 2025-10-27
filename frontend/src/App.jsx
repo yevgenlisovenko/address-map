@@ -34,6 +34,7 @@ function AppContent() {
   const [selectedTimeWindow, setSelectedTimeWindow] = useState('1hr');
   const [timeSelectionMode, setTimeSelectionMode] = useState('preset');
   const [customStartTime, setCustomStartTime] = useState(null);
+  const [selectedMarkerCoords, setSelectedMarkerCoords] = useState(null);
 
   // Initialize selectedTimeWindow from config when loaded
   useEffect(() => {
@@ -96,6 +97,10 @@ function AppContent() {
     setShowAllPins(prev => !prev);
   }, []);
 
+  const handleMarkerClick = useCallback((marker) => {
+    setSelectedMarkerCoords({ lat: marker.lat, lon: marker.lon });
+  }, []);
+
   // Loading and error states
   if (loading) {
     return <LoadingSpinner />;
@@ -121,6 +126,7 @@ function AppContent() {
           showAllPins={showAllPins}
           pinsToShow={DEFAULT_PINS_TO_SHOW}
           onToggleShowAll={handleToggleShowAll}
+          onMarkerClick={handleMarkerClick}
         />
       )}
 
@@ -129,6 +135,7 @@ function AppContent() {
           markers={visibleMarkers}
           sidebarVisible={isSidebarVisible}
           stateHighlightData={stateHighlightData}
+          selectedMarkerCoords={selectedMarkerCoords}
         />
       </div>
     </div>
