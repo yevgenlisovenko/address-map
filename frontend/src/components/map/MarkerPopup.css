@@ -36,73 +36,49 @@
 .popup-properties {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #e0e0e0;
 }
 
 .popup-section-title {
-  font-weight: bold;
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 8px;
-}
-
-/* Properties Table */
-.popup-properties-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.popup-properties-table thead {
-  background-color: #f5f5f5;
-}
-
-.popup-properties-table th {
-  text-align: left;
-  padding: 6px 8px;
-  border: 1px solid #ddd;
   font-weight: 600;
-  color: #555;
-  font-size: 12px;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.popup-properties-table td {
-  padding: 6px 8px;
-  border: 1px solid #ddd;
-}
-
-.popup-properties-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.popup-properties-table tbody tr:hover {
-  background-color: #f0f0f0;
-}
-
-.property-name {
-  font-weight: 500;
-  color: #555;
-  white-space: nowrap;
-}
-
-.property-value {
-  color: #333;
-  text-align: right;
-  word-break: break-word;
-}
-
-/* Scrolling for many properties */
-.popup-properties-table tbody {
-  display: block;
+/* Properties List */
+.properties-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   max-height: 200px;
   overflow-y: auto;
 }
 
-.popup-properties-table thead,
-.popup-properties-table tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+.property-item {
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+}
+
+.property-item:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.property-item:hover {
+  background-color: #e9ecef;
+}
+
+.property-name {
+  font-weight: 600;
+  color: #495057;
+}
+
+.property-value {
+  color: #212529;
+  word-break: break-word;
 }

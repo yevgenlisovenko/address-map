@@ -12,9 +12,14 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
     setExpandedIndex(null);
   }, [showAllPins]);
 
-  const handleMarkerClick = (marker, index) => {
+  const handleToggleExpand = (index) => {
     // Toggle expansion: if same item clicked, collapse; otherwise expand new item
     setExpandedIndex(expandedIndex === index ? null : index);
+  };
+
+  const handleLocationClick = (marker, event) => {
+    // Stop propagation to prevent triggering expand/collapse
+    event.stopPropagation();
     // Notify parent to pan map to this marker
     if (onMarkerClick) {
       onMarkerClick(marker);
@@ -36,7 +41,7 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
             <li key={index} className={isExpanded ? 'expanded' : ''}>
               <div
                 className="marker-summary"
-                onClick={() => handleMarkerClick(marker, index)}
+                onClick={() => handleToggleExpand(index)}
               >
                 <div className="marker-summary-text">
                   <div className="marker-name">
@@ -44,6 +49,14 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
                   </div>
                   <small>{new Date(marker.timestamp).toLocaleTimeString()}</small>
                 </div>
+                <button
+                  className="location-button"
+                  onClick={(e) => handleLocationClick(marker, e)}
+                  title="Show on map"
+                  aria-label="Show on map"
+                >
+                  📍
+                </button>
                 <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>
                   ▼
                 </span>

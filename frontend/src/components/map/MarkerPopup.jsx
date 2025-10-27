@@ -57,26 +57,18 @@ export default function MarkerPopup({ marker }) {
         </div>
       </div>
 
-      {/* Properties Table (only if properties exist) */}
+      {/* Properties List (only if properties exist) */}
       {hasProperties && (
         <div className="popup-properties">
           <div className="popup-section-title">Properties</div>
-          <table className="popup-properties-table">
-            <thead>
-              <tr>
-                <th>Property</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(marker.properties).map(([key, value]) => (
-                <tr key={key}>
-                  <td className="property-name">{formatPropertyName(key)}</td>
-                  <td className="property-value">{formatPropertyValue(value)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="properties-list">
+            {Object.entries(marker.properties).map(([key, value]) => (
+              <div key={key} className="property-item">
+                <span className="property-name">{formatPropertyName(key)}:</span>{' '}
+                <span className="property-value">{formatPropertyValue(value)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
