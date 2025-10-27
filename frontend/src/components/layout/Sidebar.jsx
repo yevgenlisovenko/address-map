@@ -3,19 +3,21 @@ import PropTypes from 'prop-types';
 import PinTimeSelector from '../pins/PinTimeSelector';
 import MarkersList from '../pins/MarkersList';
 import Stats from '../stats/Stats';
+import { useAppConfig, useSocketContext } from '../../contexts';
 import './Sidebar.css';
 
 export default function Sidebar({
-  config,
   selectedTimeWindow,
   onTimeWindowChange,
   onCustomTimeSubmit,
-  isConnected,
   visibleMarkers,
   showAllPins,
   pinsToShow,
   onToggleShowAll
 }) {
+  // Get config and connection status from contexts
+  const { config } = useAppConfig();
+  const { isConnected } = useSocketContext();
   const [activeTab, setActiveTab] = useState('stats');
 
   return (
@@ -77,15 +79,9 @@ export default function Sidebar({
 }
 
 Sidebar.propTypes = {
-  config: PropTypes.shape({
-    timeWindowOptions: PropTypes.object,
-    defaultTimeWindow: PropTypes.string,
-    maxAge: PropTypes.number,
-  }),
   selectedTimeWindow: PropTypes.string.isRequired,
   onTimeWindowChange: PropTypes.func.isRequired,
   onCustomTimeSubmit: PropTypes.func.isRequired,
-  isConnected: PropTypes.bool.isRequired,
   visibleMarkers: PropTypes.array.isRequired,
   showAllPins: PropTypes.bool.isRequired,
   pinsToShow: PropTypes.number.isRequired,

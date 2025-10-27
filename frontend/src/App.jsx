@@ -4,18 +4,29 @@ import Sidebar from './components/layout/Sidebar';
 import FloatingControls from './components/layout/FloatingControls';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorMessage from './components/common/ErrorMessage';
-import { useSocket } from './hooks/useSocket';
-import { useConfig } from './hooks/useConfig';
+import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } from './contexts';
 import { usePinFilter } from './hooks/usePinFilter';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
-import { BACKEND_URL, DEFAULT_PINS_TO_SHOW } from './utils/constants';
+import { DEFAULT_PINS_TO_SHOW } from './utils/constants';
 import './App.css';
 
 function App() {
-  // Custom hooks
+  return (
+    <AppConfigProvider>
+      <SocketProvider>
+        <AppContent />
+      </SocketProvider>
+    </AppConfigProvider>
+  );
+}
+
+function AppContent() {
+  // Document meta (title, favicon)
   useDocumentMeta();
-  const { socket, isConnected, markers, status, setStatus, stateHighlightData } = useSocket(BACKEND_URL);
-  const { config, loading, error } = useConfig(BACKEND_URL);
+
+  // Access shared state via contexts
+  const { config, loading, error } = useAppConfig();
+  const { socket, isConnected, markers, setStatus, stateHighlightData } = useSocketContext();
 
   // UI state
   const [showAllPins, setShowAllPins] = useState(false);
@@ -97,18 +108,15 @@ function App() {
   return (
     <div className="app">
       <FloatingControls
-        isConnected={isConnected}
         isSidebarVisible={isSidebarVisible}
         onToggleSidebar={handleToggleSidebar}
       />
 
       {isSidebarVisible && (
         <Sidebar
-          config={config}
           selectedTimeWindow={selectedTimeWindow}
           onTimeWindowChange={handleTimeWindowChange}
           onCustomTimeSubmit={handleCustomTimeSubmit}
-          isConnected={isConnected}
           visibleMarkers={visibleMarkers}
           showAllPins={showAllPins}
           pinsToShow={DEFAULT_PINS_TO_SHOW}

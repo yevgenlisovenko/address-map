@@ -1,8 +1,12 @@
 import PropTypes from 'prop-types';
 import ConnectionStatus from './ConnectionStatus';
+import { useSocketContext } from '../../contexts';
 import './FloatingControls.css';
 
-export default function FloatingControls({ isConnected, isSidebarVisible, onToggleSidebar }) {
+export default function FloatingControls({ isSidebarVisible, onToggleSidebar }) {
+  // Get connection status from context
+  const { isConnected } = useSocketContext();
+
   return (
     <div className={`floating-controls ${isSidebarVisible ? 'sidebar-open' : ''}`}>
       <ConnectionStatus isConnected={isConnected} />
@@ -17,7 +21,6 @@ export default function FloatingControls({ isConnected, isSidebarVisible, onTogg
 }
 
 FloatingControls.propTypes = {
-  isConnected: PropTypes.bool.isRequired,
   isSidebarVisible: PropTypes.bool.isRequired,
   onToggleSidebar: PropTypes.func.isRequired,
 };

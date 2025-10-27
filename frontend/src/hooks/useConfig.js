@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from '../utils/logger';
 
 /**
  * Custom hook to fetch and manage application configuration from backend
@@ -24,7 +25,7 @@ export const useConfig = (backendUrl) => {
         setConfig(data.pinStorage);
         setError(null);
       } catch (err) {
-        console.error('Failed to load config:', err);
+        logger.error('Failed to load config:', err);
         setError(err.message);
       } finally {
         setLoading(false);
