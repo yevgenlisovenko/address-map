@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../config/markerColorMapping";
+import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../../config/markerColorMapping";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 
@@ -48,7 +48,7 @@ function getMarkerIcon(marker) {
   return defaultMarkerIcon;
 }
 
-export default function Map({ markers, sidebarVisible, stateHighlightData }) {
+function Map({ markers, sidebarVisible, stateHighlightData }) {
   // Default center: Continental USA (excludes Alaska and Hawaii)
   const defaultCenter = [39.8283, -98.5795];
   const defaultZoom = 5;
@@ -153,3 +153,12 @@ export default function Map({ markers, sidebarVisible, stateHighlightData }) {
     </div>
   );
 }
+
+// Memoize Map component to prevent unnecessary re-renders
+export default memo(Map, (prevProps, nextProps) => {
+  return (
+    prevProps.markers === nextProps.markers &&
+    prevProps.sidebarVisible === nextProps.sidebarVisible &&
+    prevProps.stateHighlightData === nextProps.stateHighlightData
+  );
+});

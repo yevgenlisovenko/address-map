@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { PROPERTY_MARKERS_MAP, defaultMarkerIcon } from '../config/markerColorMapping';
+import { PROPERTY_MARKERS_MAP, defaultMarkerIcon } from '../../config/markerColorMapping';
+import './MapLegend.css';
 
 export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] } }) {
   const [isExpanded, setIsExpanded] = useState(true);

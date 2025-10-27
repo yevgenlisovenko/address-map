@@ -1,0 +1,22 @@
+.connection-status {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 11px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border: 2px solid;
+  white-space: nowrap;
+}
+
+.connection-status.connected {
+  background: #d4edda;
+  color: #155724;
+  border-color: #28a745;
+}
+
+.connection-status.disconnected {
+  background: #f8d7da;
+  color: #721c24;
+  border-color: #dc3545;
+}

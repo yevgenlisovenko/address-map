@@ -1,3 +1,5 @@
+import './MarkersList.css';
+
 export default function MarkersList({ markers, showAllPins, pinsToShow, onToggleShowAll }) {
   markers.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
   return (

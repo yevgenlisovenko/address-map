@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GeoJSON } from 'react-leaflet';
-import usStatesGeoJson from '../assets/geoJSON/us-states.json';
+import usStatesGeoJson from '../../assets/geoJSON/us-states.json';
 
 // Mapping from GeoJSON property names to state abbreviations
 const STATE_NAME_TO_ABBR = {

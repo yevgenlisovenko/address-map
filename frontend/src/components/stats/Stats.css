@@ -1,0 +1,73 @@
+.stats {
+  margin-top: 5px;
+  padding: 5px 15px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.stats h3 {
+  font-size: 16px;
+  margin: 0;
+  color: #333;
+}
+
+.stat-section {
+  margin-bottom: 20px;
+}
+
+.stat-section:last-child {
+  margin-bottom: 0;
+}
+
+.stat-section h4 {
+  font-size: 14px;
+  margin-bottom: 0px;
+  color: #646cff;
+  padding-bottom: 5px;
+}
+
+.leaderboard {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  margin-bottom: 5px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border-left: 3px solid #646cff;
+}
+
+.leaderboard-item:first-child {
+  background: #fff4e6;
+  border-left-color: #ffa500;
+  font-weight: bold;
+}
+
+.leaderboard-item .rank {
+  font-size: 12px;
+  color: #666;
+  width: 30px;
+  font-weight: bold;
+}
+
+.leaderboard-item .value {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+}
+
+.leaderboard-item .count {
+  font-size: 14px;
+  font-weight: bold;
+  color: #646cff;
+  background: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid #646cff;
+}
