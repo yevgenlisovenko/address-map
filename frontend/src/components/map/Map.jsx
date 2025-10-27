@@ -61,6 +61,9 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
     [49.384358, -66.93457], // Northeast corner
   ];
 
+  // Track last panned coordinates to prevent repeated panning
+  const lastPannedRef = useRef(null);
+
   // Component to handle map resize when sidebar visibility changes
   function MapResizeHandler() {
     const map = useMap();
@@ -83,9 +86,19 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
 
     useEffect(() => {
       if (selectedMarkerCoords) {
-        map.flyTo([selectedMarkerCoords.lat, selectedMarkerCoords.lon], 12, {
-          duration: 1.5 // smooth animation duration in seconds
-        });
+        // Check if these are actually new coordinates
+        const isSameLocation = lastPannedRef.current &&
+          lastPannedRef.current.lat === selectedMarkerCoords.lat &&
+          lastPannedRef.current.lon === selectedMarkerCoords.lon;
+
+        // Only pan if coordinates changed
+        if (!isSameLocation) {
+          map.flyTo([selectedMarkerCoords.lat, selectedMarkerCoords.lon], 12, {
+            duration: 1.5 // smooth animation duration in seconds
+          });
+          // Update ref to track this pan
+          lastPannedRef.current = selectedMarkerCoords;
+        }
       }
     }, [selectedMarkerCoords, map]);
 
