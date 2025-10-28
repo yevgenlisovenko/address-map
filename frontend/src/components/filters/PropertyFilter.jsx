@@ -88,6 +88,31 @@ export default function PropertyFilter({ propertyFilters, onFilterChange }) {
     onFilterChange({});
   };
 
+  // Select all items for a specific property
+  const handleSelectAll = (propertyName, allValues) => {
+    setFilters(prev => {
+      const newFilters = {
+        ...prev,
+        [propertyName]: {
+          type: 'dropdown',
+          values: [...allValues]
+        }
+      };
+      onFilterChange(newFilters);
+      return newFilters;
+    });
+  };
+
+  // Deselect all items for a specific property
+  const handleDeselectAll = (propertyName) => {
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      delete newFilters[propertyName];
+      onFilterChange(newFilters);
+      return newFilters;
+    });
+  };
+
   // Count active filters
   const activeFilterCount = Object.values(filters).reduce((count, filter) => {
     if (filter.type === 'dropdown') {
@@ -130,6 +155,20 @@ export default function PropertyFilter({ propertyFilters, onFilterChange }) {
 
                 {isExpanded && (
                   <div className="dropdown-content">
+                    <div className="dropdown-actions">
+                      <button
+                        className="dropdown-action-button"
+                        onClick={() => handleSelectAll(property.propertyName, property.values)}
+                      >
+                        Select All
+                      </button>
+                      <button
+                        className="dropdown-action-button"
+                        onClick={() => handleDeselectAll(property.propertyName)}
+                      >
+                        Deselect All
+                      </button>
+                    </div>
                     {property.values.map(value => {
                       const isSelected = currentFilter?.values?.includes(value) || false;
                       return (
