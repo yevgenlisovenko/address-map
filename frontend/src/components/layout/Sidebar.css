@@ -77,6 +77,21 @@
   background: #f5f5f5;
 }
 
+/* Tab Content Containers */
+.filter-tab-content,
+.stats-tab-content {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.filter-tab-content.active-tab,
+.stats-tab-content.active-tab {
+  display: flex;
+}
+
 .sidebar h1 {
   font-size: 24px;
   margin-bottom: 20px;

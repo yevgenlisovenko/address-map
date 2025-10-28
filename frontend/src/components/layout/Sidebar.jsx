@@ -44,30 +44,28 @@ export default function Sidebar({
       </div>
 
       {/* Filter Tab Content */}
-      {activeTab === 'filter' && (
-        <>
-          <div className="sidebar-fixed-top">
-            {config && (
-              <PinTimeSelector
-                config={config}
-                selectedTimeWindow={selectedTimeWindow}
-                onPresetChange={onTimeWindowChange}
-                onCustomTimeSubmit={onCustomTimeSubmit}
-                isConnected={isConnected}
-              />
-            )}
-            <PropertyFilter
-              propertyFilters={propertyFilters}
-              onFilterChange={onPropertyFilterChange}
+      <div className={`filter-tab-content ${activeTab === 'filter' ? 'active-tab' : ''}`}>
+        <div className="sidebar-fixed-top">
+          {config && (
+            <PinTimeSelector
+              config={config}
+              selectedTimeWindow={selectedTimeWindow}
+              onPresetChange={onTimeWindowChange}
+              onCustomTimeSubmit={onCustomTimeSubmit}
+              isConnected={isConnected}
             />
-          </div>
-          <div className="sidebar-scrollable-middle"></div>
-          <div className="sidebar-fixed-bottom"></div>
-        </>
-      )}
+          )}
+          <PropertyFilter
+            propertyFilters={propertyFilters}
+            onFilterChange={onPropertyFilterChange}
+          />
+        </div>
+        <div className="sidebar-scrollable-middle"></div>
+        <div className="sidebar-fixed-bottom"></div>
+      </div>
 
       {/* Stats Tab Content */}
-      {activeTab === 'stats' && (
+      <div className={`stats-tab-content ${activeTab === 'stats' ? 'active-tab' : ''}`}>
         <div className="stats-tab-layout">
           <div className="pins-scrollable-section">
             <MarkersList
@@ -82,7 +80,7 @@ export default function Sidebar({
             <Stats markers={visibleMarkers} />
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
