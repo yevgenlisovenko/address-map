@@ -104,7 +104,7 @@ export default function PropertyFilter({ propertyFilters, onFilterChange }) {
 
   return (
     <div className="property-filter">
-      <h3>Property Filters</h3>
+      <h3>Filters</h3>
 
       {enabledProperties.map(property => {
         const hasValues = property.values && property.values.length > 0;
