@@ -1,0 +1,159 @@
+.property-filter {
+  padding: 15px 0;
+}
+
+.property-filter h3 {
+  font-size: 16px;
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* Collapsible dropdown header */
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.dropdown-header:hover {
+  background-color: #e9ecef;
+  border-color: #ccc;
+}
+
+.dropdown-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.dropdown-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+/* Dropdown content (collapsible) */
+.dropdown-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fff;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Legacy dropdown class (for backwards compatibility) */
+.filter-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  font-size: 13px;
+}
+
+.filter-checkbox:hover {
+  background-color: #f5f5f5;
+}
+
+.filter-checkbox input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.filter-checkbox span {
+  flex: 1;
+  user-select: none;
+}
+
+/* Text input mode */
+.filter-text-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.filter-text-input:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.filter-text-input::placeholder {
+  color: #999;
+}
+
+/* Footer with active count and clear button */
+.filter-footer {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.active-filters-count {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.clear-filters-button {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.clear-filters-button:hover {
+  background-color: #e0e0e0;
+  border-color: #ccc;
+}
+
+.clear-filters-button:active {
+  transform: scale(0.98);
+}

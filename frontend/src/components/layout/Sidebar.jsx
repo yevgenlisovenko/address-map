@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import PinTimeSelector from '../pins/PinTimeSelector';
 import MarkersList from '../pins/MarkersList';
 import Stats from '../stats/Stats';
+import PropertyFilter from '../filters/PropertyFilter';
 import { useAppConfig, useSocketContext } from '../../contexts';
 import './Sidebar.css';
 
@@ -14,7 +15,9 @@ export default function Sidebar({
   showAllPins,
   pinsToShow,
   onToggleShowAll,
-  onMarkerClick
+  onMarkerClick,
+  propertyFilters,
+  onPropertyFilterChange
 }) {
   // Get config and connection status from contexts
   const { config } = useAppConfig();
@@ -52,6 +55,10 @@ export default function Sidebar({
                 isConnected={isConnected}
               />
             )}
+            <PropertyFilter
+              propertyFilters={propertyFilters}
+              onFilterChange={onPropertyFilterChange}
+            />
           </div>
           <div className="sidebar-scrollable-middle"></div>
           <div className="sidebar-fixed-bottom"></div>
@@ -88,4 +95,6 @@ Sidebar.propTypes = {
   pinsToShow: PropTypes.number.isRequired,
   onToggleShowAll: PropTypes.func.isRequired,
   onMarkerClick: PropTypes.func,
+  propertyFilters: PropTypes.object,
+  onPropertyFilterChange: PropTypes.func.isRequired,
 };

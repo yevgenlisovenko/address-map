@@ -5,7 +5,7 @@ import FloatingControls from './components/layout/FloatingControls';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorMessage from './components/common/ErrorMessage';
 import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } from './contexts';
-import { usePinFilter } from './hooks/usePinFilter';
+import { usePropertyFilter } from './hooks/usePropertyFilter';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
 import { DEFAULT_PINS_TO_SHOW } from './utils/constants';
 import './App.css';
@@ -35,6 +35,7 @@ function AppContent() {
   const [timeSelectionMode, setTimeSelectionMode] = useState('preset');
   const [customStartTime, setCustomStartTime] = useState(null);
   const [selectedMarkerCoords, setSelectedMarkerCoords] = useState(null);
+  const [propertyFilters, setPropertyFilters] = useState({});
 
   // Initialize selectedTimeWindow from config when loaded
   useEffect(() => {
@@ -43,13 +44,14 @@ function AppContent() {
     }
   }, [config]);
 
-  // Filter markers based on time window
-  const visibleMarkers = usePinFilter(
+  // Filter markers based on time window AND properties
+  const visibleMarkers = usePropertyFilter(
     markers,
     config,
     selectedTimeWindow,
     timeSelectionMode,
-    customStartTime
+    customStartTime,
+    propertyFilters
   );
 
   // Event handlers (memoized)
@@ -101,6 +103,10 @@ function AppContent() {
     setSelectedMarkerCoords({ lat: marker.lat, lon: marker.lon });
   }, []);
 
+  const handlePropertyFilterChange = useCallback((filters) => {
+    setPropertyFilters(filters);
+  }, []);
+
   // Loading and error states
   if (loading) {
     return <LoadingSpinner />;
@@ -127,6 +133,8 @@ function AppContent() {
           pinsToShow={DEFAULT_PINS_TO_SHOW}
           onToggleShowAll={handleToggleShowAll}
           onMarkerClick={handleMarkerClick}
+          propertyFilters={propertyFilters}
+          onPropertyFilterChange={handlePropertyFilterChange}
         />
       )}
 
