@@ -21,10 +21,15 @@
 
 /* Header */
 .info-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 14px 18px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  cursor: pointer;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  user-select: none;
 }
 
 .info-panel-title {
@@ -33,6 +38,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.info-panel-toggle {
+  font-size: 14px;
+  color: white;
+  transition: transform 0.2s;
 }
 
 /* Content */

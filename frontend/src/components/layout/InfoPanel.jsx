@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import './InfoPanel.css';
 
@@ -11,6 +12,7 @@ export default function InfoPanel({
   sidebarVisible,
   config
 }) {
+  const [isExpanded, setIsExpanded] = useState(true);
   // Format time window for display
   const getTimeWindowDisplay = () => {
     if (timeSelectionMode === 'custom' && customStartTime) {
@@ -78,11 +80,17 @@ export default function InfoPanel({
 
   return (
     <div className={`info-panel ${sidebarVisible ? 'sidebar-open' : ''}`}>
-      <div className="info-panel-header">
+      <div
+        className="info-panel-header"
+        onClick={() => setIsExpanded(!isExpanded)}
+        title={isExpanded ? 'Click to collapse' : 'Click to expand'}
+      >
         <span className="info-panel-title">📊 Info Panel</span>
+        <span className="info-panel-toggle">{isExpanded ? '▼' : '▶'}</span>
       </div>
 
-      <div className="info-panel-content">
+      {isExpanded && (
+        <div className="info-panel-content">
         {/* Time Window */}
         <div className="info-section">
           <div className="info-section-icon">⏱️</div>
@@ -131,6 +139,7 @@ export default function InfoPanel({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
