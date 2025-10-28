@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Map from './components/map/Map';
 import Sidebar from './components/layout/Sidebar';
-import ConnectionStatus from './components/layout/ConnectionStatus';
+import InfoPanel from './components/layout/InfoPanel';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorMessage from './components/common/ErrorMessage';
 import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } from './contexts';
@@ -126,8 +126,17 @@ function AppContent() {
         {isSidebarVisible ? '✕' : '☰'}
       </button>
 
-      {/* Connection status */}
-      <ConnectionStatus isConnected={isConnected} sidebarVisible={isSidebarVisible} />
+      {/* Info Panel */}
+      <InfoPanel
+        selectedTimeWindow={selectedTimeWindow}
+        timeSelectionMode={timeSelectionMode}
+        customStartTime={customStartTime}
+        propertyFilters={propertyFilters}
+        pinCount={visibleMarkers.length}
+        isConnected={isConnected}
+        sidebarVisible={isSidebarVisible}
+        config={config}
+      />
 
       {/* Sidebar - always rendered, controlled by CSS transform */}
       <Sidebar

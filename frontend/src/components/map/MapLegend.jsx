@@ -49,7 +49,7 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
         onClick={() => setIsExpanded(!isExpanded)}
         title={isExpanded ? 'Click to collapse' : 'Click to expand'}
       >
-        <span className="legend-title">Legend</span>
+        <span className="legend-title">🗺️ Legend</span>
         <span className="legend-toggle">{isExpanded ? '▼' : '▶'}</span>
       </div>
 
