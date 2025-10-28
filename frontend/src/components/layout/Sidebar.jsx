@@ -8,6 +8,7 @@ import { useAppConfig, useSocketContext } from '../../contexts';
 import './Sidebar.css';
 
 export default function Sidebar({
+  isVisible,
   selectedTimeWindow,
   onTimeWindowChange,
   onCustomTimeSubmit,
@@ -25,7 +26,7 @@ export default function Sidebar({
   const [activeTab, setActiveTab] = useState('stats');
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isVisible ? 'visible' : 'hidden'}`}>
       {/* Tab Navigation */}
       <div className="sidebar-tabs">
         <button
@@ -87,6 +88,7 @@ export default function Sidebar({
 }
 
 Sidebar.propTypes = {
+  isVisible: PropTypes.bool.isRequired,
   selectedTimeWindow: PropTypes.string.isRequired,
   onTimeWindowChange: PropTypes.func.isRequired,
   onCustomTimeSubmit: PropTypes.func.isRequired,

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Map from './components/map/Map';
 import Sidebar from './components/layout/Sidebar';
-import FloatingControls from './components/layout/FloatingControls';
+import ConnectionStatus from './components/layout/ConnectionStatus';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorMessage from './components/common/ErrorMessage';
 import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } from './contexts';
@@ -118,25 +118,31 @@ function AppContent() {
 
   return (
     <div className="app">
-      <FloatingControls
-        isSidebarVisible={isSidebarVisible}
-        onToggleSidebar={handleToggleSidebar}
-      />
+      {/* Sidebar toggle button */}
+      <button
+        className={`sidebar-toggle-button ${isSidebarVisible ? 'sidebar-open' : ''}`}
+        onClick={handleToggleSidebar}
+      >
+        {isSidebarVisible ? '✕' : '☰'}
+      </button>
 
-      {isSidebarVisible && (
-        <Sidebar
-          selectedTimeWindow={selectedTimeWindow}
-          onTimeWindowChange={handleTimeWindowChange}
-          onCustomTimeSubmit={handleCustomTimeSubmit}
-          visibleMarkers={visibleMarkers}
-          showAllPins={showAllPins}
-          pinsToShow={DEFAULT_PINS_TO_SHOW}
-          onToggleShowAll={handleToggleShowAll}
-          onMarkerClick={handleMarkerClick}
-          propertyFilters={propertyFilters}
-          onPropertyFilterChange={handlePropertyFilterChange}
-        />
-      )}
+      {/* Connection status */}
+      <ConnectionStatus isConnected={isConnected} sidebarVisible={isSidebarVisible} />
+
+      {/* Sidebar - always rendered, controlled by CSS transform */}
+      <Sidebar
+        isVisible={isSidebarVisible}
+        selectedTimeWindow={selectedTimeWindow}
+        onTimeWindowChange={handleTimeWindowChange}
+        onCustomTimeSubmit={handleCustomTimeSubmit}
+        visibleMarkers={visibleMarkers}
+        showAllPins={showAllPins}
+        pinsToShow={DEFAULT_PINS_TO_SHOW}
+        onToggleShowAll={handleToggleShowAll}
+        onMarkerClick={handleMarkerClick}
+        propertyFilters={propertyFilters}
+        onPropertyFilterChange={handlePropertyFilterChange}
+      />
 
       <div className="map-container">
         <Map

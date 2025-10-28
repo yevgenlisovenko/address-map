@@ -3,10 +3,22 @@
   background: #f5f5f5;
   border-left: 2px solid #ddd;
   order: 2;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
   height: 100vh;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 999;
+}
+
+.sidebar.hidden {
+  transform: translateX(100%);
+}
+
+.sidebar.visible {
+  transform: translateX(0);
 }
 
 .sidebar-fixed-top {
