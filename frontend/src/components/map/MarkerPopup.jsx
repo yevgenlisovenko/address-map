@@ -22,7 +22,6 @@ function formatPropertyName(name) {
 function formatPropertyValue(value) {
   if (value === null || value === undefined) return 'N/A';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-  if (typeof value === 'number') return value.toLocaleString();
   return String(value);
 }
 
