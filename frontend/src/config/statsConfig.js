@@ -24,19 +24,19 @@ export const STATS_CONFIG = {
 
   // Numeric property aggregations (sum, avg, min, max, count)
   aggregations: [
-    {
-      id: 'premium',
-      propertyName: 'premium',
-      displayName: 'Premium',
-      operations: ['sum', 'max', 'avg'],
-      format: 'number',
-      decimals: 0,
-      showInStats: true,
-      showInInfoPanel: true,
-      enabled: true
-    }
     // Add more aggregations here as needed:
     // Example:
+    // {
+    //   id: 'premium',
+    //   propertyName: 'premium',
+    //   displayName: 'Premium',
+    //   operations: ['sum', 'max', 'avg'],
+    //   format: 'number',
+    //   decimals: 0,
+    //   showInStats: false,
+    //   showInInfoPanel: true,
+    //   enabled: true
+    // }
     // {
     //   id: 'policyCount',
     //   propertyName: null,                // null = count markers
