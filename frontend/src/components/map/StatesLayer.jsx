@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { GeoJSON } from 'react-leaflet';
-import usStatesGeoJson from '../assets/geoJSON/us-states.json';
+import usStatesGeoJson from '../../assets/geoJSON/us-states.json';
 
 // Mapping from GeoJSON property names to state abbreviations
 const STATE_NAME_TO_ABBR = {
@@ -119,3 +120,7 @@ export default function StatesLayer({ stateColors }) {
     />
   );
 }
+
+StatesLayer.propTypes = {
+  stateColors: PropTypes.objectOf(PropTypes.string).isRequired,
+};

@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { PROPERTY_MARKERS_MAP, defaultMarkerIcon } from '../config/markerColorMapping';
+import PropTypes from 'prop-types';
+import { PROPERTY_MARKERS_MAP, defaultMarkerIcon } from '../../config/markerColorMapping';
+import './MapLegend.css';
 
 export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] } }) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -47,7 +49,7 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
         onClick={() => setIsExpanded(!isExpanded)}
         title={isExpanded ? 'Click to collapse' : 'Click to expand'}
       >
-        <span className="legend-title">Legend</span>
+        <span className="legend-title">🗺️ Legend</span>
         <span className="legend-toggle">{isExpanded ? '▼' : '▶'}</span>
       </div>
 
@@ -104,3 +106,16 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
     </div>
   );
 }
+
+MapLegend.propTypes = {
+  stateHighlightData: PropTypes.shape({
+    colors: PropTypes.object,
+    groups: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string,
+        color: PropTypes.string,
+        states: PropTypes.arrayOf(PropTypes.string),
+      })
+    ),
+  }),
+};

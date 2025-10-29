@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import './PinTimeSelector.css';
 
 const PinTimeSelector = ({
@@ -164,6 +165,17 @@ const PinTimeSelector = ({
       )}
     </div>
   );
+};
+
+PinTimeSelector.propTypes = {
+  config: PropTypes.shape({
+    timeWindowOptions: PropTypes.object.isRequired,
+    maxAge: PropTypes.number.isRequired,
+  }),
+  selectedTimeWindow: PropTypes.string.isRequired,
+  onPresetChange: PropTypes.func.isRequired,
+  onCustomTimeSubmit: PropTypes.func.isRequired,
+  isConnected: PropTypes.bool.isRequired,
 };
 
 export default PinTimeSelector;

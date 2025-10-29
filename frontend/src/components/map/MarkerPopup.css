@@ -1,0 +1,84 @@
+/* Popup Container */
+.marker-popup {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 300px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Header Section */
+.popup-header {
+  margin-bottom: 12px;
+}
+
+.popup-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.popup-subtitle,
+.popup-coordinates {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.popup-timestamp {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+}
+
+/* Properties Section */
+.popup-properties {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.popup-section-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Properties List */
+.properties-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.property-item {
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+}
+
+.property-item:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.property-item:hover {
+  background-color: #e9ecef;
+}
+
+.property-name {
+  font-weight: 600;
+  color: #495057;
+}
+
+.property-value {
+  color: #212529;
+  word-break: break-word;
+}

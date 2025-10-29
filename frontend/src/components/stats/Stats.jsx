@@ -1,6 +1,9 @@
-import { STATS_CONFIG } from '../config/statsConfig';
+import { memo } from 'react';
+import PropTypes from 'prop-types';
+import { STATS_CONFIG } from '../../config/statsConfig';
+import './Stats.css';
 
-export default function Stats({ markers }) {
+function Stats({ markers }) {
   // Aggregate statistics for a specific property
   const aggregateStats = (markers, propertyName) => {
     const counts = {};
@@ -71,3 +74,16 @@ export default function Stats({ markers }) {
     </div>
   );
 }
+
+Stats.propTypes = {
+  markers: PropTypes.arrayOf(
+    PropTypes.shape({
+      properties: PropTypes.object,
+    })
+  ).isRequired,
+};
+
+// Memoize Stats to prevent recalculation when markers haven't changed
+export default memo(Stats, (prevProps, nextProps) => {
+  return prevProps.markers === nextProps.markers;
+});

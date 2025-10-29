@@ -1,10 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
+import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../config/markerColorMapping";
+import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../../config/markerColorMapping";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
+import MarkerPopup from "./MarkerPopup";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -48,16 +50,19 @@ function getMarkerIcon(marker) {
   return defaultMarkerIcon;
 }
 
-export default function Map({ markers, sidebarVisible, stateHighlightData }) {
+function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords }) {
   // Default center: Continental USA (excludes Alaska and Hawaii)
   const defaultCenter = [39.8283, -98.5795];
-  const defaultZoom = 5;
+  const defaultZoom = 5.25;
 
   // USA boundary coordinates (includes Alaska & Hawaii region)
   const usaBounds = [
     [24.396308, -125.0], // Southwest corner
     [49.384358, -66.93457], // Northeast corner
   ];
+
+  // Track last panned coordinates to prevent repeated panning
+  const lastPannedRef = useRef(null);
 
   // Component to handle map resize when sidebar visibility changes
   function MapResizeHandler() {
@@ -75,11 +80,38 @@ export default function Map({ markers, sidebarVisible, stateHighlightData }) {
     return null;
   }
 
+  // Component to handle map panning when marker is clicked from list
+  function MapPanHandler() {
+    const map = useMap();
+
+    useEffect(() => {
+      if (selectedMarkerCoords) {
+        // Check if these are actually new coordinates
+        const isSameLocation = lastPannedRef.current &&
+          lastPannedRef.current.lat === selectedMarkerCoords.lat &&
+          lastPannedRef.current.lon === selectedMarkerCoords.lon;
+
+        // Only pan if coordinates changed
+        if (!isSameLocation) {
+          map.flyTo([selectedMarkerCoords.lat, selectedMarkerCoords.lon], 12, {
+            duration: 1.5 // smooth animation duration in seconds
+          });
+          // Update ref to track this pan
+          lastPannedRef.current = selectedMarkerCoords;
+        }
+      }
+    }, [selectedMarkerCoords, map]);
+
+    return null;
+  }
+
   return (
     <div style={{ height: "100vh", width: "100%", position: "relative" }}>
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
+        zoomSnap={0.25}
+        zoomDelta={0.25}
         style={{ height: "100%", width: "100%" }}
         maxBounds={usaBounds}
         maxBoundsViscosity={1.0}
@@ -102,50 +134,15 @@ export default function Map({ markers, sidebarVisible, stateHighlightData }) {
               position={[marker.lat, marker.lon]}
               icon={getMarkerIcon(marker)}
             >
-            <Popup>
-              <div>
-                {marker.type === "address" ? (
-                  <>
-                    <strong>{marker.address}</strong>
-                    <br />
-                    <small>{marker.displayName}</small>
-                  </>
-                ) : (
-                  <>
-                    <strong>{marker.displayName}</strong>
-                    <br />
-                    <small>
-                      Lat: {marker.lat}, Lon: {marker.lon}
-                    </small>
-                  </>
-                )}
-                <br />
-                <small>
-                  Added: {new Date(marker.timestamp).toLocaleString()}
-                </small>
-                {marker.properties &&
-                  Object.keys(marker.properties).length > 0 && (
-                    <>
-                      <br />
-                      <br />
-                      <strong>Properties:</strong>
-                      <br />
-                      {Object.entries(marker.properties).map(([key, value]) => (
-                        <div key={key}>
-                          <small>
-                            <strong>{key}:</strong> {String(value)}
-                          </small>
-                        </div>
-                      ))}
-                    </>
-                  )}
-              </div>
-            </Popup>
+              <Popup>
+                <MarkerPopup marker={marker} />
+              </Popup>
           </Marker>
         ))}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
         <MapResizeHandler />
+        <MapPanHandler />
       </MapContainer>
 
       {/* Map Legend Overlay */}
@@ -153,3 +150,42 @@ export default function Map({ markers, sidebarVisible, stateHighlightData }) {
     </div>
   );
 }
+
+Map.propTypes = {
+  markers: PropTypes.arrayOf(
+    PropTypes.shape({
+      lat: PropTypes.number.isRequired,
+      lon: PropTypes.number.isRequired,
+      timestamp: PropTypes.string.isRequired,
+      displayName: PropTypes.string,
+      type: PropTypes.string,
+      address: PropTypes.string,
+      properties: PropTypes.object,
+    })
+  ).isRequired,
+  sidebarVisible: PropTypes.bool.isRequired,
+  stateHighlightData: PropTypes.shape({
+    colors: PropTypes.object,
+    groups: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string,
+        color: PropTypes.string,
+        states: PropTypes.arrayOf(PropTypes.string),
+      })
+    ),
+  }),
+  selectedMarkerCoords: PropTypes.shape({
+    lat: PropTypes.number.isRequired,
+    lon: PropTypes.number.isRequired,
+  }),
+};
+
+// Memoize Map component to prevent unnecessary re-renders
+export default memo(Map, (prevProps, nextProps) => {
+  return (
+    prevProps.markers === nextProps.markers &&
+    prevProps.sidebarVisible === nextProps.sidebarVisible &&
+    prevProps.stateHighlightData === nextProps.stateHighlightData &&
+    prevProps.selectedMarkerCoords === nextProps.selectedMarkerCoords
+  );
+});

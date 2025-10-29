@@ -19,6 +19,6 @@ export const STATS_CONFIG = {
   ],
 
   // Display settings
-  maxItemsPerProperty: 3,  // Top N items to show on leaderboard
+  maxItemsPerProperty: 5,  // Top N items to show on leaderboard
   sortOrder: 'desc'        // 'desc' for most to least, 'asc' for least to most
 };
