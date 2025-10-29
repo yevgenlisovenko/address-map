@@ -4,7 +4,7 @@
  */
 
 export const STATS_CONFIG = {
-  // Which properties to track and aggregate
+  // Which properties to track and aggregate (for leaderboard)
   trackedProperties: [
     {
       propertyName: 'state',
@@ -18,7 +18,57 @@ export const STATS_CONFIG = {
     }
   ],
 
-  // Display settings
+  // Display settings for leaderboard
   maxItemsPerProperty: 5,  // Top N items to show on leaderboard
-  sortOrder: 'desc'        // 'desc' for most to least, 'asc' for least to most
+  sortOrder: 'desc',       // 'desc' for most to least, 'asc' for least to most
+
+  // Numeric property aggregations (sum, avg, min, max, count)
+  aggregations: [
+    {
+      id: 'premium',
+      propertyName: 'premium',
+      displayName: 'Premium',
+      operations: ['sum', 'max', 'avg'],
+      format: 'number',
+      decimals: 0,
+      showInStats: true,
+      showInInfoPanel: true,
+      enabled: true
+    }
+    // Add more aggregations here as needed:
+    // Example:
+    // {
+    //   id: 'policyCount',
+    //   propertyName: null,                // null = count markers
+    //   displayName: 'Policies',
+    //   operations: ['count'],
+    //   format: 'number',
+    //   decimals: 0,
+    //   showInStats: true,
+    //   showInInfoPanel: true,
+    //   enabled: true
+    // },
+    // {
+    //   id: 'premium',
+    //   propertyName: 'premium',
+    //   displayName: 'Premium',
+    //   operations: ['sum', 'avg'],
+    //   format: 'currency',            // 'currency', 'number', 'percentage'
+    //   decimals: 2,
+    //   showInStats: true,
+    //   showInInfoPanel: true,
+    //   enabled: true
+    // },
+    // {
+    //   id: 'coverageAmount',
+    //   propertyName: 'coverageAmount',
+    //   displayName: 'Coverage Amount',
+    //   operations: ['sum', 'max', 'min', 'avg'],
+    //   format: 'currency',
+    //   decimals: 0,
+    //   showInStats: true,
+    //   showInInfoPanel: false,
+    //   enabled: true
+    // }
+  ]
 };

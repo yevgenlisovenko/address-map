@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useAggregations } from '../../hooks/useAggregations';
+import { STATS_CONFIG } from '../../config/statsConfig';
 import './InfoPanel.css';
 
 export default function InfoPanel({
@@ -10,9 +12,13 @@ export default function InfoPanel({
   pinCount,
   isConnected,
   sidebarVisible,
-  config
+  config,
+  visibleMarkers
 }) {
   const [isExpanded, setIsExpanded] = useState(true);
+
+  // Calculate aggregations for visible markers
+  const aggregations = useAggregations(visibleMarkers || []);
   // Format time window for display
   const getTimeWindowDisplay = () => {
     if (timeSelectionMode === 'custom' && customStartTime) {
@@ -109,6 +115,35 @@ export default function InfoPanel({
           </div>
         </div>
 
+        {/* Statistics - Only show aggregations configured for InfoPanel */}
+        {Object.entries(aggregations).map(([aggId, operations]) => {
+          const aggConfig = STATS_CONFIG.aggregations.find(a => a.id === aggId);
+
+          // Only show if configured to show in InfoPanel
+          if (!aggConfig || !aggConfig.showInInfoPanel) {
+            return null;
+          }
+
+          return (
+            <div key={aggId} className="info-section">
+              <div className="info-section-icon">📊</div>
+              <div className="info-section-content">
+                <div className="info-section-label">{aggConfig.displayName}</div>
+                <div className="info-stats-list">
+                  {Object.entries(operations).map(([operation, result]) => (
+                    <div key={operation} className="info-stat-item">
+                      <span className="stat-label">
+                        {operation.charAt(0).toUpperCase() + operation.slice(1)}:
+                      </span>{' '}
+                      <span className="stat-value">{result.formatted}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
         {/* Active Filters - Only show if filters exist */}
         {hasFilters && (
           <div className="info-section">
@@ -152,5 +187,6 @@ InfoPanel.propTypes = {
   pinCount: PropTypes.number.isRequired,
   isConnected: PropTypes.bool.isRequired,
   sidebarVisible: PropTypes.bool.isRequired,
-  config: PropTypes.object
+  config: PropTypes.object,
+  visibleMarkers: PropTypes.array
 };

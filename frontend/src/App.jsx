@@ -136,6 +136,7 @@ function AppContent() {
         isConnected={isConnected}
         sidebarVisible={isSidebarVisible}
         config={config}
+        visibleMarkers={visibleMarkers}
       />
 
       {/* Sidebar - always rendered, controlled by CSS transform */}

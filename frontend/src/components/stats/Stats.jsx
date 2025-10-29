@@ -1,9 +1,13 @@
 import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { STATS_CONFIG } from '../../config/statsConfig';
+import { useAggregations } from '../../hooks/useAggregations';
 import './Stats.css';
 
 function Stats({ markers }) {
+  // Calculate aggregations for visible markers
+  const aggregations = useAggregations(markers);
+
   // Aggregate statistics for a specific property
   const aggregateStats = (markers, propertyName) => {
     const counts = {};
@@ -47,6 +51,33 @@ function Stats({ markers }) {
 
       <div className="stats">
 
+        {/* Aggregations Section */}
+        {Object.entries(aggregations).map(([aggId, operations]) => {
+          const aggConfig = STATS_CONFIG.aggregations.find(a => a.id === aggId);
+
+          // Only show if configured to show in Stats
+          if (!aggConfig || !aggConfig.showInStats) {
+            return null;
+          }
+
+          return (
+            <div key={aggId} className="stat-section">
+              <h4>{aggConfig.displayName}</h4>
+              <div className="aggregations-list">
+                {Object.entries(operations).map(([operation, result]) => (
+                  <div key={operation} className="aggregation-item">
+                    <span className="aggregation-label">
+                      {operation.charAt(0).toUpperCase() + operation.slice(1)}:
+                    </span>
+                    <span className="aggregation-value">{result.formatted}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Leaderboard Sections */}
         {enabledProperties.map(property => {
           const stats = aggregateStats(markers, property.propertyName);
 

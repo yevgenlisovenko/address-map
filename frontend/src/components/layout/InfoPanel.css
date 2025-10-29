@@ -121,6 +121,30 @@
   word-break: break-word;
 }
 
+/* Statistics list in InfoPanel */
+.info-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.info-stat-item {
+  font-size: 13px;
+  color: #555;
+  padding: 4px 0;
+}
+
+.info-stat-item .stat-label {
+  font-weight: 600;
+  color: #666;
+}
+
+.info-stat-item .stat-value {
+  font-weight: 700;
+  color: #333;
+}
+
 /* Connection Status Section */
 .info-section-connection {
   padding-top: 12px;
