@@ -53,7 +53,7 @@ function getMarkerIcon(marker) {
 function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords }) {
   // Default center: Continental USA (excludes Alaska and Hawaii)
   const defaultCenter = [39.8283, -98.5795];
-  const defaultZoom = 5;
+  const defaultZoom = 5.25;
 
   // USA boundary coordinates (includes Alaska & Hawaii region)
   const usaBounds = [
@@ -110,6 +110,8 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
+        zoomSnap={0.25}
+        zoomDelta={0.25}
         style={{ height: "100%", width: "100%" }}
         maxBounds={usaBounds}
         maxBoundsViscosity={1.0}
