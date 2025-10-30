@@ -44,10 +44,23 @@ function Stats({ markers }) {
     return null;
   }
 
+  // Show empty state when no markers
+  const hasNoMarkers = markers.length === 0;
+
   return (
     <div className="sidebar-group">
 
       <h3>Statistics</h3>
+
+      {hasNoMarkers && (
+        <div className="empty-state">
+          <div className="empty-state-icon">📊</div>
+          <div className="empty-state-message">No statistics available</div>
+          <div className="empty-state-submessage">
+            Statistics will appear once pins are loaded
+          </div>
+        </div>
+      )}
 
       <div className="stats">
 

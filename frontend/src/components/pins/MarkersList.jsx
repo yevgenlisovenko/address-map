@@ -26,6 +26,24 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
     }
   };
 
+  // Show empty state when no markers
+  if (markers.length === 0) {
+    return (
+      <div className="markers-list">
+        <div className="markers-header">
+          <h3>Pins (0)</h3>
+        </div>
+        <div className="empty-state">
+          <div className="empty-state-icon">📍</div>
+          <div className="empty-state-message">No pins to display</div>
+          <div className="empty-state-submessage">
+            Select a time window in the Filter tab to view pins
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="markers-list">
       <div className="markers-header">
