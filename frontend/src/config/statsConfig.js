@@ -27,16 +27,27 @@ export const STATS_CONFIG = {
     // Add more aggregations here as needed:
     // Example:
     // {
-    //   id: 'premium',
+    //   id: 'premium1',
     //   propertyName: 'premium',
     //   displayName: 'Premium',
-    //   operations: ['sum', 'max', 'avg'],
+    //   operations: ['sum'],
     //   format: 'number',
     //   decimals: 0,
     //   showInStats: false,
     //   showInInfoPanel: true,
     //   enabled: true
-    // }
+    // },
+    // {
+    //   id: 'premium2',
+    //   propertyName: 'premium',
+    //   displayName: 'Premium',
+    //   operations: ['sum', 'max', 'min', 'avg'],
+    //   format: 'number',
+    //   decimals: 0,
+    //   showInStats: true,
+    //   showInInfoPanel: false,
+    //   enabled: true
+    // },
     // {
     //   id: 'policyCount',
     //   propertyName: null,                // null = count markers
