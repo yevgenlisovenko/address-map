@@ -7,42 +7,42 @@ export const STATS_CONFIG = {
   // Which properties to track and aggregate (for leaderboard)
   trackedProperties: [
     {
-      propertyName: 'state',
-      displayName: 'State',
-      enabled: true
+      propertyName: "state",
+      displayName: "State",
+      enabled: true,
     },
     {
-      propertyName: 'formCode',
-      displayName: 'Form',
-      enabled: true
-    }
+      propertyName: "formCode",
+      displayName: "Form",
+      enabled: true,
+    },
   ],
 
   // Display settings for leaderboard
-  maxItemsPerProperty: 5,  // Top N items to show on leaderboard
-  sortOrder: 'desc',       // 'desc' for most to least, 'asc' for least to most
+  maxItemsPerProperty: 5, // Top N items to show on leaderboard
+  sortOrder: "desc", // 'desc' for most to least, 'asc' for least to most
 
   // Numeric property aggregations (sum, avg, min, max, count)
   aggregations: [
     // Add more aggregations here as needed:
     // Example:
     // {
-    //   id: 'premium1',
-    //   propertyName: 'premium',
+    //   id: 'premiumInfoPanel',
+    //   propertyName: 'Premium',
     //   displayName: 'Premium',
     //   operations: ['sum'],
-    //   format: 'number',
+    //   format: 'currency',
     //   decimals: 0,
     //   showInStats: false,
     //   showInInfoPanel: true,
     //   enabled: true
     // },
     // {
-    //   id: 'premium2',
-    //   propertyName: 'premium',
+    //   id: 'premiumStats',
+    //   propertyName: 'Premium',
     //   displayName: 'Premium',
     //   operations: ['sum', 'max', 'min', 'avg'],
-    //   format: 'number',
+    //   format: 'currency',
     //   decimals: 0,
     //   showInStats: true,
     //   showInInfoPanel: false,
@@ -81,5 +81,5 @@ export const STATS_CONFIG = {
     //   showInInfoPanel: false,
     //   enabled: true
     // }
-  ]
+  ],
 };
