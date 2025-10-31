@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Map from './components/map/Map';
 import Sidebar from './components/layout/Sidebar';
 import InfoPanel from './components/layout/InfoPanel';
@@ -7,7 +7,7 @@ import ErrorMessage from './components/common/ErrorMessage';
 import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } from './contexts';
 import { usePropertyFilter } from './hooks/usePropertyFilter';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
-import { DEFAULT_PINS_TO_SHOW } from './utils/constants';
+import { DEFAULT_PINS_TO_SHOW, DEFAULT_MAP_VIEW } from './utils/constants';
 import './App.css';
 
 function App() {
@@ -36,6 +36,10 @@ function AppContent() {
   const [customStartTime, setCustomStartTime] = useState(null);
   const [selectedMarkerCoords, setSelectedMarkerCoords] = useState(null);
   const [propertyFilters, setPropertyFilters] = useState({});
+
+  // Map view state for "Reset View" feature
+  const [showReturnButton, setShowReturnButton] = useState(false);
+  const mapInstanceRef = useRef(null);
 
   // Initialize selectedTimeWindow from config when loaded
   useEffect(() => {
@@ -100,7 +104,23 @@ function AppContent() {
   }, []);
 
   const handleMarkerClick = useCallback((marker) => {
+    // Show reset button when user clicks on marker
+    setShowReturnButton(true);
     setSelectedMarkerCoords({ lat: marker.lat, lon: marker.lon });
+  }, []);
+
+  const handleMapReady = useCallback((map) => {
+    mapInstanceRef.current = map;
+  }, []);
+
+  const handleReturnToView = useCallback(() => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo(DEFAULT_MAP_VIEW.center, DEFAULT_MAP_VIEW.zoom, {
+        duration: 1.5
+      });
+      setShowReturnButton(false);
+      setSelectedMarkerCoords(null);
+    }
   }, []);
 
   const handlePropertyFilterChange = useCallback((filters) => {
@@ -152,6 +172,8 @@ function AppContent() {
         onMarkerClick={handleMarkerClick}
         propertyFilters={propertyFilters}
         onPropertyFilterChange={handlePropertyFilterChange}
+        showReturnButton={showReturnButton}
+        onReturnToView={handleReturnToView}
       />
 
       <div className="map-container">
@@ -160,6 +182,7 @@ function AppContent() {
           sidebarVisible={isSidebarVisible}
           stateHighlightData={stateHighlightData}
           selectedMarkerCoords={selectedMarkerCoords}
+          onMapReady={handleMapReady}
         />
       </div>
     </div>

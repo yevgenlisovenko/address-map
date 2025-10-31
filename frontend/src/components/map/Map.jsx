@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../../config/markerColorMapping";
+import { DEFAULT_MAP_VIEW } from "../../utils/constants";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 import MarkerPopup from "./MarkerPopup";
@@ -50,10 +51,9 @@ function getMarkerIcon(marker) {
   return defaultMarkerIcon;
 }
 
-function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords }) {
-  // Default center: Continental USA (excludes Alaska and Hawaii)
-  const defaultCenter = [39.8283 - 1.3, -98.5795 + 7.8];
-  const defaultZoom = 5.25;
+function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords, onMapReady }) {
+  // Default center and zoom from constants
+  const { center: defaultCenter, zoom: defaultZoom } = DEFAULT_MAP_VIEW;
 
   // USA boundary coordinates (includes Alaska & Hawaii region)
   const usaBounds = [
@@ -76,6 +76,19 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
 
       return () => clearTimeout(timer);
     }, [sidebarVisible, map]);
+
+    return null;
+  }
+
+  // Component to expose map instance to parent
+  function MapInstanceProvider() {
+    const map = useMap();
+
+    useEffect(() => {
+      if (onMapReady && map) {
+        onMapReady(map);
+      }
+    }, [map]);
 
     return null;
   }
@@ -141,6 +154,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
         ))}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
+        <MapInstanceProvider />
         <MapResizeHandler />
         <MapPanHandler />
       </MapContainer>
@@ -178,6 +192,7 @@ Map.propTypes = {
     lat: PropTypes.number.isRequired,
     lon: PropTypes.number.isRequired,
   }),
+  onMapReady: PropTypes.func,
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -186,6 +201,7 @@ export default memo(Map, (prevProps, nextProps) => {
     prevProps.markers === nextProps.markers &&
     prevProps.sidebarVisible === nextProps.sidebarVisible &&
     prevProps.stateHighlightData === nextProps.stateHighlightData &&
-    prevProps.selectedMarkerCoords === nextProps.selectedMarkerCoords
+    prevProps.selectedMarkerCoords === nextProps.selectedMarkerCoords &&
+    prevProps.onMapReady === nextProps.onMapReady
   );
 });

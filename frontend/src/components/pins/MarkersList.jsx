@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import MarkerPopup from '../map/MarkerPopup';
 import './MarkersList.css';
 
-export default function MarkersList({ markers, showAllPins, pinsToShow, onToggleShowAll, onMarkerClick }) {
+export default function MarkersList({ markers, showAllPins, pinsToShow, onToggleShowAll, onMarkerClick, showReturnButton, onReturnToView }) {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const sortedMarkers = [...markers].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
@@ -48,6 +48,15 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
     <div className="markers-list">
       <div className="markers-header">
         <h3>Pins ({markers.length})</h3>
+        {showReturnButton && (
+          <button
+            className="return-to-view-button"
+            onClick={onReturnToView}
+            title="Reset to default view"
+          >
+            🏠 Reset View
+          </button>
+        )}
       </div>
       <ul>
         {(showAllPins
@@ -116,4 +125,6 @@ MarkersList.propTypes = {
   pinsToShow: PropTypes.number.isRequired,
   onToggleShowAll: PropTypes.func.isRequired,
   onMarkerClick: PropTypes.func,
+  showReturnButton: PropTypes.bool,
+  onReturnToView: PropTypes.func,
 };

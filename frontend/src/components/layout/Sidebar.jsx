@@ -18,7 +18,9 @@ export default function Sidebar({
   onToggleShowAll,
   onMarkerClick,
   propertyFilters,
-  onPropertyFilterChange
+  onPropertyFilterChange,
+  showReturnButton,
+  onReturnToView
 }) {
   // Get config and connection status from contexts
   const { config } = useAppConfig();
@@ -58,6 +60,8 @@ export default function Sidebar({
             pinsToShow={pinsToShow}
             onToggleShowAll={onToggleShowAll}
             onMarkerClick={onMarkerClick}
+            showReturnButton={showReturnButton}
+            onReturnToView={onReturnToView}
           />
         </div>
       </div>
@@ -105,4 +109,6 @@ Sidebar.propTypes = {
   onMarkerClick: PropTypes.func,
   propertyFilters: PropTypes.object,
   onPropertyFilterChange: PropTypes.func.isRequired,
+  showReturnButton: PropTypes.bool,
+  onReturnToView: PropTypes.func,
 };
