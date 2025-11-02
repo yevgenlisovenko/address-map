@@ -141,17 +141,23 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
 
         {[...markers]
           .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-          .map((marker, index) => (
-            <Marker
-              key={index}
-              position={[marker.lat, marker.lon]}
-              icon={getMarkerIcon(marker)}
-            >
-              <Popup>
-                <MarkerPopup marker={marker} />
-              </Popup>
-          </Marker>
-        ))}
+          .map((marker) => {
+            // Get marker ID with fallback
+            const markerId = marker.id !== undefined ? marker.id :
+                            marker.ID !== undefined ? marker.ID :
+                            `${marker.timestamp}_${marker.lat}_${marker.lon}`;
+            return (
+              <Marker
+                key={markerId}
+                position={[marker.lat, marker.lon]}
+                icon={getMarkerIcon(marker)}
+              >
+                <Popup>
+                  <MarkerPopup marker={marker} />
+                </Popup>
+              </Marker>
+            );
+          })}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
         <MapInstanceProvider />
@@ -168,6 +174,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
 Map.propTypes = {
   markers: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       lat: PropTypes.number.isRequired,
       lon: PropTypes.number.isRequired,
       timestamp: PropTypes.string.isRequired,

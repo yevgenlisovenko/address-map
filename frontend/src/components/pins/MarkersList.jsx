@@ -1,20 +1,42 @@
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import MarkerPopup from '../map/MarkerPopup';
-import './MarkersList.css';
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import MarkerPopup from "../map/MarkerPopup";
+import "./MarkersList.css";
 
-export default function MarkersList({ markers, showAllPins, pinsToShow, onToggleShowAll, onMarkerClick, showReturnButton, onReturnToView }) {
-  const [expandedIndex, setExpandedIndex] = useState(null);
-  const sortedMarkers = [...markers].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+// Helper function to get marker ID (case insensitive)
+function getMarkerId(marker) {
+  // Check for id or ID property
+  if (marker.id !== undefined) return marker.id;
+  if (marker.Id !== undefined) return marker.Id;
+  if (marker.ID !== undefined) return marker.ID;
+
+  // Fallback: generate unique ID from marker properties
+  return `${marker.timestamp}_${marker.lat}_${marker.lon}`;
+}
+
+export default function MarkersList({
+  markers,
+  showAllPins,
+  pinsToShow,
+  onToggleShowAll,
+  onMarkerClick,
+  showReturnButton,
+  onReturnToView,
+}) {
+  const [expandedMarkerId, setExpandedMarkerId] = useState(null);
+  const sortedMarkers = [...markers].sort(
+    (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+  );
 
   // Reset expanded state when toggling "Show All"
   useEffect(() => {
-    setExpandedIndex(null);
+    setExpandedMarkerId(null);
   }, [showAllPins]);
 
-  const handleToggleExpand = (index) => {
+  const handleToggleExpand = (marker) => {
     // Toggle expansion: if same item clicked, collapse; otherwise expand new item
-    setExpandedIndex(expandedIndex === index ? null : index);
+    const markerId = getMarkerId(marker);
+    setExpandedMarkerId(expandedMarkerId === markerId ? null : markerId);
   };
 
   const handleLocationClick = (marker, event) => {
@@ -63,18 +85,23 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
           ? [...sortedMarkers].reverse()
           : [...sortedMarkers].reverse().slice(0, pinsToShow)
         ).map((marker, index) => {
-          const isExpanded = expandedIndex === index;
+          const markerId = getMarkerId(marker);
+          const isExpanded = expandedMarkerId === markerId;
           return (
-            <li key={index} className={isExpanded ? 'expanded' : ''}>
+            <li key={markerId} className={isExpanded ? "expanded" : ""}>
               <div
                 className="marker-summary"
-                onClick={() => handleToggleExpand(index)}
+                onClick={() => handleToggleExpand(marker)}
               >
                 <div className="marker-summary-text">
                   <div className="marker-name">
-                    {marker.type === 'address' ? marker.address : marker.displayName}
+                    {marker.type === "address"
+                      ? marker.address
+                      : marker.displayName}
                   </div>
-                  <small>{new Date(marker.timestamp).toLocaleTimeString()}</small>
+                  <small>
+                    {new Date(marker.timestamp).toLocaleTimeString()}
+                  </small>
                 </div>
                 <button
                   className="location-button"
@@ -84,7 +111,7 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
                 >
                   📍
                 </button>
-                <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>
+                <span className={`expand-icon ${isExpanded ? "expanded" : ""}`}>
                   ▼
                 </span>
               </div>
@@ -98,11 +125,8 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
         })}
       </ul>
       {markers.length > pinsToShow && (
-        <button
-          className="show-more-button"
-          onClick={onToggleShowAll}
-        >
-          {showAllPins ? 'Show Less' : `Show All (${markers.length})`}
+        <button className="show-more-button" onClick={onToggleShowAll}>
+          {showAllPins ? "Show Less" : `Show All (${markers.length})`}
         </button>
       )}
     </div>
@@ -112,6 +136,7 @@ export default function MarkersList({ markers, showAllPins, pinsToShow, onToggle
 MarkersList.propTypes = {
   markers: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       lat: PropTypes.number.isRequired,
       lon: PropTypes.number.isRequired,
       timestamp: PropTypes.string.isRequired,
