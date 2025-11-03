@@ -8,6 +8,7 @@ import { DEFAULT_MAP_VIEW } from "../../utils/constants";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 import MarkerPopup from "./MarkerPopup";
+import CustomZoomControl from "./CustomZoomControl";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -123,6 +124,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
+        zoomControl={false}
         zoomSnap={0.25}
         zoomDelta={0.25}
         style={{ height: "100%", width: "100%" }}
@@ -138,6 +140,9 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
 
         {/* State highlighting layer - renders BEFORE markers so markers appear on top */}
         <StatesLayer stateColors={stateHighlightData?.colors || {}} />
+
+        {/* Custom zoom controls with Reset button */}
+        <CustomZoomControl />
 
         {[...markers]
           .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
