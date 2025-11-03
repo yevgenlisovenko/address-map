@@ -18,22 +18,24 @@ export default function Sidebar({
   onToggleShowAll,
   onMarkerClick,
   propertyFilters,
-  onPropertyFilterChange
+  onPropertyFilterChange,
+  showReturnButton,
+  onReturnToView
 }) {
   // Get config and connection status from contexts
   const { config } = useAppConfig();
   const { isConnected } = useSocketContext();
-  const [activeTab, setActiveTab] = useState('stats');
+  const [activeTab, setActiveTab] = useState('pins');
 
   return (
     <div className={`sidebar ${isVisible ? 'visible' : 'hidden'}`}>
       {/* Tab Navigation */}
       <div className="sidebar-tabs">
         <button
-          className={`sidebar-tab ${activeTab === 'filter' ? 'active' : ''}`}
-          onClick={() => setActiveTab('filter')}
+          className={`sidebar-tab ${activeTab === 'pins' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pins')}
         >
-          Filter
+          Pins
         </button>
         <button
           className={`sidebar-tab ${activeTab === 'stats' ? 'active' : ''}`}
@@ -41,6 +43,34 @@ export default function Sidebar({
         >
           Stats
         </button>
+        <button
+          className={`sidebar-tab ${activeTab === 'filter' ? 'active' : ''}`}
+          onClick={() => setActiveTab('filter')}
+        >
+          Filter
+        </button>
+      </div>
+
+      {/* Pins Tab Content */}
+      <div className={`pins-tab-content ${activeTab === 'pins' ? 'active-tab' : ''}`}>
+        <div className="pins-tab-scrollable">
+          <MarkersList
+            markers={visibleMarkers}
+            showAllPins={showAllPins}
+            pinsToShow={pinsToShow}
+            onToggleShowAll={onToggleShowAll}
+            onMarkerClick={onMarkerClick}
+            showReturnButton={showReturnButton}
+            onReturnToView={onReturnToView}
+          />
+        </div>
+      </div>
+
+      {/* Stats Tab Content */}
+      <div className={`stats-tab-content ${activeTab === 'stats' ? 'active-tab' : ''}`}>
+        <div className="stats-tab-scrollable">
+          <Stats markers={visibleMarkers} />
+        </div>
       </div>
 
       {/* Filter Tab Content */}
@@ -63,24 +93,6 @@ export default function Sidebar({
         <div className="sidebar-scrollable-middle"></div>
         <div className="sidebar-fixed-bottom"></div>
       </div>
-
-      {/* Stats Tab Content */}
-      <div className={`stats-tab-content ${activeTab === 'stats' ? 'active-tab' : ''}`}>
-        <div className="stats-tab-layout">
-          <div className="pins-scrollable-section">
-            <MarkersList
-              markers={visibleMarkers}
-              showAllPins={showAllPins}
-              pinsToShow={pinsToShow}
-              onToggleShowAll={onToggleShowAll}
-              onMarkerClick={onMarkerClick}
-            />
-          </div>
-          <div className="stats-fixed-section">
-            <Stats markers={visibleMarkers} />
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -97,4 +109,6 @@ Sidebar.propTypes = {
   onMarkerClick: PropTypes.func,
   propertyFilters: PropTypes.object,
   onPropertyFilterChange: PropTypes.func.isRequired,
+  showReturnButton: PropTypes.bool,
+  onReturnToView: PropTypes.func,
 };

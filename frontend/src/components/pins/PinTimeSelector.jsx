@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './PinTimeSelector.css';
 
@@ -12,33 +12,6 @@ const PinTimeSelector = ({
   const [mode, setMode] = useState('preset');
   const [customTime, setCustomTime] = useState('');
   const [error, setError] = useState('');
-
-  // Calculate min and max allowed times for custom input
-  const timeConstraints = useMemo(() => {
-    if (!config) return null;
-
-    const now = Date.now();
-    const minTime = now - config.maxAge; // 24 hours ago
-    const maxTime = now;
-
-    // Format to datetime-local format (YYYY-MM-DDTHH:MM)
-    const formatForInput = (timestamp) => {
-      const date = new Date(timestamp);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      return `${year}-${month}-${day}T${hours}:${minutes}`;
-    };
-
-    return {
-      minTime,
-      maxTime,
-      minFormatted: formatForInput(minTime),
-      maxFormatted: formatForInput(maxTime)
-    };
-  }, [config]);
 
   const handleModeChange = (newMode) => {
     setMode(newMode);
@@ -61,6 +34,7 @@ const PinTimeSelector = ({
 
     const selectedTimestamp = new Date(customTime).getTime();
     const now = Date.now();
+    const minAllowedTime = now - config.maxAge; // Calculate fresh minimum time
 
     // Validate not in future
     if (selectedTimestamp > now) {
@@ -68,8 +42,8 @@ const PinTimeSelector = ({
       return;
     }
 
-    // Validate not older than 24 hours
-    if (selectedTimestamp < timeConstraints.minTime) {
+    // Validate not older than maxAge (24 hours)
+    if (selectedTimestamp < minAllowedTime) {
       setError('Start time cannot be older than 24 hours');
       return;
     }
@@ -139,17 +113,13 @@ const PinTimeSelector = ({
               id="custom-time"
               value={customTime}
               onChange={handleCustomTimeChange}
-              min={timeConstraints?.minFormatted}
-              max={timeConstraints?.maxFormatted}
               className="custom-time-input"
               disabled={!isConnected}
             />
 
-            {timeConstraints && (
-              <p className="helper-text">
-                Valid range: last 24 hours
-              </p>
-            )}
+            <p className="helper-text">
+              Valid range: last 24 hours
+            </p>
 
             {error && <p className="error-text">{error}</p>}
 

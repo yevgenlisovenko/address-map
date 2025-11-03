@@ -4,9 +4,11 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../../config/markerColorMapping";
+import { DEFAULT_MAP_VIEW } from "../../utils/constants";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 import MarkerPopup from "./MarkerPopup";
+import CustomZoomControl from "./CustomZoomControl";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -50,10 +52,9 @@ function getMarkerIcon(marker) {
   return defaultMarkerIcon;
 }
 
-function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords }) {
-  // Default center: Continental USA (excludes Alaska and Hawaii)
-  const defaultCenter = [39.8283, -98.5795];
-  const defaultZoom = 5.25;
+function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords, onMapReady }) {
+  // Default center and zoom from constants
+  const { center: defaultCenter, zoom: defaultZoom } = DEFAULT_MAP_VIEW;
 
   // USA boundary coordinates (includes Alaska & Hawaii region)
   const usaBounds = [
@@ -76,6 +77,19 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
 
       return () => clearTimeout(timer);
     }, [sidebarVisible, map]);
+
+    return null;
+  }
+
+  // Component to expose map instance to parent
+  function MapInstanceProvider() {
+    const map = useMap();
+
+    useEffect(() => {
+      if (onMapReady && map) {
+        onMapReady(map);
+      }
+    }, [map]);
 
     return null;
   }
@@ -110,11 +124,12 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
+        zoomControl={false}
         zoomSnap={0.25}
         zoomDelta={0.25}
         style={{ height: "100%", width: "100%" }}
-        maxBounds={usaBounds}
-        maxBoundsViscosity={1.0}
+        // maxBounds={usaBounds}
+        // maxBoundsViscosity={1.0}
         minZoom={4}
         maxZoom={18}
       >
@@ -126,21 +141,31 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
         {/* State highlighting layer - renders BEFORE markers so markers appear on top */}
         <StatesLayer stateColors={stateHighlightData?.colors || {}} />
 
+        {/* Custom zoom controls with Reset button */}
+        <CustomZoomControl />
+
         {[...markers]
           .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-          .map((marker, index) => (
-            <Marker
-              key={index}
-              position={[marker.lat, marker.lon]}
-              icon={getMarkerIcon(marker)}
-            >
-              <Popup>
-                <MarkerPopup marker={marker} />
-              </Popup>
-          </Marker>
-        ))}
+          .map((marker) => {
+            // Get marker ID with fallback
+            const markerId = marker.id !== undefined ? marker.id :
+                            marker.ID !== undefined ? marker.ID :
+                            `${marker.timestamp}_${marker.lat}_${marker.lon}`;
+            return (
+              <Marker
+                key={markerId}
+                position={[marker.lat, marker.lon]}
+                icon={getMarkerIcon(marker)}
+              >
+                <Popup>
+                  <MarkerPopup marker={marker} />
+                </Popup>
+              </Marker>
+            );
+          })}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
+        <MapInstanceProvider />
         <MapResizeHandler />
         <MapPanHandler />
       </MapContainer>
@@ -154,6 +179,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
 Map.propTypes = {
   markers: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       lat: PropTypes.number.isRequired,
       lon: PropTypes.number.isRequired,
       timestamp: PropTypes.string.isRequired,
@@ -178,6 +204,7 @@ Map.propTypes = {
     lat: PropTypes.number.isRequired,
     lon: PropTypes.number.isRequired,
   }),
+  onMapReady: PropTypes.func,
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -186,6 +213,7 @@ export default memo(Map, (prevProps, nextProps) => {
     prevProps.markers === nextProps.markers &&
     prevProps.sidebarVisible === nextProps.sidebarVisible &&
     prevProps.stateHighlightData === nextProps.stateHighlightData &&
-    prevProps.selectedMarkerCoords === nextProps.selectedMarkerCoords
+    prevProps.selectedMarkerCoords === nextProps.selectedMarkerCoords &&
+    prevProps.onMapReady === nextProps.onMapReady
   );
 });
