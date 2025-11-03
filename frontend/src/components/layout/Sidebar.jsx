@@ -4,6 +4,7 @@ import PinTimeSelector from '../pins/PinTimeSelector';
 import MarkersList from '../pins/MarkersList';
 import Stats from '../stats/Stats';
 import PropertyFilter from '../filters/PropertyFilter';
+import AI from '../ai/AI';
 import { useAppConfig, useSocketContext } from '../../contexts';
 import './Sidebar.css';
 
@@ -49,6 +50,14 @@ export default function Sidebar({
         >
           Filter
         </button>
+        {config?.showAITab && (
+          <button
+            className={`sidebar-tab ${activeTab === 'ai' ? 'active' : ''}`}
+            onClick={() => setActiveTab('ai')}
+          >
+            AI
+          </button>
+        )}
       </div>
 
       {/* Pins Tab Content */}
@@ -93,6 +102,15 @@ export default function Sidebar({
         <div className="sidebar-scrollable-middle"></div>
         <div className="sidebar-fixed-bottom"></div>
       </div>
+
+      {/* AI Tab Content */}
+      {config?.showAITab && (
+        <div className={`ai-tab-content ${activeTab === 'ai' ? 'active-tab' : ''}`}>
+          <div className="ai-tab-scrollable">
+            <AI />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

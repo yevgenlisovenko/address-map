@@ -80,7 +80,8 @@
 /* Tab Content Containers */
 .pins-tab-content,
 .stats-tab-content,
-.filter-tab-content {
+.filter-tab-content,
+.ai-tab-content {
   display: none;
   flex-direction: column;
   flex: 1;
@@ -90,7 +91,8 @@
 
 .pins-tab-content.active-tab,
 .stats-tab-content.active-tab,
-.filter-tab-content.active-tab {
+.filter-tab-content.active-tab,
+.ai-tab-content.active-tab {
   display: flex;
 }
 
@@ -120,6 +122,14 @@
 
 /* Stats Tab Scrollable Content */
 .stats-tab-scrollable {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 20px;
+}
+
+/* AI Tab Scrollable Content */
+.ai-tab-scrollable {
   flex: 1;
   min-height: 0;
   overflow-y: auto;

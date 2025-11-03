@@ -69,7 +69,10 @@ export const config = {
           '24 hours': 24 * 60 * 60 * 1000
         },
 
-    defaultTimeWindow: process.env.PIN_DEFAULT_TIME_WINDOW || '1 hour'
+    defaultTimeWindow: process.env.PIN_DEFAULT_TIME_WINDOW || '1 hour',
+
+    // AI tab visibility (controlled by backend AI service availability)
+    showAITab: process.env.SHOW_AI_TAB === 'true' || false
   },
   logging: {
     // Log level priority: error (0) > warn (1) > info (2) > http (3) > debug (4)

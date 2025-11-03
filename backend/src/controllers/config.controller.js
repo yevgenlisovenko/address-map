@@ -16,7 +16,8 @@ export const getConfig = (req, res) => {
       pinStorage: {
         timeWindowOptions: config.pinStorage.timeWindowOptions,
         defaultTimeWindow: config.pinStorage.defaultTimeWindow,
-        maxAge: config.pinStorage.maxAge
+        maxAge: config.pinStorage.maxAge,
+        showAITab: config.pinStorage.showAITab
       }
     };
 
