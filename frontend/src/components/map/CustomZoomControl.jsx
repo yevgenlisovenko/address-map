@@ -6,11 +6,11 @@ function CustomZoomControl() {
   const map = useMap();
 
   const handleZoomIn = () => {
-    map.zoomIn();
+    map.zoomIn(1.0);
   };
 
   const handleZoomOut = () => {
-    map.zoomOut();
+    map.zoomOut(1.0);
   };
 
   const handleReset = () => {
