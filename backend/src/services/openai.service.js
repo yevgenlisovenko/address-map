@@ -8,12 +8,25 @@ import { config } from '../config.js';
 
 class OpenAIService {
   constructor() {
-    if (!config.ai.openaiApiKey) {
-      throw new Error('OPENAI_API_KEY not configured');
+    this.client = null;
+  }
+
+  /**
+   * Lazy initialization of OpenAI client
+   * Only creates the client when first needed
+   * @returns {OpenAI} OpenAI client instance
+   * @throws {Error} If API key is not configured
+   */
+  getClient() {
+    if (!this.client) {
+      if (!config.ai.openaiApiKey) {
+        throw new Error('OPENAI_API_KEY not configured');
+      }
+      this.client = new OpenAI({
+        apiKey: config.ai.openaiApiKey
+      });
     }
-    this.client = new OpenAI({
-      apiKey: config.ai.openaiApiKey
-    });
+    return this.client;
   }
 
   /**
@@ -25,7 +38,8 @@ class OpenAIService {
    */
   async analyzeMarkers(systemPrompt, userPrompt, markersData) {
     try {
-      const response = await this.client.chat.completions.create({
+      const client = this.getClient();
+      const response = await client.chat.completions.create({
         model: config.ai.model,
         messages: [
           { role: 'system', content: systemPrompt },
