@@ -69,10 +69,42 @@ export const config = {
           '24 hours': 24 * 60 * 60 * 1000
         },
 
-    defaultTimeWindow: process.env.PIN_DEFAULT_TIME_WINDOW || '1 hour',
+    defaultTimeWindow: process.env.PIN_DEFAULT_TIME_WINDOW || '1 hour'
+  },
+  ai: {
+    enabled: process.env.AI_ENABLED === 'true' || false,
+    openaiApiKey: process.env.OPENAI_API_KEY,
+    model: process.env.OPENAI_MODEL || 'gpt-4',
+    maxTokens: parseInt(process.env.AI_MAX_TOKENS) || 4000,
+    temperature: parseFloat(process.env.AI_TEMPERATURE) || 0.7,
 
-    // AI tab visibility (controlled by backend AI service availability)
-    showAITab: process.env.SHOW_AI_TAB === 'true' || false
+    // Properties allowed to be sent to AI (whitelist)
+    // Empty array = all properties allowed
+    allowedProperties: process.env.AI_ALLOWED_PROPERTIES
+      ? process.env.AI_ALLOWED_PROPERTIES.split(',').map(p => p.trim())
+      : [], // Empty = allow all
+
+    // Prompt templates for UI
+    prompts: [
+      {
+        id: 'analyze',
+        label: 'Analyze Patterns',
+        systemPrompt: 'You are a data analyst specializing in geographic and location-based data.',
+        userPrompt: 'Analyze the following markers/pins and identify any patterns, trends, or insights:'
+      },
+      {
+        id: 'find-patterns',
+        label: 'Find Patterns',
+        systemPrompt: 'You are a pattern recognition expert.',
+        userPrompt: 'Find patterns in the following markers/pins. Look for clusters, temporal patterns, and anomalies:'
+      },
+      {
+        id: 'summarize',
+        label: 'Summarize',
+        systemPrompt: 'You are a concise data summarizer.',
+        userPrompt: 'Provide a concise summary of the following markers/pins:'
+      }
+    ]
   },
   logging: {
     // Log level priority: error (0) > warn (1) > info (2) > http (3) > debug (4)

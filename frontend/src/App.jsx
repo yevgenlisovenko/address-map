@@ -43,8 +43,8 @@ function AppContent() {
 
   // Initialize selectedTimeWindow from config when loaded
   useEffect(() => {
-    if (config && config.defaultTimeWindow) {
-      setSelectedTimeWindow(config.defaultTimeWindow);
+    if (config && config.pinStorage.defaultTimeWindow) {
+      setSelectedTimeWindow(config.pinStorage.defaultTimeWindow);
     }
   }, [config]);
 
@@ -64,10 +64,10 @@ function AppContent() {
     setTimeSelectionMode('preset');
 
     if (socket && isConnected && config) {
-      const timeWindowMs = config.timeWindowOptions[newTimeWindow];
+      const timeWindowMs = config.pinStorage.timeWindowOptions[newTimeWindow];
 
       // Ensure time window doesn't exceed max age
-      const effectiveWindow = Math.min(timeWindowMs, config.maxAge);
+      const effectiveWindow = Math.min(timeWindowMs, config.pinStorage.maxAge);
       const time = Date.now() - effectiveWindow;
 
       // Request pins for new time window

@@ -41,7 +41,7 @@ export const usePropertyFilter = (
     if (timeSelectionMode === 'custom' && customStartTime) {
       cutoffTime = customStartTime;
     } else {
-      const timeWindowMs = config.timeWindowOptions[selectedTimeWindow];
+      const timeWindowMs = config.pinStorage.timeWindowOptions[selectedTimeWindow];
       if (!timeWindowMs) return markers;
       cutoffTime = currentTime - timeWindowMs;
     }

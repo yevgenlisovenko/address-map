@@ -50,7 +50,7 @@ export default function Sidebar({
         >
           Filter
         </button>
-        {config?.showAITab && (
+        {config?.ai?.enabled && (
           <button
             className={`sidebar-tab ${activeTab === 'ai' ? 'active' : ''}`}
             onClick={() => setActiveTab('ai')}
@@ -104,10 +104,10 @@ export default function Sidebar({
       </div>
 
       {/* AI Tab Content */}
-      {config?.showAITab && (
+      {config?.ai?.enabled && (
         <div className={`ai-tab-content ${activeTab === 'ai' ? 'active-tab' : ''}`}>
           <div className="ai-tab-scrollable">
-            <AI />
+            <AI visibleMarkers={visibleMarkers} />
           </div>
         </div>
       )}
