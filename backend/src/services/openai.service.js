@@ -3,7 +3,7 @@
  * Handles AI analysis of markers using OpenAI API
  */
 
-import https from 'https';
+import { Agent, fetch as undiciFetch } from 'undici';
 import OpenAI from 'openai';
 import { config } from '../config.js';
 
@@ -26,15 +26,26 @@ class OpenAIService {
 
       // Create client configuration
       const clientConfig = {
-        apiKey: config.ai.openaiApiKey
+        apiKey: config.ai.openaiApiKey,
+        baseURL: ''
       };
 
-      // Add custom HTTPS agent if SSL verification is disabled
+      // Add custom fetch with undici Agent if SSL verification is disabled
       // This is useful for corporate proxies with self-signed certificates
       if (!config.ai.rejectUnauthorized) {
-        clientConfig.httpAgent = new https.Agent({
-          rejectUnauthorized: false
+        const agent = new Agent({
+          connect: {
+            rejectUnauthorized: false
+          }
         });
+
+        // Create custom fetch function that uses the agent
+        clientConfig.fetch = (url, options) => {
+          return undiciFetch(url, {
+            ...options,
+            dispatcher: agent
+          });
+        };
       }
 
       this.client = new OpenAI(clientConfig);
