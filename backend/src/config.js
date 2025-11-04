@@ -72,7 +72,7 @@ export const config = {
     defaultTimeWindow: process.env.PIN_DEFAULT_TIME_WINDOW || '1 hour'
   },
   ai: {
-    enabled: process.env.AI_ENABLED === 'true' || true,//false,
+    enabled: process.env.AI_ENABLED === 'true' || false,
     openaiApiKey: process.env.OPENAI_API_KEY,
     baseURL: process.env.OPENAI_BASE_URL || '',
     model: process.env.OPENAI_MODEL || 'gpt-4',
