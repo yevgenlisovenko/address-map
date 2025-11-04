@@ -30,14 +30,13 @@ export const config = {
       max: 10,
       min: 0,
       idleTimeoutMillis: 30000
-
     }
   },
   polling: {
     enabled: process.env.POLLING_ENABLED === 'true' || false,
     interval: parseInt(process.env.POLLING_INTERVAL) || 15000, // 15 seconds
-    initQuery: process.env.INIT_QUERY || `SELECT max(id) max_id FROM coordinates`,
-    query: process.env.POLLING_QUERY || `SELECT id, * FROM coordinates WHERE id > @lastPoll ORDER BY id DESC`,
+    initQuery: process.env.INIT_QUERY,
+    query: process.env.POLLING_QUERY,
     columnMapping: {
       latitude: process.env.POLLING_COL_LAT || 'latitude',
       longitude: process.env.POLLING_COL_LON || 'longitude',
@@ -53,7 +52,6 @@ export const config = {
     cleanupInterval: parseInt(process.env.PIN_CLEANUP_INTERVAL) || 5 * 60 * 1000, // 5 minutes (ms)
     compactionThreshold: parseInt(process.env.PIN_COMPACTION_THRESHOLD) || 1000, // Compact after 1000 expired
     persistPath: process.env.PIN_PERSIST_PATH || path.join(__dirname, '../data/pins.json'),
-
     // Time window options for UI (in milliseconds)
     timeWindowOptions: process.env.PIN_TIME_WINDOWS
       ? JSON.parse(process.env.PIN_TIME_WINDOWS)
@@ -68,29 +66,31 @@ export const config = {
           '16 hours': 16 * 60 * 60 * 1000,
           '24 hours': 24 * 60 * 60 * 1000
         },
-
     defaultTimeWindow: process.env.PIN_DEFAULT_TIME_WINDOW || '1 hour'
   },
   ai: {
     enabled: process.env.AI_ENABLED === 'true' || false,
     openaiApiKey: process.env.OPENAI_API_KEY,
-    baseURL: process.env.OPENAI_BASE_URL || '',
+    baseURL: process.env.OPENAI_BASE_URL,
     model: process.env.OPENAI_MODEL || 'gpt-4',
     maxTokens: parseInt(process.env.AI_MAX_TOKENS) || 4000,
     temperature: parseFloat(process.env.AI_TEMPERATURE) || 0.7,
-
     // SSL/TLS verification for OpenAI API requests
     // Set to false if behind corporate proxy with self-signed certificates
     rejectUnauthorized: process.env.AI_REJECT_UNAUTHORIZED !== 'false', // Defaults to true
-
     // Properties allowed to be sent to AI (whitelist)
     // Empty array = all properties allowed
     allowedProperties: process.env.AI_ALLOWED_PROPERTIES
       ? process.env.AI_ALLOWED_PROPERTIES.split(',').map(p => p.trim())
       : [], // Empty = allow all
-
     // Prompt templates for UI
     prompts: [
+      {
+        id: 'find-patterns',
+        label: 'Find Patterns',
+        systemPrompt: 'You are a pattern recognition expert.',
+        userPrompt: 'Find patterns in the following markers/pins. Look for clusters, temporal patterns, and anomalies:'
+      },
       {
         id: 'analyze',
         label: 'Analyze Patterns',
@@ -98,10 +98,10 @@ export const config = {
         userPrompt: 'Analyze the following markers/pins and identify any patterns, trends, or insights:'
       },
       {
-        id: 'find-patterns',
-        label: 'Find Patterns',
-        systemPrompt: 'You are a pattern recognition expert.',
-        userPrompt: 'Find patterns in the following markers/pins. Look for clusters, temporal patterns, and anomalies:'
+        id: 'detect-anomalies',
+        label: 'Detect Anomalies',
+        systemPrompt: 'You are a data analyst specializing anomalies detection in data.',
+        userPrompt: 'Analyze the following markers/pins and identify any anomalies:'
       },
       {
         id: 'summarize',
