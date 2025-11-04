@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import { useAppConfig } from '../../contexts';
@@ -9,6 +9,7 @@ export default function AI({ visibleMarkers }) {
   const { config } = useAppConfig();
   const { loading, error, response, analyzeMarkers, clearResponse } = useAIAnalysis();
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef(null);
 
   const handleAnalyze = (promptId) => {
     if (!visibleMarkers || visibleMarkers.length === 0) {
@@ -21,11 +22,39 @@ export default function AI({ visibleMarkers }) {
     try {
       await navigator.clipboard.writeText(response);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+
+      // Clear any existing timeout
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+
+      // Set new timeout and store reference
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopied(false);
+        copyTimeoutRef.current = null;
+      }, 2000);
     } catch (err) {
       console.error('Failed to copy text:', err);
     }
   };
+
+  // Cleanup timeout on unmount or when response changes
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Reset copied state when response changes
+  useEffect(() => {
+    setCopied(false);
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = null;
+    }
+  }, [response]);
 
   // Check if AI is enabled
   if (!config?.ai?.enabled) {
