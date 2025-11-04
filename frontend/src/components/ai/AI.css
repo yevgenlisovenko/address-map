@@ -138,6 +138,11 @@
   color: #333;
 }
 
+.ai-response-buttons {
+  display: flex;
+  gap: 8px;
+}
+
 .ai-response-content {
   flex: 1;
   min-height: 0;

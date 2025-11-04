@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import { useAppConfig } from '../../contexts';
@@ -7,12 +8,23 @@ import './AI.css';
 export default function AI({ visibleMarkers }) {
   const { config } = useAppConfig();
   const { loading, error, response, analyzeMarkers, clearResponse } = useAIAnalysis();
+  const [copied, setCopied] = useState(false);
 
   const handleAnalyze = (promptId) => {
     if (!visibleMarkers || visibleMarkers.length === 0) {
       return;
     }
     analyzeMarkers(promptId, visibleMarkers);
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(response);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+    }
   };
 
   // Check if AI is enabled
@@ -80,9 +92,14 @@ export default function AI({ visibleMarkers }) {
         <div className="ai-response">
           <div className="ai-response-header">
             <h4>Analysis Result</h4>
-            <button className="ai-clear-button" onClick={clearResponse}>
-              Clear
-            </button>
+            <div className="ai-response-buttons">
+              <button className="ai-clear-button" onClick={handleCopy}>
+                {copied ? "✓ Copied!" : "Copy"}
+              </button>
+              <button className="ai-clear-button" onClick={clearResponse}>
+                Clear
+              </button>
+            </div>
           </div>
           <div className="ai-response-content">
             <ReactMarkdown>{response}</ReactMarkdown>
