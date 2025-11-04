@@ -30,7 +30,10 @@ let pinCleanupInterval = null;
 app.set('io', io);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: config.corsOrigin,
+  credentials: true
+}));
 app.use(express.json());
 
 // Mount all routes
