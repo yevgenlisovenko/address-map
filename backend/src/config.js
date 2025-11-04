@@ -73,7 +73,7 @@ export const config = {
   },
   ai: {
     enabled: process.env.AI_ENABLED === 'true' || true,//false,
-    openaiApiKey: process.env.OPENAI_API_KEY || 'some_key',
+    openaiApiKey: process.env.OPENAI_API_KEY,
     baseURL: process.env.OPENAI_BASE_URL || '',
     model: process.env.OPENAI_MODEL || 'gpt-4',
     maxTokens: parseInt(process.env.AI_MAX_TOKENS) || 4000,
