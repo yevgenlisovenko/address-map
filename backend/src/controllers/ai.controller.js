@@ -5,6 +5,7 @@
 
 import { config } from '../config.js';
 import openaiService from '../services/openai.service.js';
+import logger from '../utils/logger.js';
 
 /**
  * Analyze markers using AI
@@ -68,7 +69,7 @@ export const analyzeMarkers = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('AI analysis error:', error);
+    logger.error('AI analysis error:', error);
     res.status(500).json({
       error: 'INTERNAL_ERROR',
       message: 'An error occurred during AI analysis'
@@ -98,7 +99,7 @@ export const getPrompts = (req, res) => {
 
     res.json({ prompts });
   } catch (error) {
-    console.error('Error fetching prompts:', error);
+    logger.error('Error fetching prompts:', error);
     res.status(500).json({
       error: 'INTERNAL_ERROR',
       message: 'An error occurred while fetching prompts'
