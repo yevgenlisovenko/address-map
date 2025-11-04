@@ -72,11 +72,15 @@ export const config = {
     defaultTimeWindow: process.env.PIN_DEFAULT_TIME_WINDOW || '1 hour'
   },
   ai: {
-    enabled: process.env.AI_ENABLED === 'true' || false,
-    openaiApiKey: process.env.OPENAI_API_KEY,
+    enabled: process.env.AI_ENABLED === 'true' || true,//false,
+    openaiApiKey: process.env.OPENAI_API_KEY || 'some_key',
     model: process.env.OPENAI_MODEL || 'gpt-4',
     maxTokens: parseInt(process.env.AI_MAX_TOKENS) || 4000,
     temperature: parseFloat(process.env.AI_TEMPERATURE) || 0.7,
+
+    // SSL/TLS verification for OpenAI API requests
+    // Set to false if behind corporate proxy with self-signed certificates
+    rejectUnauthorized: process.env.AI_REJECT_UNAUTHORIZED !== 'false', // Defaults to true
 
     // Properties allowed to be sent to AI (whitelist)
     // Empty array = all properties allowed

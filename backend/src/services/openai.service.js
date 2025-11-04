@@ -3,6 +3,7 @@
  * Handles AI analysis of markers using OpenAI API
  */
 
+import https from 'https';
 import OpenAI from 'openai';
 import { config } from '../config.js';
 
@@ -22,9 +23,21 @@ class OpenAIService {
       if (!config.ai.openaiApiKey) {
         throw new Error('OPENAI_API_KEY not configured');
       }
-      this.client = new OpenAI({
+
+      // Create client configuration
+      const clientConfig = {
         apiKey: config.ai.openaiApiKey
-      });
+      };
+
+      // Add custom HTTPS agent if SSL verification is disabled
+      // This is useful for corporate proxies with self-signed certificates
+      if (!config.ai.rejectUnauthorized) {
+        clientConfig.httpAgent = new https.Agent({
+          rejectUnauthorized: false
+        });
+      }
+
+      this.client = new OpenAI(clientConfig);
     }
     return this.client;
   }
