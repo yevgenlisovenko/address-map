@@ -28,7 +28,7 @@ export const STATS_CONFIG = {
     // Example:
     // {
     //   id: 'premiumInfoPanel',
-    //   propertyName: 'Premium',
+    //   propertyName: 'premium',
     //   displayName: 'Premium',
     //   operations: ['sum'],
     //   format: 'currency',
@@ -39,7 +39,7 @@ export const STATS_CONFIG = {
     // },
     // {
     //   id: 'premiumStats',
-    //   propertyName: 'Premium',
+    //   propertyName: 'premium',
     //   displayName: 'Premium',
     //   operations: ['sum', 'max', 'min', 'avg'],
     //   format: 'currency',
