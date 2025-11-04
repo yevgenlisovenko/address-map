@@ -91,7 +91,7 @@ const transports = [
     format: logFormat,
     maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
-    rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
+    tailable: true,
   }),
 
   // File transport for all logs
@@ -100,7 +100,7 @@ const transports = [
     format: logFormat,
     maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
-    rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
+    tailable: true,
   }),
 ];
 
