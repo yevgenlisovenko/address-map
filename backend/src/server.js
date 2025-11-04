@@ -3,6 +3,9 @@
  * Main server file - Express and Socket.IO setup
  */
 
+// Load environment variables from .env file
+import 'dotenv/config';
+
 import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
