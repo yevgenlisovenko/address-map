@@ -62,6 +62,7 @@ function AppContent() {
   const handleTimeWindowChange = useCallback((newTimeWindow) => {
     setSelectedTimeWindow(newTimeWindow);
     setTimeSelectionMode('preset');
+    setCustomStartTime(null); // Clear custom time when switching to preset mode
 
     if (socket && isConnected && config) {
       const timeWindowMs = config.pinStorage.timeWindowOptions[newTimeWindow];

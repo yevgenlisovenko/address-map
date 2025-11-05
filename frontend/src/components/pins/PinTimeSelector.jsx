@@ -17,6 +17,11 @@ const PinTimeSelector = ({
     setMode(newMode);
     setError('');
     setCustomTime('');
+
+    // When switching back to preset mode, trigger a refresh of the current time window
+    if (newMode === 'preset') {
+      onPresetChange(selectedTimeWindow);
+    }
   };
 
   const handleCustomTimeChange = (e) => {
