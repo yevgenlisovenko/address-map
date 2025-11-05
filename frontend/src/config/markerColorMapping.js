@@ -53,6 +53,26 @@ const hf9MarkerIcon = createMarkerIcon(hf9MarkerIconImage);
 // Export grey as the default marker
 export const defaultMarkerIcon = greyMarkerIcon;
 
+// Export default icon URL for list display
+export const defaultMarkerIconUrl = greyMarkerIconImage;
+
+// Export icon URLs for list display
+export const MARKER_ICON_URLS = {
+  blue: blueMarkerIconImage,
+  gold: goldMarkerIconImage,
+  red: redMarkerIconImage,
+  green: greenMarkerIconImage,
+  orange: orangeMarkerIconImage,
+  yellow: yellowMarkerIconImage,
+  violet: violetMarkerIconImage,
+  grey: greyMarkerIconImage,
+  black: blackMarkerIconImage,
+  ho3: ho3MarkerIconImage,
+  ho4: ho4MarkerIconImage,
+  ho6: ho6MarkerIconImage,
+  hf9: hf9MarkerIconImage,
+};
+
 export const PROPERTY_MARKERS_MAP = {
   formCode: {
     HO3: ho3MarkerIcon,//blueMarkerIcon,
@@ -61,3 +81,73 @@ export const PROPERTY_MARKERS_MAP = {
     HF9: hf9MarkerIcon,//redMarkerIcon,
   },
 };
+
+// Property-to-URL mapping for list display
+export const PROPERTY_ICON_URLS = {
+  formCode: {
+    HO3: ho3MarkerIconImage,
+    HO4: ho4MarkerIconImage,
+    HO6: ho6MarkerIconImage,
+    HF9: hf9MarkerIconImage,
+  },
+};
+
+/**
+ * Get the appropriate Leaflet marker icon based on marker properties
+ * Used for rendering markers on the map
+ * @param {Object} marker - Marker object with properties
+ * @returns {L.Icon} Leaflet icon object
+ */
+export function getMarkerIcon(marker) {
+  // Check if marker has properties
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return defaultMarkerIcon;
+  }
+
+  // Loop through PROPERTY_MARKERS_MAP keys to find matching property
+  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_MARKERS_MAP)) {
+    // Check if marker has this property
+    if (marker.properties[propertyName] !== undefined) {
+      const propertyValue = marker.properties[propertyName];
+      const icon = valueToIconMap[propertyValue];
+
+      // Return icon if mapping found
+      if (icon) {
+        return icon;
+      }
+    }
+  }
+
+  // No mapping found, return default
+  return defaultMarkerIcon;
+}
+
+/**
+ * Get the marker icon URL based on marker properties
+ * Used for displaying marker icons in lists and other UI elements
+ * @param {Object} marker - Marker object with properties
+ * @returns {string} Icon image URL
+ */
+export function getMarkerIconUrl(marker) {
+  // Check if marker has properties
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return defaultMarkerIconUrl;
+  }
+
+  // Loop through PROPERTY_ICON_URLS keys to find matching property
+  for (const [propertyName, valueToUrlMap] of Object.entries(PROPERTY_ICON_URLS)) {
+    // Check if marker has this property
+    if (marker.properties[propertyName] !== undefined) {
+      const propertyValue = marker.properties[propertyName];
+      const url = valueToUrlMap[propertyValue];
+
+      // Return URL if mapping found
+      if (url) {
+        return url;
+      }
+    }
+  }
+
+  // No mapping found, return default
+  return defaultMarkerIconUrl;
+}

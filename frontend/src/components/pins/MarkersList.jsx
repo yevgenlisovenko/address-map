@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import MarkerPopup from "../map/MarkerPopup";
+import { getMarkerIconUrl } from "../../config/markerColorMapping";
 import "./MarkersList.css";
 
 // Helper function to get marker ID (case insensitive)
@@ -93,6 +94,11 @@ export default function MarkersList({
                 className="marker-summary"
                 onClick={() => handleToggleExpand(marker)}
               >
+                <img
+                  src={getMarkerIconUrl(marker)}
+                  alt="marker icon"
+                  className="marker-icon"
+                />
                 <div className="marker-summary-text">
                   <div className="marker-name">
                     {marker.type === "address"

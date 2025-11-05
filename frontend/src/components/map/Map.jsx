@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { defaultMarkerIcon, PROPERTY_MARKERS_MAP } from "../../config/markerColorMapping";
+import { getMarkerIcon } from "../../config/markerColorMapping";
 import { DEFAULT_MAP_VIEW } from "../../utils/constants";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
@@ -26,31 +26,6 @@ function MapBoundsUpdater({ markers }) {
 
   return null;
 } */
-
-// Function to determine marker icon based on properties
-function getMarkerIcon(marker) {
-  // Check if marker has properties
-  if (!marker.properties || Object.keys(marker.properties).length === 0) {
-    return defaultMarkerIcon;
-  }
-
-  // Loop through PROPERTY_MARKERS_MAP keys to find matching property
-  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_MARKERS_MAP)) {
-    // Check if marker has this property
-    if (marker.properties[propertyName] !== undefined) {
-      const propertyValue = marker.properties[propertyName];
-      const icon = valueToIconMap[propertyValue];
-
-      // Return icon if mapping found
-      if (icon) {
-        return icon;
-      }
-    }
-  }
-
-  // No mapping found, return default
-  return defaultMarkerIcon;
-}
 
 function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords, onMapReady }) {
   // Default center and zoom from constants
