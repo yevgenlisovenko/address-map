@@ -7,9 +7,13 @@ import { validateCoordinates } from '../../validation.js';
 import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
 import logger from '../../utils/logger.js';
 import { pinStorageManager } from '../../pinStorageManager.js';
+import { createSocketErrorHandler } from '../utils/errorHandler.js';
 
 export const setupCoordinatesHandler = (io, socket) => {
-  socket.on(SOCKET_EVENTS.NEW_COORDINATES, (data) => {
+  // Create error handler for this socket
+  const handleError = createSocketErrorHandler(socket);
+
+  socket.on(SOCKET_EVENTS.NEW_COORDINATES, async (data) => {
     const { lat, lon, label, properties } = data;
 
     if (lat === undefined || lon === undefined) {
@@ -61,12 +65,10 @@ export const setupCoordinatesHandler = (io, socket) => {
         socketId: socket.id
       });
     } catch (error) {
-      logger.error('Error processing coordinates via WebSocket', {
-        message: error.message,
-        socketId: socket.id
-      });
-      socket.emit(SOCKET_EVENTS.ERROR, {
-        message: error.message
+      handleError(error, 'coordinates-processing', {
+        lat,
+        lon,
+        label
       });
     }
   });

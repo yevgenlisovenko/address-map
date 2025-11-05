@@ -7,8 +7,12 @@ import { pinStorageManager } from '../../pinStorageManager.js';
 import { SOCKET_EVENTS } from '../../utils/constants.js';
 import { config } from '../../config.js';
 import logger from '../../utils/logger.js';
+import { createSocketErrorHandler } from '../utils/errorHandler.js';
 
 export const setupConnectionHandler = (io, socket) => {
+  // Create error handler for this socket
+  const handleError = createSocketErrorHandler(socket);
+
   logger.info('Client connected', {
     socketId: socket.id,
     address: socket.handshake.address
@@ -16,61 +20,72 @@ export const setupConnectionHandler = (io, socket) => {
 
   // Handle pin requests with time window
   socket.on(SOCKET_EVENTS.REQUEST_PINS, (data) => {
-    const timeWindowKey = data?.timeWindow || config.pinStorage.defaultTimeWindow;
-    const timeWindowMs = config.pinStorage.timeWindowOptions[timeWindowKey];
-    const startingTime = data?.startingTime || Date.now() - timeWindowMs;
+    try {
+      const timeWindowKey = data?.timeWindow || config.pinStorage.defaultTimeWindow;
+      const timeWindowMs = config.pinStorage.timeWindowOptions[timeWindowKey];
+      const startingTime = data?.startingTime || Date.now() - timeWindowMs;
 
-    if (!timeWindowMs) {
-      logger.warn('Invalid time window requested', {
-        socketId: socket.id,
-        timeWindow: timeWindowKey
-      });
+      if (!timeWindowMs) {
+        logger.warn('Invalid time window requested', {
+          socketId: socket.id,
+          timeWindow: timeWindowKey
+        });
+        socket.emit(SOCKET_EVENTS.INITIAL_PINS, {
+          pins: [],
+          error: 'Invalid time window'
+        });
+        return;
+      }
+
+      const pins = pinStorageManager.getPinsStartingFrom(startingTime);
+
       socket.emit(SOCKET_EVENTS.INITIAL_PINS, {
-        pins: [],
-        error: 'Invalid time window'
+        pins: pins,
+        timeWindow: timeWindowKey,
+        timeWindowMs: timeWindowMs,
+        startingTime: startingTime,
+        count: pins.length
       });
-      return;
+
+      logger.info('Sent pins to client', {
+        socketId: socket.id,
+        timeWindow: timeWindowKey,
+        startingTime: startingTime,
+        pinCount: pins.length,
+        oldestPin: pins[pins.length - 1]?.timestamp,
+        newestPin: pins[0]?.timestamp
+      });
+    } catch (error) {
+      handleError(error, 'request-pins', {
+        timeWindow: data?.timeWindow,
+        startingTime: data?.startingTime
+      });
     }
-
-    const pins = pinStorageManager.getPinsStartingFrom(startingTime); 
-
-    socket.emit(SOCKET_EVENTS.INITIAL_PINS, {
-      pins: pins,
-      timeWindow: timeWindowKey,
-      timeWindowMs: timeWindowMs,
-      startingTime: startingTime,
-      count: pins.length
-    });
-
-    logger.info('Sent pins to client', {
-      socketId: socket.id,
-      timeWindow: timeWindowKey,
-      startingTime: startingTime,
-      pinCount: pins.length,
-      oldestPin: pins[pins.length - 1]?.timestamp,
-      newestPin: pins[0]?.timestamp
-    });
   });
 
   // Send default time window on connection
-  const defaultTimeWindow = config.pinStorage.defaultTimeWindow;
-  const defaultTimeWindowMs = config.pinStorage.timeWindowOptions[defaultTimeWindow];
-  const initialStartingTime = Date.now() - defaultTimeWindowMs;
-  const initialPins = pinStorageManager.getPinsStartingFrom(initialStartingTime);
+  try {
+    const defaultTimeWindow = config.pinStorage.defaultTimeWindow;
+    const defaultTimeWindowMs = config.pinStorage.timeWindowOptions[defaultTimeWindow];
+    const initialStartingTime = Date.now() - defaultTimeWindowMs;
+    const initialPins = pinStorageManager.getPinsStartingFrom(initialStartingTime);
 
-  socket.emit(SOCKET_EVENTS.INITIAL_PINS, {
-    pins: initialPins,
-    timeWindow: defaultTimeWindow,
-    timeWindowMs: defaultTimeWindowMs,
-    startingTime: initialStartingTime,
-    count: initialPins.length
-  });
+    socket.emit(SOCKET_EVENTS.INITIAL_PINS, {
+      pins: initialPins,
+      timeWindow: defaultTimeWindow,
+      timeWindowMs: defaultTimeWindowMs,
+      startingTime: initialStartingTime,
+      count: initialPins.length
+    });
 
-  logger.info('Sent initial pins to client', {
-    socketId: socket.id,
-    timeWindow: defaultTimeWindow,
-    pinCount: initialPins.length
-  });
+    logger.info('Sent initial pins to client', {
+      socketId: socket.id,
+      timeWindow: defaultTimeWindow,
+      pinCount: initialPins.length
+    });
+  } catch (error) {
+    handleError(error, 'initial-connection', {});
+  }
 
   // Handle disconnect
   socket.on(SOCKET_EVENTS.DISCONNECT, () => {
