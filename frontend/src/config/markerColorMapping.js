@@ -13,6 +13,10 @@ import yellowMarkerIconImage from "../assets/markerIcons/marker-icon-2x-yellow.p
 import violetMarkerIconImage from "../assets/markerIcons/marker-icon-2x-violet.png";
 import greyMarkerIconImage from "../assets/markerIcons/marker-icon-2x-grey.png";
 import blackMarkerIconImage from "../assets/markerIcons/marker-icon-2x-black.png";
+import ho3MarkerIconImage from "../assets/markerIcons/marker-icon-HO3.png";
+import ho4MarkerIconImage from "../assets/markerIcons/marker-icon-HO4.png";
+import ho6MarkerIconImage from "../assets/markerIcons/marker-icon-HO6.png";
+import hf9MarkerIconImage from "../assets/markerIcons/marker-icon-HF9.png";
 
 /**
  * Factory function to create a Leaflet marker icon
@@ -41,14 +45,19 @@ const violetMarkerIcon = createMarkerIcon(violetMarkerIconImage);
 const greyMarkerIcon = createMarkerIcon(greyMarkerIconImage);
 const blackMarkerIcon = createMarkerIcon(blackMarkerIconImage);
 
+const ho3MarkerIcon = createMarkerIcon(ho3MarkerIconImage);
+const ho4MarkerIcon = createMarkerIcon(ho4MarkerIconImage);
+const ho6MarkerIcon = createMarkerIcon(ho6MarkerIconImage);
+const hf9MarkerIcon = createMarkerIcon(hf9MarkerIconImage);
+
 // Export grey as the default marker
 export const defaultMarkerIcon = greyMarkerIcon;
 
 export const PROPERTY_MARKERS_MAP = {
   formCode: {
-    HO3: blueMarkerIcon,
-    HO4: yellowMarkerIcon,
-    HO6: greenMarkerIcon,
-    HF9: redMarkerIcon,
+    HO3: ho3MarkerIcon,//blueMarkerIcon,
+    HO4: ho4MarkerIcon,//yellowMarkerIcon,
+    HO6: ho6MarkerIcon,//greenMarkerIcon,
+    HF9: hf9MarkerIcon,//redMarkerIcon,
   },
 };
