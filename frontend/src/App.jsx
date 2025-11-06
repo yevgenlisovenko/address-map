@@ -34,7 +34,8 @@ function AppContent() {
   const [selectedTimeWindow, setSelectedTimeWindow] = useState('1hr');
   const [timeSelectionMode, setTimeSelectionMode] = useState('preset');
   const [customStartTime, setCustomStartTime] = useState(null);
-  const [selectedMarkerCoords, setSelectedMarkerCoords] = useState(null);
+  const [markerToPan, setMarkerToPan] = useState(null);
+  const [panTrigger, setPanTrigger] = useState(0);
   const [propertyFilters, setPropertyFilters] = useState({});
 
   // Initialize selectedTimeWindow from config when loaded
@@ -101,7 +102,8 @@ function AppContent() {
   }, []);
 
   const handleMarkerClick = useCallback((marker) => {
-    setSelectedMarkerCoords({ lat: marker.lat, lon: marker.lon });
+    setMarkerToPan(marker);
+    setPanTrigger(prev => prev + 1);
   }, []);
 
   const handlePropertyFilterChange = useCallback((filters) => {
@@ -160,7 +162,8 @@ function AppContent() {
           markers={visibleMarkers}
           sidebarVisible={isSidebarVisible}
           stateHighlightData={stateHighlightData}
-          selectedMarkerCoords={selectedMarkerCoords}
+          markerToPan={markerToPan}
+          panTrigger={panTrigger}
         />
       </div>
     </div>
