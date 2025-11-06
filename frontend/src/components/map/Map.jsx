@@ -64,7 +64,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
           duration: 1.5 // smooth animation duration in seconds
         });
       }
-    }, [panTrigger, map]);
+    }, [panTrigger, map, markerToPan]);
 
     return null;
   }

@@ -110,6 +110,19 @@ function AppContent() {
     setPropertyFilters(filters);
   }, []);
 
+  // Auto-reset markerToPan and panTrigger after panning completes
+  // This prevents auto-zoom when new markers arrive
+  useEffect(() => {
+    if (panTrigger > 0 && markerToPan) {
+      const timer = setTimeout(() => {
+        setMarkerToPan(null);
+        setPanTrigger(0);
+      }, 1600); // Slightly longer than animation duration (1.5s)
+
+      return () => clearTimeout(timer);
+    }
+  }, [panTrigger, markerToPan]);
+
   // Loading and error states
   if (loading) {
     return <LoadingSpinner />;
