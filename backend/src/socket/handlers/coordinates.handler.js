@@ -3,7 +3,7 @@
  * Handles new coordinate submissions via WebSocket
  */
 
-import { validateCoordinates } from '../../validation.js';
+import { validateCoordinates, validatePinId } from '../../validation.js';
 import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
 import logger from '../../utils/logger.js';
 import { pinStorageManager } from '../../pinStorageManager.js';
@@ -14,7 +14,14 @@ export const setupCoordinatesHandler = (io, socket) => {
   const handleError = createSocketErrorHandler(socket);
 
   socket.on(SOCKET_EVENTS.NEW_COORDINATES, async (data) => {
-    const { lat, lon, label, properties } = data;
+    const { id, lat, lon, label, properties } = data;
+
+    // Validate id (required)
+    const idValidation = validatePinId(id);
+    if (!idValidation.valid) {
+      socket.emit(SOCKET_EVENTS.ERROR, { message: idValidation.error });
+      return;
+    }
 
     if (lat === undefined || lon === undefined) {
       socket.emit(SOCKET_EVENTS.ERROR, { message: ERROR_MESSAGES.COORDINATES_REQUIRED });
@@ -45,6 +52,7 @@ export const setupCoordinatesHandler = (io, socket) => {
 
       // Create pin object
       const pin = {
+        id: idValidation.id,
         type: PIN_TYPES.COORDINATES,
         lat: validation.lat,
         lon: validation.lon,

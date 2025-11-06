@@ -175,7 +175,7 @@ Send a POST request to the backend API:
 ```bash
 curl -X POST http://localhost:3001/api/address \
   -H "Content-Type: application/json" \
-  -d '{"address": "Empire State Building, New York, NY"}'
+  -d '{"id": "pin-001", "address": "Empire State Building, New York, NY"}'
 ```
 
 **Response Example:**
@@ -197,7 +197,7 @@ Send coordinates directly without geocoding:
 ```bash
 curl -X POST http://localhost:3001/api/coordinates \
   -H "Content-Type: application/json" \
-  -d '{"lat": 40.748817, "lon": -73.985428, "label": "Empire State Building"}'
+  -d '{"id": "pin-002", "lat": 40.748817, "lon": -73.985428, "label": "Empire State Building"}'
 ```
 
 **Response Example:**
@@ -224,6 +224,7 @@ import { io } from 'socket.io-client';
 const socket = io('http://localhost:3001');
 
 socket.emit('new-address', {
+  id: 'pin-003',
   address: 'Golden Gate Bridge, San Francisco, CA'
 });
 
@@ -235,6 +236,7 @@ socket.on('add-pin', (data) => {
 **For Direct Coordinates:**
 ```javascript
 socket.emit('new-coordinates', {
+  id: 'pin-004',
   lat: 37.8199,
   lon: -122.4783,
   label: 'Golden Gate Bridge' // optional
@@ -253,29 +255,29 @@ Try these examples to test the application:
 
 ```bash
 # Famous landmarks
-curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"address": "Statue of Liberty, New York, NY"}'
+curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"id": "landmark-1", "address": "Statue of Liberty, New York, NY"}'
 
-curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"address": "Hollywood Sign, Los Angeles, CA"}'
+curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"id": "landmark-2", "address": "Hollywood Sign, Los Angeles, CA"}'
 
-curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"address": "Space Needle, Seattle, WA"}'
+curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"id": "landmark-3", "address": "Space Needle, Seattle, WA"}'
 
-curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"address": "Willis Tower, Chicago, IL"}'
+curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"id": "landmark-4", "address": "Willis Tower, Chicago, IL"}'
 
-curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"address": "Alamo, San Antonio, TX"}'
+curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{"id": "landmark-5", "address": "Alamo, San Antonio, TX"}'
 ```
 
 ### Direct Coordinates Examples
 
 ```bash
 # Famous landmarks with coordinates
-curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 40.689247, "lon": -74.044502, "label": "Statue of Liberty"}'
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"id": "coord-1", "lat": 40.689247, "lon": -74.044502, "label": "Statue of Liberty"}'
 
-curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 34.134117, "lon": -118.321495, "label": "Hollywood Sign"}'
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"id": "coord-2", "lat": 34.134117, "lon": -118.321495, "label": "Hollywood Sign"}'
 
-curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 47.620506, "lon": -122.349277, "label": "Space Needle"}'
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"id": "coord-3", "lat": 47.620506, "lon": -122.349277, "label": "Space Needle"}'
 
 # Without label (will show "Coordinates: lat, lon")
-curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"lat": 41.878876, "lon": -87.635915}'
+curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{"id": "coord-4", "lat": 41.878876, "lon": -87.635915}'
 ```
 
 ### Examples with Custom Properties
@@ -283,6 +285,7 @@ curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application
 ```bash
 # Address with properties
 curl -X POST http://localhost:3001/api/address -H "Content-Type: application/json" -d '{
+  "id": "prop-1",
   "address": "Empire State Building, New York, NY",
   "properties": {
     "category": "landmark",
@@ -294,6 +297,7 @@ curl -X POST http://localhost:3001/api/address -H "Content-Type: application/jso
 
 # Coordinates with properties
 curl -X POST http://localhost:3001/api/coordinates -H "Content-Type: application/json" -d '{
+  "id": "prop-2",
   "lat": 40.748817,
   "lon": -73.985428,
   "label": "Empire State Building",
@@ -575,6 +579,7 @@ Submit a new address for geocoding and broadcasting
 **Request Body:**
 ```json
 {
+  "id": "string | number (required) - unique pin identifier",
   "address": "string (required)",
   "properties": "object (optional) - custom key-value metadata"
 }
@@ -583,6 +588,7 @@ Submit a new address for geocoding and broadcasting
 **Example with properties:**
 ```json
 {
+  "id": "pin-123",
   "address": "Empire State Building, New York, NY",
   "properties": {
     "category": "landmark",
@@ -618,6 +624,7 @@ Submit coordinates directly for pin placement
 **Request Body:**
 ```json
 {
+  "id": "string | number (required) - unique pin identifier",
   "lat": number (required, -90 to 90),
   "lon": number (required, -180 to 180),
   "label": "string (optional)",
@@ -628,6 +635,7 @@ Submit coordinates directly for pin placement
 **Example with properties:**
 ```json
 {
+  "id": "pin-456",
   "lat": 40.748817,
   "lon": -73.985428,
   "label": "Empire State Building",
@@ -976,6 +984,7 @@ Manually trigger a polling cycle
 **Event: `new-address`**
 ```javascript
 socket.emit('new-address', {
+  id: 'string | number (required) - unique pin identifier',
   address: 'string (required)',
   properties: { /* optional custom metadata */ }
 });
@@ -984,6 +993,7 @@ socket.emit('new-address', {
 **Event: `new-coordinates`**
 ```javascript
 socket.emit('new-coordinates', {
+  id: 'string | number (required) - unique pin identifier',
   lat: number (required, -90 to 90),
   lon: number (required, -180 to 180),
   label: 'string (optional)',
@@ -996,7 +1006,8 @@ socket.emit('new-coordinates', {
 **Event: `add-pin`**
 ```javascript
 socket.on('add-pin', (data) => {
-  // data contains: { type, lat, lon, displayName, properties, timestamp }
+  // data contains: { id, type, lat, lon, displayName, properties, timestamp }
+  // id is the unique pin identifier (string or number)
   // type is either 'address' or 'coordinates'
   // if type is 'address', also includes: { address }
   // properties is an object with custom metadata (may be empty)
