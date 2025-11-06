@@ -10,8 +10,6 @@ export default function MarkersList({
   pinsToShow,
   onToggleShowAll,
   onMarkerClick,
-  showReturnButton,
-  onReturnToView,
 }) {
   const [expandedPinId, setExpandedPinId] = useState(null);
   const sortedMarkers = [...markers].sort(
@@ -59,15 +57,6 @@ export default function MarkersList({
     <div className="markers-list">
       <div className="markers-header">
         <h3>Pins ({markers.length})</h3>
-        {showReturnButton && (
-          <button
-            className="return-to-view-button"
-            onClick={onReturnToView}
-            title="Reset to default view"
-          >
-            🏠 Reset View
-          </button>
-        )}
       </div>
       <ul>
         {(showAllPins
@@ -143,6 +132,4 @@ MarkersList.propTypes = {
   pinsToShow: PropTypes.number.isRequired,
   onToggleShowAll: PropTypes.func.isRequired,
   onMarkerClick: PropTypes.func,
-  showReturnButton: PropTypes.bool,
-  onReturnToView: PropTypes.func,
 };
