@@ -39,3 +39,41 @@ export function validateCoordinates(lat, lon) {
     lon: longitude
   };
 }
+
+/**
+ * Validate pin ID
+ * @param {string|number} id - Pin ID value
+ * @returns {Object} Validation result with valid flag and id or error
+ */
+export function validatePinId(id) {
+  // Check if id is null or undefined
+  if (id === null || id === undefined) {
+    return {
+      valid: false,
+      error: 'Pin ID is required.'
+    };
+  }
+
+  // Check if id is a valid type (string or number)
+  const idType = typeof id;
+  if (idType !== 'string' && idType !== 'number') {
+    return {
+      valid: false,
+      error: 'Pin ID must be a string or number.'
+    };
+  }
+
+  // Check if string id is not empty
+  if (idType === 'string' && id.trim() === '') {
+    return {
+      valid: false,
+      error: 'Pin ID cannot be an empty string.'
+    };
+  }
+
+  // Return validated id
+  return {
+    valid: true,
+    id
+  };
+}

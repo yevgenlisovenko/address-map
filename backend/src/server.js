@@ -3,6 +3,9 @@
  * Main server file - Express and Socket.IO setup
  */
 
+// Load environment variables from .env file
+import 'dotenv/config';
+
 import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
@@ -30,7 +33,10 @@ let pinCleanupInterval = null;
 app.set('io', io);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: config.corsOrigin,
+  credentials: true
+}));
 app.use(express.json());
 
 // Mount all routes

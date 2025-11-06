@@ -40,7 +40,7 @@ export const usePinFilter = (
       cutoffTime = customStartTime;
     } else {
       // Preset mode: use time window calculation
-      const timeWindowMs = config.timeWindowOptions[selectedTimeWindow];
+      const timeWindowMs = config.pinStorage.timeWindowOptions[selectedTimeWindow];
       if (!timeWindowMs) return markers;
       cutoffTime = currentTime - timeWindowMs;
     }

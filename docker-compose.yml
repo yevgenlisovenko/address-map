@@ -8,7 +8,10 @@ services:
     container_name: real-time-map-backend
     ports:
       - "3001:3001"
+    env_file:
+      - ./backend/.env
     environment:
+      # Override defaults from .env if needed
       - PORT=3001
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
       - NODE_ENV=production

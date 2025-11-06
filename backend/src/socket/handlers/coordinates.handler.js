@@ -3,14 +3,25 @@
  * Handles new coordinate submissions via WebSocket
  */
 
-import { validateCoordinates } from '../../validation.js';
+import { validateCoordinates, validatePinId } from '../../validation.js';
 import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
 import logger from '../../utils/logger.js';
 import { pinStorageManager } from '../../pinStorageManager.js';
+import { createSocketErrorHandler } from '../utils/errorHandler.js';
 
 export const setupCoordinatesHandler = (io, socket) => {
-  socket.on(SOCKET_EVENTS.NEW_COORDINATES, (data) => {
-    const { lat, lon, label, properties } = data;
+  // Create error handler for this socket
+  const handleError = createSocketErrorHandler(socket);
+
+  socket.on(SOCKET_EVENTS.NEW_COORDINATES, async (data) => {
+    const { id, lat, lon, label, properties } = data;
+
+    // Validate id (required)
+    const idValidation = validatePinId(id);
+    if (!idValidation.valid) {
+      socket.emit(SOCKET_EVENTS.ERROR, { message: idValidation.error });
+      return;
+    }
 
     if (lat === undefined || lon === undefined) {
       socket.emit(SOCKET_EVENTS.ERROR, { message: ERROR_MESSAGES.COORDINATES_REQUIRED });
@@ -41,6 +52,7 @@ export const setupCoordinatesHandler = (io, socket) => {
 
       // Create pin object
       const pin = {
+        id: idValidation.id,
         type: PIN_TYPES.COORDINATES,
         lat: validation.lat,
         lon: validation.lon,
@@ -61,12 +73,10 @@ export const setupCoordinatesHandler = (io, socket) => {
         socketId: socket.id
       });
     } catch (error) {
-      logger.error('Error processing coordinates via WebSocket', {
-        message: error.message,
-        socketId: socket.id
-      });
-      socket.emit(SOCKET_EVENTS.ERROR, {
-        message: error.message
+      handleError(error, 'coordinates-processing', {
+        lat,
+        lon,
+        label
       });
     }
   });

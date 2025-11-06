@@ -31,6 +31,11 @@ export const usePropertyFilter = (
     return () => clearInterval(interval);
   }, []);
 
+  // Update current time immediately when time window or mode changes
+  useEffect(() => {
+    setCurrentTime(Date.now());
+  }, [selectedTimeWindow, timeSelectionMode]);
+
   // Filter markers based on time AND properties
   const filteredMarkers = useMemo(() => {
     if (!config) return markers;
@@ -41,7 +46,7 @@ export const usePropertyFilter = (
     if (timeSelectionMode === 'custom' && customStartTime) {
       cutoffTime = customStartTime;
     } else {
-      const timeWindowMs = config.timeWindowOptions[selectedTimeWindow];
+      const timeWindowMs = config.pinStorage.timeWindowOptions[selectedTimeWindow];
       if (!timeWindowMs) return markers;
       cutoffTime = currentTime - timeWindowMs;
     }

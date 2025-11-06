@@ -7,10 +7,21 @@ import { geocodeAddress } from '../../geocode.js';
 import { SOCKET_EVENTS, PIN_TYPES, ERROR_MESSAGES } from '../../utils/constants.js';
 import logger from '../../utils/logger.js';
 import { pinStorageManager } from '../../pinStorageManager.js';
+import { createSocketErrorHandler } from '../utils/errorHandler.js';
+import { validatePinId } from '../../validation.js';
 
 export const setupAddressHandler = (io, socket) => {
+  // Create error handler for this socket
+  const handleError = createSocketErrorHandler(socket);
   socket.on(SOCKET_EVENTS.NEW_ADDRESS, async (data) => {
-    const { address, properties } = data;
+    const { id, address, properties } = data;
+
+    // Validate id (required)
+    const idValidation = validatePinId(id);
+    if (!idValidation.valid) {
+      socket.emit(SOCKET_EVENTS.ERROR, { message: idValidation.error });
+      return;
+    }
 
     if (!address) {
       socket.emit(SOCKET_EVENTS.ERROR, { message: ERROR_MESSAGES.ADDRESS_REQUIRED });
@@ -29,6 +40,7 @@ export const setupAddressHandler = (io, socket) => {
 
       // Create pin object
       const pin = {
+        id: idValidation.id,
         type: PIN_TYPES.ADDRESS,
         address,
         ...coordinates,
@@ -50,15 +62,7 @@ export const setupAddressHandler = (io, socket) => {
         socketId: socket.id
       });
     } catch (error) {
-      logger.error('Error processing address via WebSocket', {
-        message: error.message,
-        address,
-        socketId: socket.id
-      });
-      socket.emit(SOCKET_EVENTS.ERROR, {
-        message: error.message,
-        address
-      });
+      handleError(error, 'address-geocoding', { address });
     }
   });
 };

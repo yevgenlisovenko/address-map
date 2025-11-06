@@ -7,13 +7,20 @@ import { asyncHandler } from '../middleware/asyncHandler.js';
 import { geocodeAddress } from '../geocode.js';
 import { ERROR_MESSAGES, PIN_TYPES, SOCKET_EVENTS } from '../utils/constants.js';
 import { pinStorageManager } from '../pinStorageManager.js';
+import { validatePinId } from '../validation.js';
 
 /**
  * Submit a new address for geocoding
  * POST /api/address
  */
 export const submitAddress = asyncHandler(async (req, res) => {
-  const { address, properties } = req.body;
+  const { id, address, properties } = req.body;
+
+  // Validate id (required)
+  const idValidation = validatePinId(id);
+  if (!idValidation.valid) {
+    return res.status(400).json({ error: idValidation.error });
+  }
 
   if (!address) {
     return res.status(400).json({ error: ERROR_MESSAGES.ADDRESS_REQUIRED });
@@ -28,6 +35,7 @@ export const submitAddress = asyncHandler(async (req, res) => {
 
   // Create pin object
   const pin = {
+    id: idValidation.id,
     type: PIN_TYPES.ADDRESS,
     address,
     ...coordinates,

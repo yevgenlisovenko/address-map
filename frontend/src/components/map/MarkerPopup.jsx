@@ -50,6 +50,11 @@ export default function MarkerPopup({ marker }) {
           </>
         )}
 
+        {/* ID */}
+        <div className="popup-id">
+          ID: {marker.id}
+        </div>
+
         {/* Timestamp */}
         <div className="popup-timestamp">
           Added: {new Date(marker.timestamp).toLocaleString()}
@@ -76,6 +81,7 @@ export default function MarkerPopup({ marker }) {
 
 MarkerPopup.propTypes = {
   marker: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     lat: PropTypes.number.isRequired,
     lon: PropTypes.number.isRequired,
     timestamp: PropTypes.string.isRequired,

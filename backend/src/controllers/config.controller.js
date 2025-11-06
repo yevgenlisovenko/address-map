@@ -17,6 +17,14 @@ export const getConfig = (req, res) => {
         timeWindowOptions: config.pinStorage.timeWindowOptions,
         defaultTimeWindow: config.pinStorage.defaultTimeWindow,
         maxAge: config.pinStorage.maxAge
+      },
+      ai: {
+        enabled: config.ai.enabled,
+        // Send only prompt metadata (id and label), not the actual prompts
+        prompts: config.ai.prompts.map(p => ({
+          id: p.id,
+          label: p.label
+        }))
       }
     };
 

@@ -22,7 +22,7 @@ export const useConfig = (backendUrl) => {
         }
 
         const data = await response.json();
-        setConfig(data.pinStorage);
+        setConfig(data);
         setError(null);
       } catch (err) {
         logger.error('Failed to load config:', err);

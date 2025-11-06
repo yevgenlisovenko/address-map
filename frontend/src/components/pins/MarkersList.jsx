@@ -1,18 +1,8 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import MarkerPopup from "../map/MarkerPopup";
+import { getMarkerIconUrl } from "../../config/markerColorMapping";
 import "./MarkersList.css";
-
-// Helper function to get marker ID (case insensitive)
-function getMarkerId(marker) {
-  // Check for id or ID property
-  if (marker.id !== undefined) return marker.id;
-  if (marker.Id !== undefined) return marker.Id;
-  if (marker.ID !== undefined) return marker.ID;
-
-  // Fallback: generate unique ID from marker properties
-  return `${marker.timestamp}_${marker.lat}_${marker.lon}`;
-}
 
 export default function MarkersList({
   markers,
@@ -23,20 +13,19 @@ export default function MarkersList({
   showReturnButton,
   onReturnToView,
 }) {
-  const [expandedMarkerId, setExpandedMarkerId] = useState(null);
+  const [expandedPinId, setExpandedPinId] = useState(null);
   const sortedMarkers = [...markers].sort(
     (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
   );
 
   // Reset expanded state when toggling "Show All"
   useEffect(() => {
-    setExpandedMarkerId(null);
+    setExpandedPinId(null);
   }, [showAllPins]);
 
   const handleToggleExpand = (marker) => {
     // Toggle expansion: if same item clicked, collapse; otherwise expand new item
-    const markerId = getMarkerId(marker);
-    setExpandedMarkerId(expandedMarkerId === markerId ? null : markerId);
+    setExpandedPinId(expandedPinId === marker.id ? null : marker.id);
   };
 
   const handleLocationClick = (marker, event) => {
@@ -85,14 +74,18 @@ export default function MarkersList({
           ? [...sortedMarkers].reverse()
           : [...sortedMarkers].reverse().slice(0, pinsToShow)
         ).map((marker, index) => {
-          const markerId = getMarkerId(marker);
-          const isExpanded = expandedMarkerId === markerId;
+          const isExpanded = expandedPinId === marker.id;
           return (
-            <li key={markerId} className={isExpanded ? "expanded" : ""}>
+            <li key={marker.id} className={isExpanded ? "expanded" : ""}>
               <div
                 className="marker-summary"
                 onClick={() => handleToggleExpand(marker)}
               >
+                <img
+                  src={getMarkerIconUrl(marker)}
+                  alt="marker icon"
+                  className="marker-icon"
+                />
                 <div className="marker-summary-text">
                   <div className="marker-name">
                     {marker.type === "address"

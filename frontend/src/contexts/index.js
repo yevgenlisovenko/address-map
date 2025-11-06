@@ -5,3 +5,4 @@
 
 export { AppConfigProvider, useAppConfig } from './AppConfigContext';
 export { SocketProvider, useSocketContext } from './SocketContext';
+export { ErrorProvider, useError } from './ErrorContext';

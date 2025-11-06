@@ -201,11 +201,16 @@ class PinStorageManager {
 
   /**
    * Debounced persist - prevents excessive file writes
+   * Checks if persist is already running or queued to prevent race conditions
    */
   debouncedPersist() {
     const now = Date.now();
-    if (now - this.lastPersistTime > this.persistDebounceMs) {
+    // Only persist if enough time has passed AND no persist is currently running or pending
+    if (now - this.lastPersistTime > this.persistDebounceMs && !this.isPersisting && !this.pendingPersist) {
       this.persistToFile();
+    } else if (!this.pendingPersist && !this.isPersisting) {
+      // If conditions not met but no persist is pending, mark one as needed
+      this.pendingPersist = true;
     }
   }
 

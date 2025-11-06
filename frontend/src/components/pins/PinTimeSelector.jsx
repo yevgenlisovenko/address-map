@@ -17,6 +17,11 @@ const PinTimeSelector = ({
     setMode(newMode);
     setError('');
     setCustomTime('');
+
+    // When switching back to preset mode, trigger a refresh of the current time window
+    if (newMode === 'preset') {
+      onPresetChange(selectedTimeWindow);
+    }
   };
 
   const handleCustomTimeChange = (e) => {
@@ -34,7 +39,7 @@ const PinTimeSelector = ({
 
     const selectedTimestamp = new Date(customTime).getTime();
     const now = Date.now();
-    const minAllowedTime = now - config.maxAge; // Calculate fresh minimum time
+    const minAllowedTime = now - config.pinStorage.maxAge; // Calculate fresh minimum time
 
     // Validate not in future
     if (selectedTimestamp > now) {
@@ -95,7 +100,7 @@ const PinTimeSelector = ({
             className="time-window-select"
             disabled={!isConnected}
           >
-            {Object.keys(config.timeWindowOptions).map((key) => (
+            {Object.keys(config.pinStorage.timeWindowOptions).map((key) => (
               <option key={key} value={key}>
                 {key}
               </option>
@@ -139,8 +144,10 @@ const PinTimeSelector = ({
 
 PinTimeSelector.propTypes = {
   config: PropTypes.shape({
-    timeWindowOptions: PropTypes.object.isRequired,
-    maxAge: PropTypes.number.isRequired,
+    pinStorage: PropTypes.shape({
+      timeWindowOptions: PropTypes.object.isRequired,
+      maxAge: PropTypes.number.isRequired,
+    }).isRequired,
   }),
   selectedTimeWindow: PropTypes.string.isRequired,
   onPresetChange: PropTypes.func.isRequired,

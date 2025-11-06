@@ -48,7 +48,26 @@ const logFormat = winston.format.combine(
 
     // Add metadata if present
     if (Object.keys(meta).length > 0) {
-      log += ` ${JSON.stringify(meta)}`;
+      try {
+        // Handle circular references with a replacer function
+        const seen = new WeakSet();
+        log += ` ${JSON.stringify(meta, (key, value) => {
+          // Handle circular references
+          if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+              return '[Circular]';
+            }
+            seen.add(value);
+          }
+          // Filter out non-serializable values
+          if (typeof value === 'function') {
+            return '[Function]';
+          }
+          return value;
+        })}`;
+      } catch (error) {
+        log += ` [Metadata serialization failed]`;
+      }
     }
 
     return log;
@@ -72,7 +91,7 @@ const transports = [
     format: logFormat,
     maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
-    rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
+    tailable: true,
   }),
 
   // File transport for all logs
@@ -81,7 +100,7 @@ const transports = [
     format: logFormat,
     maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
-    rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
+    tailable: true,
   }),
 ];
 
