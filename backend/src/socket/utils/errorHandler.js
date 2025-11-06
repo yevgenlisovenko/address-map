@@ -53,9 +53,9 @@ export const handleSocketError = (socket, error, context, metadata = {}) => {
  * @returns {Function} Wrapped handler with error handling
  *
  * @example
- * socket.on('new-address', withErrorHandling(async (data) => {
+ * socket.on('some-event', withErrorHandling(async (data) => {
  *   // handler logic
- * }, 'address-geocoding'));
+ * }, 'event-context'));
  */
 export const withErrorHandling = (handler, context) => {
   return async (data) => {
