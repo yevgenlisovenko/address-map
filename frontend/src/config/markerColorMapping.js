@@ -75,20 +75,20 @@ export const MARKER_ICON_URLS = {
 
 export const PROPERTY_MARKERS_MAP = {
   formCode: {
-    HO3: ho3MarkerIcon,//blueMarkerIcon,
-    HO4: ho4MarkerIcon,//yellowMarkerIcon,
-    HO6: ho6MarkerIcon,//greenMarkerIcon,
-    HF9: hf9MarkerIcon,//redMarkerIcon,
+    HO3: { icon: ho3MarkerIcon, label: 'Homeowners (HO3)' },
+    HO4: { icon: ho4MarkerIcon, label: 'Renters (HO4)' },
+    HO6: { icon: ho6MarkerIcon, label: 'Condo (HO6)' },
+    HF9: { icon: hf9MarkerIcon, label: 'Second Home (HF9)' },
   },
 };
 
 // Property-to-URL mapping for list display
 export const PROPERTY_ICON_URLS = {
   formCode: {
-    HO3: ho3MarkerIconImage,
-    HO4: ho4MarkerIconImage,
-    HO6: ho6MarkerIconImage,
-    HF9: hf9MarkerIconImage,
+    HO3: { url: ho3MarkerIconImage, label: 'Homeowners (HO3)' },
+    HO4: { url: ho4MarkerIconImage, label: 'Renters (HO4)' },
+    HO6: { url: ho6MarkerIconImage, label: 'Condo (HO6)' },
+    HF9: { url: hf9MarkerIconImage, label: 'Second Home (HF9)' },
   },
 };
 
@@ -109,7 +109,10 @@ export function getMarkerIcon(marker) {
     // Check if marker has this property
     if (marker.properties[propertyName] !== undefined) {
       const propertyValue = marker.properties[propertyName];
-      const icon = valueToIconMap[propertyValue];
+      const iconData = valueToIconMap[propertyValue];
+
+      // Handle both formats: icon directly or { icon, label }
+      const icon = iconData?.icon || iconData;
 
       // Return icon if mapping found
       if (icon) {
@@ -139,7 +142,10 @@ export function getMarkerIconUrl(marker) {
     // Check if marker has this property
     if (marker.properties[propertyName] !== undefined) {
       const propertyValue = marker.properties[propertyName];
-      const url = valueToUrlMap[propertyValue];
+      const urlData = valueToUrlMap[propertyValue];
+
+      // Handle both formats: URL directly or { url, label }
+      const url = urlData?.url || urlData;
 
       // Return URL if mapping found
       if (url) {

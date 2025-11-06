@@ -62,18 +62,21 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
               <div className="legend-items">
                 {Object.entries(PROPERTY_MARKERS_MAP).map(([propertyName, valueMap]) => (
                   <div key={propertyName}>
-                    {Object.entries(valueMap).map(([value, icon]) => {
+                    {Object.entries(valueMap).map(([value, iconData]) => {
+                      // Handle both formats: icon directly or { icon, label }
+                      const icon = iconData?.icon || iconData;
+                      const label = iconData?.label || value;
                       const iconUrl = getIconUrl(icon);
                       return (
                         <div key={value} className="legend-item">
                           {iconUrl && (
                             <img
                               src={iconUrl}
-                              alt={value}
+                              alt={label}
                               className="legend-marker-icon"
                             />
                           )}
-                          <span className="legend-marker-label">{value}</span>
+                          <span className="legend-marker-label">{label}</span>
                         </div>
                       );
                     })}
