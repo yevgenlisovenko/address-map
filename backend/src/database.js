@@ -95,6 +95,7 @@ export function transformRowToPin(row) {
   let properties = {};
   for (const [key, value] of Object.entries(row)) {
     if (
+      key !== mapping.id &&
       key !== mapping.latitude &&
       key !== mapping.longitude &&
       key !== mapping.label &&
@@ -126,6 +127,7 @@ export function transformRowToPin(row) {
   }
 
   return {
+    id: row[mapping.id],
     type: 'coordinates',
     lat,
     lon,

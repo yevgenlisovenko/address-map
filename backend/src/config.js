@@ -38,6 +38,7 @@ export const config = {
     initQuery: process.env.INIT_QUERY,
     query: process.env.POLLING_QUERY,
     columnMapping: {
+      id: process.env.POLLING_COL_ID || 'id',
       latitude: process.env.POLLING_COL_LAT || 'latitude',
       longitude: process.env.POLLING_COL_LON || 'longitude',
       label: process.env.POLLING_COL_LABEL || 'label',
