@@ -73,24 +73,38 @@ export const MARKER_ICON_URLS = {
   hf9: hf9MarkerIconImage,
 };
 
-export const PROPERTY_MARKERS_MAP = {
+/**
+ * Unified icon configuration mapping
+ * Maps property values to both Leaflet icons (for map) and image URLs (for lists/UI)
+ */
+export const PROPERTY_ICON_CONFIG = {
   formCode: {
-    HO3: { icon: ho3MarkerIcon, label: 'Homeowners (HO3)' },
-    HO4: { icon: ho4MarkerIcon, label: 'Renters (HO4)' },
-    HO6: { icon: ho6MarkerIcon, label: 'Condo (HO6)' },
-    HF9: { icon: hf9MarkerIcon, label: 'Second Home (HF9)' },
+    HO3: {
+      icon: ho3MarkerIcon,
+      url: ho3MarkerIconImage,
+      label: 'Homeowners (HO3)'
+    },
+    HO4: {
+      icon: ho4MarkerIcon,
+      url: ho4MarkerIconImage,
+      label: 'Renters (HO4)'
+    },
+    HO6: {
+      icon: ho6MarkerIcon,
+      url: ho6MarkerIconImage,
+      label: 'Condo (HO6)'
+    },
+    HF9: {
+      icon: hf9MarkerIcon,
+      url: hf9MarkerIconImage,
+      label: 'Second Home (HF9)'
+    },
   },
 };
 
-// Property-to-URL mapping for list display
-export const PROPERTY_ICON_URLS = {
-  formCode: {
-    HO3: { url: ho3MarkerIconImage, label: 'Homeowners (HO3)' },
-    HO4: { url: ho4MarkerIconImage, label: 'Renters (HO4)' },
-    HO6: { url: ho6MarkerIconImage, label: 'Condo (HO6)' },
-    HF9: { url: hf9MarkerIconImage, label: 'Second Home (HF9)' },
-  },
-};
+// Backward compatibility aliases (deprecated - use PROPERTY_ICON_CONFIG instead)
+export const PROPERTY_MARKERS_MAP = PROPERTY_ICON_CONFIG;
+export const PROPERTY_ICON_URLS = PROPERTY_ICON_CONFIG;
 
 /**
  * Get the appropriate Leaflet marker icon based on marker properties
@@ -104,15 +118,15 @@ export function getMarkerIcon(marker) {
     return defaultMarkerIcon;
   }
 
-  // Loop through PROPERTY_MARKERS_MAP keys to find matching property
-  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_MARKERS_MAP)) {
+  // Loop through PROPERTY_ICON_CONFIG keys to find matching property
+  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
     // Check if marker has this property
     if (marker.properties[propertyName] !== undefined) {
       const propertyValue = marker.properties[propertyName];
       const iconData = valueToIconMap[propertyValue];
 
-      // Handle both formats: icon directly or { icon, label }
-      const icon = iconData?.icon || iconData;
+      // Get icon from unified config
+      const icon = iconData?.icon;
 
       // Return icon if mapping found
       if (icon) {
@@ -137,15 +151,15 @@ export function getMarkerIconUrl(marker) {
     return defaultMarkerIconUrl;
   }
 
-  // Loop through PROPERTY_ICON_URLS keys to find matching property
-  for (const [propertyName, valueToUrlMap] of Object.entries(PROPERTY_ICON_URLS)) {
+  // Loop through PROPERTY_ICON_CONFIG keys to find matching property
+  for (const [propertyName, valueToUrlMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
     // Check if marker has this property
     if (marker.properties[propertyName] !== undefined) {
       const propertyValue = marker.properties[propertyName];
       const urlData = valueToUrlMap[propertyValue];
 
-      // Handle both formats: URL directly or { url, label }
-      const url = urlData?.url || urlData;
+      // Get URL from unified config
+      const url = urlData?.url;
 
       // Return URL if mapping found
       if (url) {

@@ -213,40 +213,6 @@ curl -X POST http://localhost:3001/api/coordinates \
 
 **Note:** The `label` parameter is optional. If omitted, the pin will be labeled with "Coordinates: lat, lon".
 
-### Method 5: WebSocket (Socket.IO)
-
-Connect to the WebSocket server and emit events:
-
-**For Address Geocoding:**
-```javascript
-import { io } from 'socket.io-client';
-
-const socket = io('http://localhost:3001');
-
-socket.emit('new-address', {
-  id: 'pin-003',
-  address: 'Golden Gate Bridge, San Francisco, CA'
-});
-
-socket.on('add-pin', (data) => {
-  console.log('New pin:', data);
-});
-```
-
-**For Direct Coordinates:**
-```javascript
-socket.emit('new-coordinates', {
-  id: 'pin-004',
-  lat: 37.8199,
-  lon: -122.4783,
-  label: 'Golden Gate Bridge' // optional
-});
-
-socket.on('add-pin', (data) => {
-  console.log('New pin:', data);
-});
-```
-
 ## Testing Examples
 
 Try these examples to test the application:
@@ -978,28 +944,6 @@ Manually trigger a polling cycle
 ```
 
 ### WebSocket Events
-
-#### Client → Server
-
-**Event: `new-address`**
-```javascript
-socket.emit('new-address', {
-  id: 'string | number (required) - unique pin identifier',
-  address: 'string (required)',
-  properties: { /* optional custom metadata */ }
-});
-```
-
-**Event: `new-coordinates`**
-```javascript
-socket.emit('new-coordinates', {
-  id: 'string | number (required) - unique pin identifier',
-  lat: number (required, -90 to 90),
-  lon: number (required, -180 to 180),
-  label: 'string (optional)',
-  properties: { /* optional custom metadata */ }
-});
-```
 
 #### Server → Client
 

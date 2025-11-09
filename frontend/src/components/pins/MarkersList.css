@@ -26,39 +26,6 @@
   color: #333;
 }
 
-.return-to-view-button {
-  padding: 6px 12px;
-  background: #646cff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  white-space: nowrap;
-  transition: all 0.3s ease;
-  animation: fadeIn 0.3s ease-in;
-}
-
-.return-to-view-button:hover {
-  background: #535bf2;
-  transform: scale(1.05);
-}
-
-.return-to-view-button:active {
-  transform: scale(0.95);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 .toggle-form-button {
   width: 100%;
   padding: 8px 12px;

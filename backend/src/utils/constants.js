@@ -6,8 +6,6 @@
 export const SOCKET_EVENTS = {
   CONNECTION: 'connection',
   DISCONNECT: 'disconnect',
-  NEW_ADDRESS: 'new-address',
-  NEW_COORDINATES: 'new-coordinates',
   ADD_PIN: 'add-pin',
   REQUEST_PINS: 'request-pins',
   INITIAL_PINS: 'initial-pins',

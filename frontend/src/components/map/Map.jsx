@@ -1,4 +1,4 @@
-import { useEffect, useRef, memo } from "react";
+import { useEffect, memo } from "react";
 import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -27,7 +27,7 @@ function MapBoundsUpdater({ markers }) {
   return null;
 } */
 
-function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords, onMapReady }) {
+function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger }) {
   // Default center and zoom from constants
   const { center: defaultCenter, zoom: defaultZoom } = DEFAULT_MAP_VIEW;
 
@@ -36,9 +36,6 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
     [24.396308, -125.0], // Southwest corner
     [49.384358, -66.93457], // Northeast corner
   ];
-
-  // Track last panned coordinates to prevent repeated panning
-  const lastPannedRef = useRef(null);
 
   // Component to handle map resize when sidebar visibility changes
   function MapResizeHandler() {
@@ -56,40 +53,18 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
     return null;
   }
 
-  // Component to expose map instance to parent
-  function MapInstanceProvider() {
-    const map = useMap();
-
-    useEffect(() => {
-      if (onMapReady && map) {
-        onMapReady(map);
-      }
-    }, [map]);
-
-    return null;
-  }
-
   // Component to handle map panning when marker is clicked from list
   function MapPanHandler() {
     const map = useMap();
 
     useEffect(() => {
-      if (selectedMarkerCoords) {
-        // Check if these are actually new coordinates
-        const isSameLocation = lastPannedRef.current &&
-          lastPannedRef.current.lat === selectedMarkerCoords.lat &&
-          lastPannedRef.current.lon === selectedMarkerCoords.lon;
-
-        // Only pan if coordinates changed
-        if (!isSameLocation) {
-          map.flyTo([selectedMarkerCoords.lat, selectedMarkerCoords.lon], 12, {
-            duration: 1.5 // smooth animation duration in seconds
-          });
-          // Update ref to track this pan
-          lastPannedRef.current = selectedMarkerCoords;
-        }
+      if (markerToPan && panTrigger > 0) {
+        // Pan to the selected marker
+        map.flyTo([markerToPan.lat, markerToPan.lon], 12, {
+          duration: 1.5 // smooth animation duration in seconds
+        });
       }
-    }, [selectedMarkerCoords, map]);
+    }, [panTrigger, map, markerToPan]);
 
     return null;
   }
@@ -136,7 +111,6 @@ function Map({ markers, sidebarVisible, stateHighlightData, selectedMarkerCoords
           })}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
-        <MapInstanceProvider />
         <MapResizeHandler />
         <MapPanHandler />
       </MapContainer>
@@ -171,11 +145,17 @@ Map.propTypes = {
       })
     ),
   }),
-  selectedMarkerCoords: PropTypes.shape({
+  markerToPan: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     lat: PropTypes.number.isRequired,
     lon: PropTypes.number.isRequired,
+    timestamp: PropTypes.string,
+    type: PropTypes.string,
+    address: PropTypes.string,
+    displayName: PropTypes.string,
+    properties: PropTypes.object,
   }),
-  onMapReady: PropTypes.func,
+  panTrigger: PropTypes.number,
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -184,7 +164,7 @@ export default memo(Map, (prevProps, nextProps) => {
     prevProps.markers === nextProps.markers &&
     prevProps.sidebarVisible === nextProps.sidebarVisible &&
     prevProps.stateHighlightData === nextProps.stateHighlightData &&
-    prevProps.selectedMarkerCoords === nextProps.selectedMarkerCoords &&
-    prevProps.onMapReady === nextProps.onMapReady
+    prevProps.markerToPan === nextProps.markerToPan &&
+    prevProps.panTrigger === nextProps.panTrigger
   );
 });
