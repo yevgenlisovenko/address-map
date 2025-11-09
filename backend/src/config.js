@@ -5,7 +5,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const config = {
   port: process.env.PORT || 3001,
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  corsOrigin: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+    : ['http://localhost:5173'],
   geocoding: {
     // Using Nominatim (OpenStreetMap) - free, no API key required
     provider: 'nominatim',
