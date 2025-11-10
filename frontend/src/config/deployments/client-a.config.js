@@ -189,4 +189,20 @@ export default {
       },
     ],
   },
+
+  // Legend configuration
+  legend: {
+    // Auto-group legend items with duplicate icons
+    autoGroupDuplicates: true,
+    // Custom labels for grouped items (by icon ID)
+    groupLabels: {
+      yellow: 'GEICO',
+      blue: 'Homesite',
+      red: 'AmFam',
+      green: 'Progressive',
+      violet: 'Others',
+    },
+    // Default state for groups (true = expanded, false = collapsed)
+    defaultExpanded: false,
+  },
 };

@@ -173,4 +173,14 @@ export default {
       // }
     ]
   },
+
+  // Legend configuration
+  legend: {
+    // Auto-group legend items with duplicate icons (disabled for default - no duplicates)
+    autoGroupDuplicates: false,
+    // Custom labels for grouped items (by icon ID)
+    groupLabels: {},
+    // Default state for groups (true = expanded, false = collapsed)
+    defaultExpanded: false,
+  },
 };

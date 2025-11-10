@@ -1,10 +1,20 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { PROPERTY_MARKERS_MAP, defaultMarkerIcon } from '../../config/markerColorMapping';
+import { useAppConfig } from '../../contexts';
 import './MapLegend.css';
 
 export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] } }) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [expandedGroups, setExpandedGroups] = useState({});
+  const { config } = useAppConfig();
+
+  // Get legend configuration from deployment config
+  const legendConfig = config?.legend || {
+    autoGroupDuplicates: false,
+    groupLabels: {},
+    defaultExpanded: false,
+  };
 
   // Get all marker icon URLs for display
   const getIconUrl = (icon) => {
@@ -20,6 +30,87 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
       .replace(/([A-Z])/g, ' $1')
       .replace(/^./, (str) => str.toUpperCase())
       .trim();
+  };
+
+  // Group legend items by icon URL (for duplicate icons)
+  const groupedLegendItems = useMemo(() => {
+    if (!legendConfig.autoGroupDuplicates) {
+      // Return ungrouped format
+      return { grouped: [], ungrouped: Object.entries(PROPERTY_MARKERS_MAP).flatMap(([propertyName, valueMap]) =>
+        Object.entries(valueMap).map(([value, iconData]) => ({
+          value,
+          iconData,
+          icon: iconData?.icon || iconData,
+          label: iconData?.label || value,
+          iconUrl: getIconUrl(iconData?.icon || iconData),
+        }))
+      )};
+    }
+
+    // Group items by icon URL
+    const iconGroups = {};
+    const allItems = [];
+
+    Object.entries(PROPERTY_MARKERS_MAP).forEach(([propertyName, valueMap]) => {
+      Object.entries(valueMap).forEach(([value, iconData]) => {
+        const icon = iconData?.icon || iconData;
+        const label = iconData?.label || value;
+        const iconUrl = getIconUrl(icon);
+
+        const item = { value, iconData, icon, label, iconUrl };
+        allItems.push(item);
+
+        if (iconUrl) {
+          if (!iconGroups[iconUrl]) {
+            iconGroups[iconUrl] = [];
+          }
+          iconGroups[iconUrl].push(item);
+        }
+      });
+    });
+
+    // Separate grouped and ungrouped items
+    const grouped = [];
+    const ungrouped = [];
+
+    Object.entries(iconGroups).forEach(([iconUrl, items]) => {
+      if (items.length >= 2) {
+        // Group items with duplicate icons
+        const firstItem = items[0];
+        const iconId = Object.entries(config?.markerIconMapping || {}).reduce((acc, [propName, propMap]) => {
+          const found = Object.entries(propMap).find(([val, data]) => {
+            const testIcon = data?.icon || data;
+            return getIconUrl(testIcon) === iconUrl;
+          });
+          return found && found[1]?.icon ? found[1].icon : acc;
+        }, null);
+
+        const groupLabel = iconId && legendConfig.groupLabels[iconId]
+          ? legendConfig.groupLabels[iconId]
+          : `Multiple items (${items.length})`;
+
+        grouped.push({
+          iconUrl,
+          icon: firstItem.icon,
+          groupLabel,
+          count: items.length,
+          items,
+        });
+      } else {
+        // Single item, don't group
+        ungrouped.push(items[0]);
+      }
+    });
+
+    return { grouped, ungrouped };
+  }, [legendConfig, config]);
+
+  // Toggle group expansion
+  const toggleGroup = (iconUrl) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [iconUrl]: !prev[iconUrl]
+    }));
   };
 
   // Check if legend should be shown based on environment variable
@@ -60,26 +151,53 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
             <div className="legend-section">
               {/* <div className="legend-section-title">Markers</div> */}
               <div className="legend-items">
-                {Object.entries(PROPERTY_MARKERS_MAP).map(([propertyName, valueMap]) => (
-                  <div key={propertyName}>
-                    {Object.entries(valueMap).map(([value, iconData]) => {
-                      // Handle both formats: icon directly or { icon, label }
-                      const icon = iconData?.icon || iconData;
-                      const label = iconData?.label || value;
-                      const iconUrl = getIconUrl(icon);
-                      return (
-                        <div key={value} className="legend-item">
-                          {iconUrl && (
-                            <img
-                              src={iconUrl}
-                              alt={label}
-                              className="legend-marker-icon"
-                            />
-                          )}
-                          <span className="legend-marker-label">{label}</span>
+                {/* Render grouped items */}
+                {groupedLegendItems.grouped.map((group) => {
+                  const isGroupExpanded = expandedGroups[group.iconUrl] ?? legendConfig.defaultExpanded;
+                  return (
+                    <div key={group.iconUrl} className="legend-group">
+                      <div
+                        className="legend-group-header"
+                        onClick={() => toggleGroup(group.iconUrl)}
+                        title={isGroupExpanded ? 'Click to collapse' : 'Click to expand'}
+                      >
+                        {group.iconUrl && (
+                          <img
+                            src={group.iconUrl}
+                            alt={group.groupLabel}
+                            className="legend-marker-icon"
+                          />
+                        )}
+                        <span className="legend-group-toggle">
+                          {isGroupExpanded ? '▼' : '▶'}
+                        </span>
+                        <span className="legend-marker-label">{group.groupLabel}</span>
+                        <span className="legend-group-count">({group.count})</span>
+                      </div>
+                      {isGroupExpanded && (
+                        <div className="legend-group-items">
+                          {group.items.map((item) => (
+                            <div key={item.value} className="legend-item legend-group-item">
+                              <span className="legend-marker-label">{item.label}</span>
+                            </div>
+                          ))}
                         </div>
-                      );
-                    })}
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Render ungrouped items */}
+                {groupedLegendItems.ungrouped.map((item) => (
+                  <div key={item.value} className="legend-item">
+                    {item.iconUrl && (
+                      <img
+                        src={item.iconUrl}
+                        alt={item.label}
+                        className="legend-marker-icon"
+                      />
+                    )}
+                    <span className="legend-marker-label">{item.label}</span>
                   </div>
                 ))}
               </div>
