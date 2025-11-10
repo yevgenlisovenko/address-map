@@ -22,60 +22,60 @@ export default {
   // Marker icon mappings by partnerId
   partnerId: {
     1237: {
-      icon: 'red',
-      label: 'American Family Insurance',
+      icon: "red",
+      label: "American Family Insurance",
     },
     1243: {
-      icon: 'red',
-      label: 'American Family Insurance',
+      icon: "red",
+      label: "American Family Insurance",
     },
     1245: {
-      icon: 'red',
-      label: 'American Family Insurance',
+      icon: "red",
+      label: "American Family Insurance",
     },
     2849: {
-      icon: 'red',
-      label: 'American Family Insurance',
+      icon: "red",
+      label: "American Family Insurance",
     },
     7312: {
-      icon: 'red',
-      label: 'American Family Insurance',
+      icon: "red",
+      label: "American Family Insurance",
     },
     2329: {
-      icon: 'blue',
-      label: 'Homesite',
+      icon: "blue",
+      label: "Homesite",
     },
     2711: {
-      icon: 'blue',
-      label: 'Homesite',
+      icon: "blue",
+      label: "Homesite",
     },
     2845: {
-      icon: 'blue',
-      label: 'Homesite',
+      icon: "blue",
+      label: "Homesite",
     },
     1271: {
-      icon: 'green',
-      label: 'Progressive',
+      icon: "green",
+      label: "Progressive",
     },
     8: {
-      icon: 'green',
-      label: 'Progressive',
+      icon: "green",
+      label: "Progressive",
     },
     1041: {
-      icon: 'yellow',
-      label: 'Geico',
+      icon: "yellow",
+      label: "Geico",
     },
     1042: {
-      icon: 'yellow',
-      label: 'Geico',
+      icon: "yellow",
+      label: "Geico",
     },
     1821: {
-      icon: 'yellow',
-      label: 'Geico',
+      icon: "yellow",
+      label: "Geico",
     },
     2709: {
-      icon: 'yellow',
-      label: 'Geico',
+      icon: "yellow",
+      label: "Geico",
     },
   },
 
@@ -83,8 +83,8 @@ export default {
   stats: {
     trackedProperties: [
       {
-        propertyName: 'state',
-        displayName: 'State',
+        propertyName: "state",
+        displayName: "State",
         enabled: true,
         // Optional: add aggregations per property value
         // aggregations: [
@@ -99,13 +99,23 @@ export default {
         // ],
       },
       {
-        propertyName: 'partnerNameShort',
-        displayName: 'Partner',
+        propertyName: "partnerNameShort",
+        displayName: "Partner",
         enabled: true,
+        aggregations: [
+          {
+            propertyName: "premium",
+            displayName: "Premium",
+            operations: ["sum"],
+            format: "currency",
+            decimals: 0,
+            enabled: true,
+          },
+        ],
       },
     ],
     maxItemsPerProperty: 100, // Show top 10 for client A
-    sortOrder: 'desc',
+    sortOrder: "desc",
     aggregations: [
       // {
       //   id: 'total-policies',

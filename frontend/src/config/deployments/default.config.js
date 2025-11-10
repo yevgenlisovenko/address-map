@@ -73,16 +73,16 @@ export default {
         propertyName: 'state',
         displayName: 'State',
         enabled: true,
-        aggregations: [
-          {
-            propertyName: 'premium',
-            displayName: 'Premium',
-            operations: ['sum', 'avg'],
-            format: 'currency',
-            decimals: 0,
-            enabled: true,
-          },
-        ],
+        // aggregations: [
+        //   {
+        //     propertyName: 'premium',
+        //     displayName: 'Premium',
+        //     operations: ['sum', 'avg'],
+        //     format: 'currency',
+        //     decimals: 0,
+        //     enabled: true,
+        //   },
+        // ],
       },
       {
         propertyName: 'formCode',
