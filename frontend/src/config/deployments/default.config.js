@@ -43,6 +43,20 @@
  *     enabled: boolean
  *   }>
  * }
+ *
+ * Filters Configuration Structure:
+ * {
+ *   filterableProperties: Array<{
+ *     propertyName: string,
+ *     displayName: string,
+ *     enabled: boolean,
+ *     values?: Array<string> | 'dynamic' | undefined
+ *     // values modes:
+ *     // - Array: static dropdown with predefined options
+ *     // - 'dynamic': generate dropdown from marker data
+ *     // - undefined/omitted: text input filter (contains search)
+ *   }>
+ * }
  */
 
 export default {
@@ -117,5 +131,44 @@ export default {
         enabled: true
       },
     ],
+  },
+
+  // Filters configuration
+  filters: {
+    filterableProperties: [
+      {
+        propertyName: 'state',
+        displayName: 'State',
+        enabled: true,
+        // Static values: predefined dropdown options
+        values: [
+          'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+          'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+          'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+          'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+          'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+        ]
+      },
+      {
+        propertyName: 'formCode',
+        displayName: 'Form Code',
+        enabled: true,
+        values: ['HO3', 'HO4', 'HO6', 'HF9']
+      },
+      // Example: Dynamic dropdown (generate from marker data)
+      // {
+      //   propertyName: 'county',
+      //   displayName: 'County',
+      //   enabled: true,
+      //   values: 'dynamic'  // Auto-generate from markers
+      // },
+      // Example: Text input filter (contains search)
+      // {
+      //   propertyName: 'notes',
+      //   displayName: 'Notes',
+      //   enabled: true
+      //   // No values = text input
+      // }
+    ]
   },
 };

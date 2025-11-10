@@ -160,4 +160,30 @@ export default {
       // },
     ],
   },
+
+  // Filters configuration for Client A
+  filters: {
+    filterableProperties: [
+      {
+        propertyName: "state",
+        displayName: "State",
+        enabled: true,
+        // Static values: predefined dropdown options
+        values: [
+          "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+          "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+          "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+          "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+          "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+        ],
+      },
+      {
+        propertyName: "partnerNameShort",
+        displayName: "Partner",
+        enabled: true,
+        // Dynamic values: auto-generate from marker data
+        values: "dynamic",
+      },
+    ],
+  },
 };

@@ -13,6 +13,7 @@ export default function Sidebar({
   selectedTimeWindow,
   onTimeWindowChange,
   onCustomTimeSubmit,
+  markers,
   visibleMarkers,
   showAllPins,
   pinsToShow,
@@ -91,6 +92,7 @@ export default function Sidebar({
             />
           )}
           <PropertyFilter
+            markers={markers}
             propertyFilters={propertyFilters}
             onFilterChange={onPropertyFilterChange}
           />
@@ -116,6 +118,7 @@ Sidebar.propTypes = {
   selectedTimeWindow: PropTypes.string.isRequired,
   onTimeWindowChange: PropTypes.func.isRequired,
   onCustomTimeSubmit: PropTypes.func.isRequired,
+  markers: PropTypes.array.isRequired,
   visibleMarkers: PropTypes.array.isRequired,
   showAllPins: PropTypes.bool.isRequired,
   pinsToShow: PropTypes.number.isRequired,
