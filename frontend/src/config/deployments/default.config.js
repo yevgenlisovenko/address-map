@@ -61,22 +61,24 @@
 
 export default {
   // Marker icon mappings
-  formCode: {
-    HO3: {
-      icon: 'ho3',
-      label: 'Homeowners (HO3)',
-    },
-    HO4: {
-      icon: 'ho4',
-      label: 'Renters (HO4)',
-    },
-    HO6: {
-      icon: 'ho6',
-      label: 'Condo (HO6)',
-    },
-    HF9: {
-      icon: 'hf9',
-      label: 'Second Home (HF9)',
+  markerIconMapping: {
+    formCode: {
+      HO3: {
+        icon: 'ho3',
+        label: 'Homeowners (HO3)',
+      },
+      HO4: {
+        icon: 'ho4',
+        label: 'Renters (HO4)',
+      },
+      HO6: {
+        icon: 'ho6',
+        label: 'Condo (HO6)',
+      },
+      HF9: {
+        icon: 'hf9',
+        label: 'Second Home (HF9)',
+      },
     },
   },
 

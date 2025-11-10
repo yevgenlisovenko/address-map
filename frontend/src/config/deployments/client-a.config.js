@@ -19,95 +19,98 @@
  */
 
 export default {
-  // Marker icon mappings by partnerNameShort
+  // Marker icon mappings
+  markerIconMapping: {
+    // Marker icon mappings by partnerNameShort
     partnerNameShort: {
-    'Homesite': {
-      icon: 'blue'
+      'Homesite': {
+        icon: 'blue'
+      },
+      'HOMESITE MOBILE': {
+        icon: 'blue',
+      },
+      'GEICO Agency': {
+        icon: 'yellow',
+      },
+      'GEICO Direct': {
+        icon: 'yellow',
+      },
+      'GEICO CC': {
+        icon: 'yellow',
+      },
+      'GEICO Insurance Agency, LLC': {
+        icon: 'yellow',
+      },
+      'American Family Insurance': {
+        icon: 'red',
+      },
+      'Progressive Home, by Homesite': {
+        icon: 'green',
+      },
+      'CoverMyStuff Insurance Program': {
+        icon: 'violet',
+      }
     },
-    'HOMESITE MOBILE': {
-      icon: 'blue',
-    },
-    'GEICO Agency': {
-      icon: 'yellow',
-    },
-    'GEICO Direct': {
-      icon: 'yellow',
-    },
-    'GEICO CC': {
-      icon: 'yellow',
-    },
-    'GEICO Insurance Agency, LLC': {
-      icon: 'yellow',
-    },
-    'American Family Insurance': {
-      icon: 'red',
-    },
-    'Progressive Home, by Homesite': {
-      icon: 'green',
-    },
-    'CoverMyStuff Insurance Program': {
-      icon: 'violet',
-    }
+    // Marker icon mappings by partnerId
+    // partnerId: {
+    //   1237: {
+    //     icon: "red",
+    //     label: "American Family Insurance",
+    //   },
+    //   1243: {
+    //     icon: "red",
+    //     label: "American Family Insurance",
+    //   },
+    //   1245: {
+    //     icon: "red",
+    //     label: "American Family Insurance",
+    //   },
+    //   2849: {
+    //     icon: "red",
+    //     label: "American Family Insurance",
+    //   },
+    //   7312: {
+    //     icon: "red",
+    //     label: "American Family Insurance",
+    //   },
+    //   2329: {
+    //     icon: "blue",
+    //     label: "Homesite",
+    //   },
+    //   2711: {
+    //     icon: "blue",
+    //     label: "Homesite",
+    //   },
+    //   2845: {
+    //     icon: "blue",
+    //     label: "Homesite",
+    //   },
+    //   1271: {
+    //     icon: "green",
+    //     label: "Progressive",
+    //   },
+    //   8: {
+    //     icon: "green",
+    //     label: "Progressive",
+    //   },
+    //   1041: {
+    //     icon: "yellow",
+    //     label: "Geico",
+    //   },
+    //   1042: {
+    //     icon: "yellow",
+    //     label: "Geico",
+    //   },
+    //   1821: {
+    //     icon: "yellow",
+    //     label: "Geico",
+    //   },
+    //   2709: {
+    //     icon: "yellow",
+    //     label: "Geico",
+    //   },
+    // },
   },
-  // Marker icon mappings by partnerId
-  // partnerId: {
-  //   1237: {
-  //     icon: "red",
-  //     label: "American Family Insurance",
-  //   },
-  //   1243: {
-  //     icon: "red",
-  //     label: "American Family Insurance",
-  //   },
-  //   1245: {
-  //     icon: "red",
-  //     label: "American Family Insurance",
-  //   },
-  //   2849: {
-  //     icon: "red",
-  //     label: "American Family Insurance",
-  //   },
-  //   7312: {
-  //     icon: "red",
-  //     label: "American Family Insurance",
-  //   },
-  //   2329: {
-  //     icon: "blue",
-  //     label: "Homesite",
-  //   },
-  //   2711: {
-  //     icon: "blue",
-  //     label: "Homesite",
-  //   },
-  //   2845: {
-  //     icon: "blue",
-  //     label: "Homesite",
-  //   },
-  //   1271: {
-  //     icon: "green",
-  //     label: "Progressive",
-  //   },
-  //   8: {
-  //     icon: "green",
-  //     label: "Progressive",
-  //   },
-  //   1041: {
-  //     icon: "yellow",
-  //     label: "Geico",
-  //   },
-  //   1042: {
-  //     icon: "yellow",
-  //     label: "Geico",
-  //   },
-  //   1821: {
-  //     icon: "yellow",
-  //     label: "Geico",
-  //   },
-  //   2709: {
-  //     icon: "yellow",
-  //     label: "Geico",
-  //   },
-  // },
 
   // Statistics configuration for Client A
   stats: {

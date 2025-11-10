@@ -95,11 +95,15 @@ const DEPLOYMENT_CONFIGS = {
  * Load deployment configuration based on environment variable
  */
 const deploymentName = import.meta.env.VITE_DEPLOYMENT_CONFIG || 'default';
-const rawConfig = DEPLOYMENT_CONFIGS[deploymentName] || DEPLOYMENT_CONFIGS.default;
+const deploymentConfig = DEPLOYMENT_CONFIGS[deploymentName] || DEPLOYMENT_CONFIGS.default;
 
 if (!DEPLOYMENT_CONFIGS[deploymentName] && deploymentName !== 'default') {
   console.warn(`Deployment config "${deploymentName}" not found, using default`);
 }
+
+// Extract marker icon mapping from deployment config
+// Support both new structure (markerIconMapping property) and old structure (root level)
+const rawConfig = deploymentConfig.markerIconMapping || deploymentConfig;
 
 /**
  * Transform raw config by mapping icon IDs to actual icon objects
