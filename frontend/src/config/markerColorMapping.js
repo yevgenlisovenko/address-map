@@ -17,6 +17,7 @@ import ho3MarkerIconImage from "../assets/markerIcons/marker-icon-HO3.png";
 import ho4MarkerIconImage from "../assets/markerIcons/marker-icon-HO4.png";
 import ho6MarkerIconImage from "../assets/markerIcons/marker-icon-HO6.png";
 import hf9MarkerIconImage from "../assets/markerIcons/marker-icon-HF9.png";
+import markerShadowImage from "../assets/markerIcons/marker-shadow.png";
 
 // Import deployment configs
 import defaultConfig from './deployments/default.config.js';
@@ -30,7 +31,7 @@ import clientAConfig from './deployments/client-a.config.js';
 const createMarkerIcon = (iconUrl) => {
   return new L.Icon({
     iconUrl,
-    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+    shadowUrl: markerShadowImage,
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
