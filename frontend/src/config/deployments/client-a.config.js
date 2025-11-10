@@ -86,6 +86,17 @@ export default {
         propertyName: 'state',
         displayName: 'State',
         enabled: true,
+        // Optional: add aggregations per property value
+        // aggregations: [
+        //   {
+        //     propertyName: 'premium',
+        //     displayName: 'Premium',
+        //     operations: ['sum', 'avg'],
+        //     format: 'currency',
+        //     decimals: 0,
+        //     enabled: true,
+        //   },
+        // ],
       },
       {
         propertyName: 'partnerNameShort',

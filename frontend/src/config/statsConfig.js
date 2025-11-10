@@ -5,10 +5,13 @@
  * Falls back to default configuration if no deployment-specific config is found.
  *
  * Configuration includes:
- * - trackedProperties: Properties to track in leaderboard
+ * - trackedProperties: Properties to track in leaderboard (with optional per-value aggregations)
  * - maxItemsPerProperty: Number of top items to show
  * - sortOrder: Sort direction ('desc' or 'asc')
- * - aggregations: Numeric aggregations (sum, avg, min, max, count)
+ * - aggregations: Global numeric aggregations (sum, avg, min, max, count)
+ *
+ * NEW: trackedProperties can now include aggregations to show in leaderboards.
+ * Example: "Texas (45) - $450,000 sum | $10,000 avg"
  */
 
 import defaultConfig from './deployments/default.config.js';
@@ -59,7 +62,37 @@ function loadStatsConfig() {
 export const STATS_CONFIG = loadStatsConfig();
 
 /**
- * Example aggregation configurations:
+ * Example configurations:
+ *
+ * TRACKED PROPERTIES WITH AGGREGATIONS (Enhanced Leaderboards):
+ *
+ * trackedProperties: [
+ *   {
+ *     propertyName: 'state',
+ *     displayName: 'State',
+ *     enabled: true,
+ *     aggregations: [                  // Optional: show aggregations per property value
+ *       {
+ *         propertyName: 'premium',
+ *         displayName: 'Premium',      // Optional: defaults to propertyName
+ *         operations: ['sum', 'avg'],
+ *         format: 'currency',
+ *         decimals: 0,
+ *         enabled: true
+ *       },
+ *       {
+ *         propertyName: 'coverageAmount',
+ *         displayName: 'Coverage',
+ *         operations: ['sum'],
+ *         format: 'currency',
+ *         decimals: 0,
+ *         enabled: true
+ *       }
+ *     ]
+ *   }
+ * ]
+ *
+ * GLOBAL AGGREGATIONS (Shown in separate section):
  *
  * {
  *   id: 'premiumInfoPanel',

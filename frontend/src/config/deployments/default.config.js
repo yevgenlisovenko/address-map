@@ -19,7 +19,15 @@
  *   trackedProperties: Array<{
  *     propertyName: string,
  *     displayName: string,
- *     enabled: boolean
+ *     enabled: boolean,
+ *     aggregations?: Array<{  // Optional: show aggregations per property value
+ *       propertyName: string,
+ *       displayName?: string,
+ *       operations: Array<'sum' | 'avg' | 'min' | 'max' | 'count'>,
+ *       format: 'currency' | 'number' | 'percentage',
+ *       decimals: number,
+ *       enabled: boolean
+ *     }>
  *   }>,
  *   maxItemsPerProperty: number,
  *   sortOrder: 'desc' | 'asc',
@@ -65,11 +73,22 @@ export default {
         propertyName: 'state',
         displayName: 'State',
         enabled: true,
+        aggregations: [
+          {
+            propertyName: 'premium',
+            displayName: 'Premium',
+            operations: ['sum', 'avg'],
+            format: 'currency',
+            decimals: 0,
+            enabled: true,
+          },
+        ],
       },
       {
         propertyName: 'formCode',
         displayName: 'Form',
         enabled: true,
+        // No aggregations - just shows counts
       },
     ],
     maxItemsPerProperty: 5,

@@ -2,11 +2,18 @@ import { memo } from 'react';
 import PropTypes from 'prop-types';
 import { STATS_CONFIG } from '../../config/statsConfig';
 import { useAggregations } from '../../hooks/useAggregations';
+import { useGroupedAggregations } from '../../hooks/useGroupedAggregations';
 import './Stats.css';
 
 function Stats({ markers }) {
   // Calculate aggregations for visible markers
   const aggregations = useAggregations(markers);
+
+  // Get enabled properties
+  const enabledProperties = STATS_CONFIG.trackedProperties.filter(p => p.enabled);
+
+  // Calculate grouped aggregations for all properties in one call
+  const groupedAggregationsByProperty = useGroupedAggregations(markers, enabledProperties);
 
   // Aggregate statistics for a specific property
   const aggregateStats = (markers, propertyName) => {
@@ -35,9 +42,6 @@ function Stats({ markers }) {
     // Limit to max items
     return entries.slice(0, STATS_CONFIG.maxItemsPerProperty);
   };
-
-  // Get enabled properties
-  const enabledProperties = STATS_CONFIG.trackedProperties.filter(p => p.enabled);
 
   // Don't render if no properties are enabled
   if (enabledProperties.length === 0) {
@@ -99,17 +103,47 @@ function Stats({ markers }) {
             return null;
           }
 
+          // Get grouped aggregations for this property
+          const groupedAggs = groupedAggregationsByProperty[property.propertyName] || {};
+
           return (
             <div key={property.propertyName} className="stat-section">
               <h4>{property.displayName}</h4>
               <ul className="leaderboard">
-                {stats.map(([value, count], index) => (
-                  <li key={value} className="leaderboard-item">
-                    <span className="rank">#{index + 1}</span>
-                    <span className="value">{String(value)}</span>
-                    <span className="count">{count}</span>
-                  </li>
-                ))}
+                {stats.map(([value, count], index) => {
+                  // Get aggregations for this value if available
+                  const valueAggs = groupedAggs[value] || null;
+
+                  return (
+                    <li key={value} className="leaderboard-item">
+                      <div className="leaderboard-main">
+                        <span className="rank">#{index + 1}</span>
+                        <span className="value">{String(value)}</span>
+                        <span className="count">{count}</span>
+                      </div>
+
+                      {/* Show aggregations if available */}
+                      {valueAggs && (
+                        <div className="leaderboard-details">
+                          {Object.entries(valueAggs).map(([aggProp, operations]) => {
+                            // Get aggregation config to show display name
+                            const aggConfig = property.aggregations.find(
+                              a => a.propertyName === aggProp
+                            );
+                            const displayName = aggConfig?.displayName || aggProp;
+
+                            return Object.entries(operations).map(([operation, result]) => (
+                              <div key={`${aggProp}-${operation}`} className="agg-group">
+                                <span className="agg-label">{displayName}:</span>
+                                <span className="agg-item">{result.formatted} {operation}</span>
+                              </div>
+                            ));
+                          })}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           );
