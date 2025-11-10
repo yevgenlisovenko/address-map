@@ -1,16 +1,14 @@
 import { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { PROPERTY_MARKERS_MAP, defaultMarkerIcon } from '../../config/markerColorMapping';
-import { useAppConfig } from '../../contexts';
+import { PROPERTY_MARKERS_MAP, defaultMarkerIcon, DEPLOYMENT_CONFIG } from '../../config/markerColorMapping';
 import './MapLegend.css';
 
 export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] } }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState({});
-  const { config } = useAppConfig();
 
-  // Get legend configuration from deployment config
-  const legendConfig = config?.legend || {
+  // Get legend configuration from deployment config (loaded at build time)
+  const legendConfig = DEPLOYMENT_CONFIG?.legend || {
     autoGroupDuplicates: false,
     groupLabels: {},
     defaultExpanded: false,
@@ -74,15 +72,15 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
     const ungrouped = [];
 
     Object.entries(iconGroups).forEach(([iconUrl, items]) => {
-      if (items.length >= 2) {
-        // Group items with duplicate icons
+      if (items.length >= 1) {
+        // Group all items (even single items) for consistent appearance
         const firstItem = items[0];
-        const iconId = Object.entries(config?.markerIconMapping || {}).reduce((acc, [propName, propMap]) => {
+        // Extract iconId by searching PROPERTY_MARKERS_MAP for matching icon URL
+        const iconId = Object.entries(PROPERTY_MARKERS_MAP).reduce((acc, [propName, propMap]) => {
           const found = Object.entries(propMap).find(([val, data]) => {
-            const testIcon = data?.icon || data;
-            return getIconUrl(testIcon) === iconUrl;
+            return data?.url === iconUrl;
           });
-          return found && found[1]?.icon ? found[1].icon : acc;
+          return found?.[1]?.iconId || acc;
         }, null);
 
         const groupLabel = iconId && legendConfig.groupLabels[iconId]
@@ -96,14 +94,12 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
           count: items.length,
           items,
         });
-      } else {
-        // Single item, don't group
-        ungrouped.push(items[0]);
       }
+      // Note: All items are now grouped (even single items) for consistent appearance
     });
 
     return { grouped, ungrouped };
-  }, [legendConfig, config]);
+  }, [legendConfig]);
 
   // Toggle group expansion
   const toggleGroup = (iconUrl) => {

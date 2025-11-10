@@ -102,6 +102,9 @@ if (!DEPLOYMENT_CONFIGS[deploymentName] && deploymentName !== 'default') {
   console.warn(`Deployment config "${deploymentName}" not found, using default`);
 }
 
+// Export full deployment config for use by other components (e.g., MapLegend)
+export const DEPLOYMENT_CONFIG = deploymentConfig;
+
 // Extract marker icon mapping from deployment config
 // Support both new structure (markerIconMapping property) and old structure (root level)
 const rawConfig = deploymentConfig.markerIconMapping || deploymentConfig;
@@ -127,6 +130,7 @@ function transformConfig(rawConfig) {
         icon: iconData.icon,
         url: iconData.url,
         label: config.label,
+        iconId: config.icon,  // Preserve original icon ID for legend grouping
       };
     }
   }
