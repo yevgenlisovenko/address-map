@@ -66,16 +66,16 @@ export default {
       label: 'Geico',
     },
     1042: {
-      icon: 'blue',
-      label: 'Homesite',
+      icon: 'yellow',
+      label: 'Geico',
     },
     1821: {
-      icon: 'blue',
-      label: 'Homesite',
+      icon: 'yellow',
+      label: 'Geico',
     },
     2709: {
-      icon: 'blue',
-      label: 'Homesite',
+      icon: 'yellow',
+      label: 'Geico',
     },
   },
 
@@ -88,12 +88,12 @@ export default {
         enabled: true,
       },
       {
-        propertyName: 'partnerId',
+        propertyName: 'partnerNameShort',
         displayName: 'Partner',
         enabled: true,
       },
     ],
-    maxItemsPerProperty: 10, // Show top 10 for client A
+    maxItemsPerProperty: 100, // Show top 10 for client A
     sortOrder: 'desc',
     aggregations: [
       // {
