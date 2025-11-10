@@ -18,6 +18,10 @@ COPY . .
 ARG VITE_BACKEND_URL=http://localhost:3001
 ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 
+# Build argument for deployment configuration
+ARG VITE_DEPLOYMENT_CONFIG=default
+ENV VITE_DEPLOYMENT_CONFIG=${VITE_DEPLOYMENT_CONFIG}
+
 # Build application
 RUN npm run build
 
