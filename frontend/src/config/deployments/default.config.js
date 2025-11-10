@@ -1,10 +1,10 @@
 /**
- * Default Icon Configuration
+ * Default Deployment Configuration
  *
  * This is the fallback configuration used when no deployment-specific
  * config is specified via VITE_DEPLOYMENT_CONFIG environment variable.
  *
- * Configuration Structure:
+ * Marker Icon Configuration Structure:
  * {
  *   [propertyName]: {
  *     [propertyValue]: {
@@ -14,16 +14,31 @@
  *   }
  * }
  *
- * Example:
- * formCode: {
- *   HO3: {
- *     icon: 'ho3',              // Will be mapped to actual ho3MarkerIcon
- *     label: 'Homeowners (HO3)' // Display label in legend/UI
- *   }
+ * Stats Configuration Structure:
+ * {
+ *   trackedProperties: Array<{
+ *     propertyName: string,
+ *     displayName: string,
+ *     enabled: boolean
+ *   }>,
+ *   maxItemsPerProperty: number,
+ *   sortOrder: 'desc' | 'asc',
+ *   aggregations: Array<{
+ *     id: string,
+ *     propertyName: string | null,
+ *     displayName: string,
+ *     operations: Array<'sum' | 'avg' | 'min' | 'max' | 'count'>,
+ *     format: 'currency' | 'number' | 'percentage',
+ *     decimals: number,
+ *     showInStats: boolean,
+ *     showInInfoPanel: boolean,
+ *     enabled: boolean
+ *   }>
  * }
  */
 
 export default {
+  // Marker icon mappings
   formCode: {
     HO3: {
       icon: 'ho3',
@@ -41,5 +56,47 @@ export default {
       icon: 'hf9',
       label: 'Second Home (HF9)',
     },
+  },
+
+  // Statistics configuration
+  stats: {
+    trackedProperties: [
+      {
+        propertyName: 'state',
+        displayName: 'State',
+        enabled: true,
+      },
+      {
+        propertyName: 'formCode',
+        displayName: 'Form',
+        enabled: true,
+      },
+    ],
+    maxItemsPerProperty: 5,
+    sortOrder: 'desc',
+    aggregations: [
+      {
+        id: 'premiumInfoPanel',
+        propertyName: 'premium',
+        displayName: 'Premium',
+        operations: ['sum'],
+        format: 'currency',
+        decimals: 0,
+        showInStats: false,
+        showInInfoPanel: true,
+        enabled: true
+      },
+      {
+        id: 'premiumStats',
+        propertyName: 'premium',
+        displayName: 'Premium',
+        operations: ['sum', 'max', 'min', 'avg'],
+        format: 'currency',
+        decimals: 0,
+        showInStats: true,
+        showInInfoPanel: false,
+        enabled: true
+      },
+    ],
   },
 };
