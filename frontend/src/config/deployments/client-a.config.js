@@ -29,6 +29,9 @@ export default {
       'HOMESITE MOBILE': {
         icon: 'blue',
       },
+      'Homesite Homeowners Insurance Program': {
+        icon: 'blue',
+      },
       'GEICO Agency': {
         icon: 'yellow',
       },
@@ -39,6 +42,9 @@ export default {
         icon: 'yellow',
       },
       'GEICO Insurance Agency, LLC': {
+        icon: 'yellow',
+      },
+      'GEICO Insurance Agency, Inc.': {
         icon: 'yellow',
       },
       'American Family Insurance': {
