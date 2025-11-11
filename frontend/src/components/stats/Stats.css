@@ -34,8 +34,6 @@
 }
 
 .leaderboard-item {
-  display: flex;
-  align-items: center;
   padding: 8px 10px;
   margin-bottom: 5px;
   background: #f9f9f9;
@@ -46,23 +44,32 @@
 .leaderboard-item:first-child {
   background: #fff4e6;
   border-left-color: #ffa500;
+}
+
+.leaderboard-item:first-child .leaderboard-main {
   font-weight: bold;
 }
 
-.leaderboard-item .rank {
+/* Main row with rank, value, count */
+.leaderboard-main {
+  display: flex;
+  align-items: center;
+}
+
+.leaderboard-main .rank {
   font-size: 12px;
   color: #666;
   width: 30px;
   font-weight: bold;
 }
 
-.leaderboard-item .value {
+.leaderboard-main .value {
   flex: 1;
   font-size: 13px;
   color: #333;
 }
 
-.leaderboard-item .count {
+.leaderboard-main .count {
   font-size: 14px;
   font-weight: bold;
   color: #646cff;
@@ -70,6 +77,36 @@
   padding: 2px 8px;
   border-radius: 12px;
   border: 1px solid #646cff;
+}
+
+/* Aggregations details section */
+.leaderboard-details {
+  margin-top: 8px;
+  margin-left: 30px;
+  padding-left: 10px;
+  border-left: 2px solid #e0e0e0;
+  font-size: 12px;
+  color: #666;
+}
+
+.agg-group {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.agg-group:last-child {
+  margin-bottom: 0;
+}
+
+.agg-label {
+  font-weight: 600;
+  color: #555;
+  margin-right: 6px;
+}
+
+.agg-item {
+  margin-right: 4px;
+  color: #666;
 }
 
 /* Aggregations display */

@@ -161,6 +161,7 @@ function AppContent() {
         selectedTimeWindow={selectedTimeWindow}
         onTimeWindowChange={handleTimeWindowChange}
         onCustomTimeSubmit={handleCustomTimeSubmit}
+        markers={markers}
         visibleMarkers={visibleMarkers}
         showAllPins={showAllPins}
         pinsToShow={DEFAULT_PINS_TO_SHOW}

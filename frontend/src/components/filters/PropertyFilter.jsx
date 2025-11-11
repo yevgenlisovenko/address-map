@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FILTER_CONFIG } from '../../config/filterConfig';
+import { useDynamicFilterValues } from '../../hooks/useDynamicFilterValues';
 import './PropertyFilter.css';
 
-export default function PropertyFilter({ propertyFilters, onFilterChange }) {
+export default function PropertyFilter({ markers, propertyFilters, onFilterChange }) {
   const [filters, setFilters] = useState(propertyFilters || {});
   const [expandedDropdowns, setExpandedDropdowns] = useState({});
+
+  // Get enabled filterable properties from config with dynamic values
+  const baseProperties = FILTER_CONFIG.filterableProperties.filter(p => p.enabled);
+  const enabledProperties = useDynamicFilterValues(markers || [], baseProperties);
 
   // Initialize dropdowns collapsed with no items selected (only on mount)
   useEffect(() => {
@@ -16,16 +21,13 @@ export default function PropertyFilter({ propertyFilters, onFilterChange }) {
 
     // All dropdowns collapsed by default
     const initialExpanded = {};
-    FILTER_CONFIG.filterableProperties
-      .filter(p => p.enabled && p.values)
+    baseProperties
+      .filter(p => p.values)
       .forEach(property => {
         initialExpanded[property.propertyName] = false;
       });
     setExpandedDropdowns(initialExpanded);
   }, []); // Empty deps = run only on mount
-
-  // Get enabled filterable properties from config
-  const enabledProperties = FILTER_CONFIG.filterableProperties.filter(p => p.enabled);
 
   // Toggle dropdown expanded state
   const handleToggleDropdown = (propertyName) => {
@@ -217,6 +219,7 @@ export default function PropertyFilter({ propertyFilters, onFilterChange }) {
 }
 
 PropertyFilter.propTypes = {
+  markers: PropTypes.array.isRequired,
   propertyFilters: PropTypes.object,
   onFilterChange: PropTypes.func.isRequired,
 };

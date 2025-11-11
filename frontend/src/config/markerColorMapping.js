@@ -1,6 +1,6 @@
 /**
  * Color mapping configuration for markers
- * Maps property values to marker colors
+ * Supports deployment-specific configurations via VITE_DEPLOYMENT_CONFIG environment variable
  */
 
 import L from 'leaflet';
@@ -17,6 +17,11 @@ import ho3MarkerIconImage from "../assets/markerIcons/marker-icon-HO3.png";
 import ho4MarkerIconImage from "../assets/markerIcons/marker-icon-HO4.png";
 import ho6MarkerIconImage from "../assets/markerIcons/marker-icon-HO6.png";
 import hf9MarkerIconImage from "../assets/markerIcons/marker-icon-HF9.png";
+import markerShadowImage from "../assets/markerIcons/marker-shadow.png";
+
+// Import deployment configs
+import defaultConfig from './deployments/default.config.js';
+import clientAConfig from './deployments/client-a.config.js';
 
 /**
  * Factory function to create a Leaflet marker icon
@@ -26,7 +31,7 @@ import hf9MarkerIconImage from "../assets/markerIcons/marker-icon-HF9.png";
 const createMarkerIcon = (iconUrl) => {
   return new L.Icon({
     iconUrl,
-    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+    shadowUrl: markerShadowImage,
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
@@ -56,6 +61,83 @@ export const defaultMarkerIcon = greyMarkerIcon;
 // Export default icon URL for list display
 export const defaultMarkerIconUrl = greyMarkerIconImage;
 
+/**
+ * Icon Registry - Maps string IDs to actual icon objects
+ * Used to transform deployment configs into runtime icon objects
+ */
+const ICON_REGISTRY = {
+  // Form-specific icons
+  ho3: { icon: ho3MarkerIcon, url: ho3MarkerIconImage },
+  ho4: { icon: ho4MarkerIcon, url: ho4MarkerIconImage },
+  ho6: { icon: ho6MarkerIcon, url: ho6MarkerIconImage },
+  hf9: { icon: hf9MarkerIcon, url: hf9MarkerIconImage },
+
+  // Generic color icons
+  blue: { icon: blueMarkerIcon, url: blueMarkerIconImage },
+  gold: { icon: goldMarkerIcon, url: goldMarkerIconImage },
+  red: { icon: redMarkerIcon, url: redMarkerIconImage },
+  green: { icon: greenMarkerIcon, url: greenMarkerIconImage },
+  orange: { icon: orangeMarkerIcon, url: orangeMarkerIconImage },
+  yellow: { icon: yellowMarkerIcon, url: yellowMarkerIconImage },
+  violet: { icon: violetMarkerIcon, url: violetMarkerIconImage },
+  grey: { icon: greyMarkerIcon, url: greyMarkerIconImage },
+  black: { icon: blackMarkerIcon, url: blackMarkerIconImage },
+};
+
+/**
+ * Available deployment configurations
+ */
+const DEPLOYMENT_CONFIGS = {
+  default: defaultConfig,
+  'client-a': clientAConfig,
+};
+
+/**
+ * Load deployment configuration based on environment variable
+ */
+const deploymentName = import.meta.env.VITE_DEPLOYMENT_CONFIG || 'default';
+const deploymentConfig = DEPLOYMENT_CONFIGS[deploymentName] || DEPLOYMENT_CONFIGS.default;
+
+if (!DEPLOYMENT_CONFIGS[deploymentName] && deploymentName !== 'default') {
+  console.warn(`Deployment config "${deploymentName}" not found, using default`);
+}
+
+// Export full deployment config for use by other components (e.g., MapLegend)
+export const DEPLOYMENT_CONFIG = deploymentConfig;
+
+// Extract marker icon mapping from deployment config
+// Support both new structure (markerIconMapping property) and old structure (root level)
+const rawConfig = deploymentConfig.markerIconMapping || deploymentConfig;
+
+/**
+ * Transform raw config by mapping icon IDs to actual icon objects
+ */
+function transformConfig(rawConfig) {
+  const transformed = {};
+
+  for (const [propertyName, valueMap] of Object.entries(rawConfig)) {
+    transformed[propertyName] = {};
+
+    for (const [propertyValue, config] of Object.entries(valueMap)) {
+      const iconData = ICON_REGISTRY[config.icon];
+
+      if (!iconData) {
+        console.error(`Unknown icon ID: "${config.icon}" in deployment config for ${propertyName}.${propertyValue}`);
+        continue;
+      }
+
+      transformed[propertyName][propertyValue] = {
+        icon: iconData.icon,
+        url: iconData.url,
+        label: config.label,
+        iconId: config.icon,  // Preserve original icon ID for legend grouping
+      };
+    }
+  }
+
+  return transformed;
+}
+
 // Export icon URLs for list display
 export const MARKER_ICON_URLS = {
   blue: blueMarkerIconImage,
@@ -75,32 +157,14 @@ export const MARKER_ICON_URLS = {
 
 /**
  * Unified icon configuration mapping
- * Maps property values to both Leaflet icons (for map) and image URLs (for lists/UI)
+ * Loaded from deployment-specific config and transformed with actual icon objects
+ *
+ * To customize for different deployments:
+ * 1. Create a new config file in ./deployments/[name].config.js
+ * 2. Add it to DEPLOYMENT_CONFIGS above
+ * 3. Set VITE_DEPLOYMENT_CONFIG=[name] in your .env file
  */
-export const PROPERTY_ICON_CONFIG = {
-  formCode: {
-    HO3: {
-      icon: ho3MarkerIcon,
-      url: ho3MarkerIconImage,
-      label: 'Homeowners (HO3)'
-    },
-    HO4: {
-      icon: ho4MarkerIcon,
-      url: ho4MarkerIconImage,
-      label: 'Renters (HO4)'
-    },
-    HO6: {
-      icon: ho6MarkerIcon,
-      url: ho6MarkerIconImage,
-      label: 'Condo (HO6)'
-    },
-    HF9: {
-      icon: hf9MarkerIcon,
-      url: hf9MarkerIconImage,
-      label: 'Second Home (HF9)'
-    },
-  },
-};
+export const PROPERTY_ICON_CONFIG = transformConfig(rawConfig);
 
 // Backward compatibility aliases (deprecated - use PROPERTY_ICON_CONFIG instead)
 export const PROPERTY_MARKERS_MAP = PROPERTY_ICON_CONFIG;
