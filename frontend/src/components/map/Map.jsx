@@ -94,9 +94,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         {/* Custom zoom controls with Reset button */}
         <CustomZoomControl />
 
-        {[...markers]
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-          .map((marker) => {
+        {markers.map((marker) => {
             return (
               <Marker
                 key={marker.id}

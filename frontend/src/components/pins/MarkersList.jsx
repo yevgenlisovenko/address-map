@@ -12,9 +12,6 @@ export default function MarkersList({
   onMarkerClick,
 }) {
   const [expandedPinId, setExpandedPinId] = useState(null);
-  const sortedMarkers = [...markers].sort(
-    (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-  );
 
   // Reset expanded state when toggling "Show All"
   useEffect(() => {
@@ -60,8 +57,8 @@ export default function MarkersList({
       </div>
       <ul>
         {(showAllPins
-          ? [...sortedMarkers].reverse()
-          : [...sortedMarkers].reverse().slice(0, pinsToShow)
+          ? markers
+          : markers.slice(0, pinsToShow)
         ).map((marker, index) => {
           const isExpanded = expandedPinId === marker.id;
           return (
