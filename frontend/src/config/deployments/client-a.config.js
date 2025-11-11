@@ -217,4 +217,21 @@ export default {
     // Default state for groups (true = expanded, false = collapsed)
     defaultExpanded: false,
   },
+
+  // Tooltip configuration
+  tooltip: {
+    enabled: true,
+    additionalFields: [
+      {
+        propertyName: 'partnerNameShort',
+        displayName: 'Partner',
+        order: 2
+      },
+      {
+        propertyName: 'premium',
+        displayName: 'Premium',
+        order: 3
+      }
+    ]
+  },
 };

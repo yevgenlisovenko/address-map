@@ -57,6 +57,17 @@
  *     // - undefined/omitted: text input filter (contains search)
  *   }>
  * }
+ *
+ * Tooltip Configuration Structure:
+ * {
+ *   enabled: boolean,
+ *   additionalFields: Array<{
+ *     propertyName: string,
+ *     displayName: string,
+ *     order: number
+ *   }>
+ * }
+ * Note: Name and Time are always shown in tooltips
  */
 
 export default {
@@ -182,5 +193,22 @@ export default {
     groupLabels: {},
     // Default state for groups (true = expanded, false = collapsed)
     defaultExpanded: false,
+  },
+
+  // Tooltip configuration
+  tooltip: {
+    enabled: true,
+    additionalFields: [
+      {
+        propertyName: 'formCode',
+        displayName: 'Form',
+        order: 1
+      },
+      {
+        propertyName: 'premium',
+        displayName: 'Premium',
+        order: 2
+      }
+    ]
   },
 };

@@ -5,6 +5,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getMarkerIcon } from "../../config/markerColorMapping";
 import { DEFAULT_MAP_VIEW } from "../../utils/constants";
+import { TOOLTIP_CONFIG } from "../../config/tooltipConfig";
+import { formatTooltipContent } from "../../utils/tooltipFormatter";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 import MarkerPopup from "./MarkerPopup";
@@ -34,12 +36,10 @@ const MapMarker = memo(({ marker }) => {
   // unless marker properties change (marker.id is stable, properties may vary)
   const icon = useMemo(() => getMarkerIcon(marker), [marker.id, marker.properties]);
 
-  // Memoize tooltip content (brief info shown on hover)
+  // Memoize tooltip content using deployment configuration
   const tooltipContent = useMemo(() => {
-    const name = marker.type === "address" ? marker.address : marker.displayName;
-    const time = new Date(marker.timestamp).toLocaleTimeString();
-    return `${name} | ${time}`;
-  }, [marker.type, marker.address, marker.displayName, marker.timestamp]);
+    return formatTooltipContent(marker, TOOLTIP_CONFIG);
+  }, [marker.type, marker.address, marker.displayName, marker.timestamp, marker.properties]);
 
   return (
     <Marker
@@ -64,6 +64,7 @@ const MapMarker = memo(({ marker }) => {
     prevProps.marker.id === nextProps.marker.id &&
     prevProps.marker.lat === nextProps.marker.lat &&
     prevProps.marker.lon === nextProps.marker.lon &&
+    prevProps.marker.timestamp === nextProps.marker.timestamp &&
     prevProps.marker.properties === nextProps.marker.properties
   );
 });
