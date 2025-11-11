@@ -1,8 +1,96 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import PropTypes from "prop-types";
 import MarkerPopup from "../map/MarkerPopup";
 import { getMarkerIconUrl } from "../../config/markerColorMapping";
 import "./MarkersList.css";
+
+// Memoized individual list item to prevent unnecessary re-renders
+// Only re-renders when marker data or isExpanded state actually changes
+const MarkerListItem = memo(({
+  marker,
+  isExpanded,
+  onToggleExpand,
+  onLocationClick
+}) => {
+  // Memoize expensive icon URL lookup (now cached, but still worth memoizing)
+  const iconUrl = useMemo(() =>
+    getMarkerIconUrl(marker),
+    [marker.id, marker.properties]
+  );
+
+  // Memoize expensive date formatting
+  const formattedTime = useMemo(() =>
+    new Date(marker.timestamp).toLocaleTimeString(),
+    [marker.timestamp]
+  );
+
+  // Memoize marker name computation
+  const markerName = useMemo(() =>
+    marker.type === "address" ? marker.address : marker.displayName,
+    [marker.type, marker.address, marker.displayName]
+  );
+
+  return (
+    <li className={isExpanded ? "expanded" : ""}>
+      <div
+        className="marker-summary"
+        onClick={onToggleExpand}
+      >
+        <img
+          src={iconUrl}
+          alt="marker icon"
+          className="marker-icon"
+        />
+        <div className="marker-summary-text">
+          <div className="marker-name">{markerName}</div>
+          <small>{formattedTime}</small>
+        </div>
+        <button
+          className="location-button"
+          onClick={onLocationClick}
+          title="Show on map"
+          aria-label="Show on map"
+        >
+          📍
+        </button>
+        <span className={`expand-icon ${isExpanded ? "expanded" : ""}`}>
+          ▼
+        </span>
+      </div>
+      {isExpanded && (
+        <div className="marker-details">
+          <MarkerPopup marker={marker} />
+        </div>
+      )}
+    </li>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison: only re-render if these specific props changed
+  return (
+    prevProps.marker.id === nextProps.marker.id &&
+    prevProps.isExpanded === nextProps.isExpanded &&
+    prevProps.marker.timestamp === nextProps.marker.timestamp &&
+    prevProps.marker.properties === nextProps.marker.properties
+  );
+});
+
+MarkerListItem.displayName = 'MarkerListItem';
+
+MarkerListItem.propTypes = {
+  marker: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    lat: PropTypes.number.isRequired,
+    lon: PropTypes.number.isRequired,
+    timestamp: PropTypes.string.isRequired,
+    type: PropTypes.string,
+    address: PropTypes.string,
+    displayName: PropTypes.string,
+    properties: PropTypes.object,
+  }).isRequired,
+  isExpanded: PropTypes.bool.isRequired,
+  onToggleExpand: PropTypes.func.isRequired,
+  onLocationClick: PropTypes.func.isRequired,
+};
 
 export default function MarkersList({
   markers,
@@ -59,49 +147,15 @@ export default function MarkersList({
         {(showAllPins
           ? markers
           : markers.slice(0, pinsToShow)
-        ).map((marker, index) => {
-          const isExpanded = expandedPinId === marker.id;
-          return (
-            <li key={marker.id} className={isExpanded ? "expanded" : ""}>
-              <div
-                className="marker-summary"
-                onClick={() => handleToggleExpand(marker)}
-              >
-                <img
-                  src={getMarkerIconUrl(marker)}
-                  alt="marker icon"
-                  className="marker-icon"
-                />
-                <div className="marker-summary-text">
-                  <div className="marker-name">
-                    {marker.type === "address"
-                      ? marker.address
-                      : marker.displayName}
-                  </div>
-                  <small>
-                    {new Date(marker.timestamp).toLocaleTimeString()}
-                  </small>
-                </div>
-                <button
-                  className="location-button"
-                  onClick={(e) => handleLocationClick(marker, e)}
-                  title="Show on map"
-                  aria-label="Show on map"
-                >
-                  📍
-                </button>
-                <span className={`expand-icon ${isExpanded ? "expanded" : ""}`}>
-                  ▼
-                </span>
-              </div>
-              {isExpanded && (
-                <div className="marker-details">
-                  <MarkerPopup marker={marker} />
-                </div>
-              )}
-            </li>
-          );
-        })}
+        ).map((marker) => (
+          <MarkerListItem
+            key={marker.id}
+            marker={marker}
+            isExpanded={expandedPinId === marker.id}
+            onToggleExpand={() => handleToggleExpand(marker)}
+            onLocationClick={(e) => handleLocationClick(marker, e)}
+          />
+        ))}
       </ul>
       {markers.length > pinsToShow && (
         <button className="show-more-button" onClick={onToggleShowAll}>
