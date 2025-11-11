@@ -1,6 +1,6 @@
 import { useEffect, memo, useMemo } from "react";
 import PropTypes from 'prop-types';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getMarkerIcon } from "../../config/markerColorMapping";
@@ -34,11 +34,24 @@ const MapMarker = memo(({ marker }) => {
   // unless marker properties change (marker.id is stable, properties may vary)
   const icon = useMemo(() => getMarkerIcon(marker), [marker.id, marker.properties]);
 
+  // Memoize tooltip content (brief info shown on hover)
+  const tooltipContent = useMemo(() => {
+    const name = marker.type === "address" ? marker.address : marker.displayName;
+    const time = new Date(marker.timestamp).toLocaleTimeString();
+    return `${name} | ${time}`;
+  }, [marker.type, marker.address, marker.displayName, marker.timestamp]);
+
   return (
     <Marker
       position={[marker.lat, marker.lon]}
       icon={icon}
     >
+      {/* Tooltip: Shows brief info on hover */}
+      <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
+        {tooltipContent}
+      </Tooltip>
+
+      {/* Popup: Shows full details on click */}
       <Popup>
         <MarkerPopup marker={marker} />
       </Popup>
