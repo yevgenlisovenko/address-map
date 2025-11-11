@@ -170,37 +170,72 @@ export const PROPERTY_ICON_CONFIG = transformConfig(rawConfig);
 export const PROPERTY_MARKERS_MAP = PROPERTY_ICON_CONFIG;
 export const PROPERTY_ICON_URLS = PROPERTY_ICON_CONFIG;
 
+// Cache for marker icon lookups - improves performance by avoiding repeated property iterations
+const iconCache = new Map();
+
+/**
+ * Generate a stable cache key from marker properties
+ * Only includes properties that affect icon selection
+ * @param {Object} marker - Marker object with properties
+ * @returns {string} Cache key
+ */
+function getIconCacheKey(marker) {
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return 'default';
+  }
+
+  // Build key from properties that exist in PROPERTY_ICON_CONFIG
+  // This ensures we only include properties that affect icon selection
+  const relevantProps = [];
+  for (const propName of Object.keys(PROPERTY_ICON_CONFIG)) {
+    const value = marker.properties[propName];
+    if (value !== undefined) {
+      relevantProps.push(`${propName}:${value}`);
+    }
+  }
+
+  return relevantProps.length > 0 ? relevantProps.join('|') : 'default';
+}
+
 /**
  * Get the appropriate Leaflet marker icon based on marker properties
+ * Cached for performance - subsequent calls with same properties return cached result
  * Used for rendering markers on the map
  * @param {Object} marker - Marker object with properties
  * @returns {L.Icon} Leaflet icon object
  */
 export function getMarkerIcon(marker) {
-  // Check if marker has properties
-  if (!marker.properties || Object.keys(marker.properties).length === 0) {
-    return defaultMarkerIcon;
+  // Check cache first
+  const cacheKey = getIconCacheKey(marker);
+  if (iconCache.has(cacheKey)) {
+    return iconCache.get(cacheKey);
   }
 
-  // Loop through PROPERTY_ICON_CONFIG keys to find matching property
-  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
-    // Check if marker has this property
-    if (marker.properties[propertyName] !== undefined) {
-      const propertyValue = marker.properties[propertyName];
-      const iconData = valueToIconMap[propertyValue];
+  // Check if marker has properties
+  let icon = defaultMarkerIcon;
+  if (marker.properties && Object.keys(marker.properties).length > 0) {
+    // Loop through PROPERTY_ICON_CONFIG keys to find matching property
+    for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
+      // Check if marker has this property
+      if (marker.properties[propertyName] !== undefined) {
+        const propertyValue = marker.properties[propertyName];
+        const iconData = valueToIconMap[propertyValue];
 
-      // Get icon from unified config
-      const icon = iconData?.icon;
+        // Get icon from unified config
+        const foundIcon = iconData?.icon;
 
-      // Return icon if mapping found
-      if (icon) {
-        return icon;
+        // Use found icon if mapping exists
+        if (foundIcon) {
+          icon = foundIcon;
+          break;
+        }
       }
     }
   }
 
-  // No mapping found, return default
-  return defaultMarkerIcon;
+  // Cache the result for future lookups
+  iconCache.set(cacheKey, icon);
+  return icon;
 }
 
 /**

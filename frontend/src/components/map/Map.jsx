@@ -1,4 +1,4 @@
-import { useEffect, memo } from "react";
+import { useEffect, memo, useMemo } from "react";
 import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -26,6 +26,45 @@ function MapBoundsUpdater({ markers }) {
 
   return null;
 } */
+
+// Memoized individual marker component to prevent unnecessary re-renders
+// Only re-renders when marker position/properties actually change
+const MapMarker = memo(({ marker }) => {
+  // getMarkerIcon now uses cache, but we also memoize to prevent recalculation
+  // unless marker properties change (marker.id is stable, properties may vary)
+  const icon = useMemo(() => getMarkerIcon(marker), [marker.id, marker.properties]);
+
+  return (
+    <Marker
+      position={[marker.lat, marker.lon]}
+      icon={icon}
+    >
+      <Popup>
+        <MarkerPopup marker={marker} />
+      </Popup>
+    </Marker>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison: only re-render if marker data actually changed
+  // This prevents re-renders when other markers in the array change
+  return (
+    prevProps.marker.id === nextProps.marker.id &&
+    prevProps.marker.lat === nextProps.marker.lat &&
+    prevProps.marker.lon === nextProps.marker.lon &&
+    prevProps.marker.properties === nextProps.marker.properties
+  );
+});
+
+MapMarker.displayName = 'MapMarker';
+
+MapMarker.propTypes = {
+  marker: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    lat: PropTypes.number.isRequired,
+    lon: PropTypes.number.isRequired,
+    properties: PropTypes.object,
+  }).isRequired,
+};
 
 function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger }) {
   // Default center and zoom from constants
@@ -94,19 +133,9 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         {/* Custom zoom controls with Reset button */}
         <CustomZoomControl />
 
-        {markers.map((marker) => {
-            return (
-              <Marker
-                key={marker.id}
-                position={[marker.lat, marker.lon]}
-                icon={getMarkerIcon(marker)}
-              >
-                <Popup>
-                  <MarkerPopup marker={marker} />
-                </Popup>
-              </Marker>
-            );
-          })}
+        {markers.map((marker) => (
+          <MapMarker key={marker.id} marker={marker} />
+        ))}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
         <MapResizeHandler />
