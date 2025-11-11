@@ -29,6 +29,9 @@ export default {
       'HOMESITE MOBILE': {
         icon: 'blue',
       },
+      'HOMESITE INSURANCE': {
+        icon: 'blue',
+      },
       'Homesite Homeowners Insurance Program': {
         icon: 'blue',
       },
@@ -55,7 +58,10 @@ export default {
       },
       'CoverMyStuff Insurance Program': {
         icon: 'violet',
-      }
+      },
+      'Lemonade': {
+        icon: 'violet',
+      },
     },
     // Marker icon mappings by partnerId
     // partnerId: {
@@ -139,7 +145,7 @@ export default {
       // },
       {
         propertyName: "partnerNameShort",
-        displayName: "Partner",
+        displayName: "By Partner",
         enabled: true,
         aggregations: [
           {
@@ -153,20 +159,20 @@ export default {
         ],
       },
     ],
-    maxItemsPerProperty: 100, // Show top 10 for client A
+    maxItemsPerProperty: 100, // Show top 100 for client A
     sortOrder: "desc",
     aggregations: [
-      // {
-      //   id: 'total-policies',
-      //   propertyName: null, // null = count markers
-      //   displayName: 'Total Policies',
-      //   operations: ['count'],
-      //   format: 'number',
-      //   decimals: 0,
-      //   showInStats: true,
-      //   showInInfoPanel: true,
-      //   enabled: true,
-      // },
+      {
+        id: 'premiumStats',
+        propertyName: 'premium',
+        displayName: 'By Premium',
+        operations: ['sum'],
+        format: 'currency',
+        decimals: 0,
+        showInStats: true,
+        showInInfoPanel: false,
+        enabled: true
+      },
     ],
   },
 
