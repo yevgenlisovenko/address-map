@@ -24,49 +24,52 @@ export default {
     // Marker icon mappings by partnerNameShort
     partnerNameShort: {
       'Homesite': {
-        icon: 'blue'
+        icon: 'blueH'
       },
       'HOMESITE MOBILE': {
-        icon: 'blue',
+        icon: 'blueH',
       },
       'HOMESITE INSURANCE': {
-        icon: 'blue',
+        icon: 'blueH',
       },
       'Homesite Homeowners Insurance Program': {
-        icon: 'blue',
+        icon: 'blueH',
+      },
+      'Homesite Insurance Program': {
+        icon: 'blueH',
       },
       'GEICO Agency': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'GEICO Direct': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'GEICO CC': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'GEICO Insurance Agency, LLC': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'GEICO Insurance Agency, Inc.': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'American Family Insurance': {
-        icon: 'red',
+        icon: 'redA',
       },
       'Progressive Home, by Homesite': {
-        icon: 'green',
+        icon: 'greenP',
       },
       'CoverMyStuff Insurance Program': {
-        icon: 'violet',
+        icon: 'violetO',
       },
       'Lemonade': {
-        icon: 'violet',
+        icon: 'violetO',
       },
       'Midvale Insurance Program': {
-        icon: 'violet',
+        icon: 'violetO',
       },
       'Elephant Homeowners Insurance Program': {
-        icon: 'violet',
+        icon: 'violetO',
       },
     },
     // Marker icon mappings by partnerId
@@ -214,11 +217,11 @@ export default {
     autoGroupDuplicates: true,
     // Custom labels for grouped items (by icon ID)
     groupLabels: {
-      yellow: 'GEICO',
-      blue: 'Homesite',
-      red: 'AmFam',
-      green: 'Progressive',
-      violet: 'Others',
+      yellowG: 'GEICO',
+      blueH: 'Homesite',
+      redA: 'AmFam',
+      greenP: 'Progressive',
+      violetO: 'Others',
     },
     // Default state for groups (true = expanded, false = collapsed)
     defaultExpanded: false,

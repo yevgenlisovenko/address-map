@@ -17,6 +17,11 @@ import ho3MarkerIconImage from "../assets/markerIcons/marker-icon-HO3.png";
 import ho4MarkerIconImage from "../assets/markerIcons/marker-icon-HO4.png";
 import ho6MarkerIconImage from "../assets/markerIcons/marker-icon-HO6.png";
 import hf9MarkerIconImage from "../assets/markerIcons/marker-icon-HF9.png";
+import blueHMarkerIconImage from "../assets/markerIcons/marker-icon-blue-H.png";
+import greenPMarkerIconImage from "../assets/markerIcons/marker-icon-green-P.png";
+import redAMarkerIconImage from "../assets/markerIcons/marker-icon-red-A.png";
+import violetOMarkerIconImage from "../assets/markerIcons/marker-icon-violet-O.png";
+import yellowGMarkerIconImage from "../assets/markerIcons/marker-icon-yellow-G.png";
 import markerShadowImage from "../assets/markerIcons/marker-shadow.png";
 
 // Import deployment configs
@@ -55,6 +60,12 @@ const ho4MarkerIcon = createMarkerIcon(ho4MarkerIconImage);
 const ho6MarkerIcon = createMarkerIcon(ho6MarkerIconImage);
 const hf9MarkerIcon = createMarkerIcon(hf9MarkerIconImage);
 
+const blueHMarkerIcon = createMarkerIcon(blueHMarkerIconImage);
+const greenPMarkerIcon = createMarkerIcon(greenPMarkerIconImage);
+const redAMarkerIcon = createMarkerIcon(redAMarkerIconImage);
+const violetOMarkerIcon = createMarkerIcon(violetOMarkerIconImage);
+const yellowGMarkerIcon = createMarkerIcon(yellowGMarkerIconImage);
+
 // Export grey as the default marker
 export const defaultMarkerIcon = greyMarkerIcon;
 
@@ -71,6 +82,13 @@ const ICON_REGISTRY = {
   ho4: { icon: ho4MarkerIcon, url: ho4MarkerIconImage },
   ho6: { icon: ho6MarkerIcon, url: ho6MarkerIconImage },
   hf9: { icon: hf9MarkerIcon, url: hf9MarkerIconImage },
+
+  // Partner-specific icons
+  blueH: { icon: blueHMarkerIcon, url: blueHMarkerIconImage },
+  greenP: { icon: greenPMarkerIcon, url: greenPMarkerIconImage },
+  redA: { icon: redAMarkerIcon, url: redAMarkerIconImage },
+  violetO: { icon: violetOMarkerIcon, url: violetOMarkerIconImage },
+  yellowG: { icon: yellowGMarkerIcon, url: yellowGMarkerIconImage },
 
   // Generic color icons
   blue: { icon: blueMarkerIcon, url: blueMarkerIconImage },
@@ -153,6 +171,11 @@ export const MARKER_ICON_URLS = {
   ho4: ho4MarkerIconImage,
   ho6: ho6MarkerIconImage,
   hf9: hf9MarkerIconImage,
+  blueH: blueHMarkerIconImage,
+  greenP: greenPMarkerIconImage,
+  redA: redAMarkerIconImage,
+  violetO: violetOMarkerIconImage,
+  yellowG: yellowGMarkerIconImage,
 };
 
 /**
