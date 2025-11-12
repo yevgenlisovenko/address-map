@@ -86,6 +86,10 @@ export const config = {
     allowedProperties: process.env.AI_ALLOWED_PROPERTIES
       ? process.env.AI_ALLOWED_PROPERTIES.split(',').map(p => p.trim())
       : [], // Empty = allow all
+    // Maximum number of markers allowed for AI analysis
+    maxMarkers: parseInt(process.env.AI_MAX_MARKERS) || 1000,
+    // API body size limit for JSON payloads
+    bodyLimit: process.env.API_BODY_LIMIT || '10mb',
     // Prompt templates for UI
     prompts: [
       {

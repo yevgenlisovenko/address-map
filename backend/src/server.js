@@ -37,7 +37,7 @@ app.use(cors({
   origin: config.corsOrigin,
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: config.ai.bodyLimit }));
 
 // Mount all routes
 app.use('/api', routes);

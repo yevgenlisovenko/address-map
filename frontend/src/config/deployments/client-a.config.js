@@ -72,65 +72,6 @@ export default {
         icon: 'violetO',
       },
     },
-    // Marker icon mappings by partnerId
-    // partnerId: {
-    //   1237: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   1243: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   1245: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   2849: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   7312: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   2329: {
-    //     icon: "blue",
-    //     label: "Homesite",
-    //   },
-    //   2711: {
-    //     icon: "blue",
-    //     label: "Homesite",
-    //   },
-    //   2845: {
-    //     icon: "blue",
-    //     label: "Homesite",
-    //   },
-    //   1271: {
-    //     icon: "green",
-    //     label: "Progressive",
-    //   },
-    //   8: {
-    //     icon: "green",
-    //     label: "Progressive",
-    //   },
-    //   1041: {
-    //     icon: "yellow",
-    //     label: "Geico",
-    //   },
-    //   1042: {
-    //     icon: "yellow",
-    //     label: "Geico",
-    //   },
-    //   1821: {
-    //     icon: "yellow",
-    //     label: "Geico",
-    //   },
-    //   2709: {
-    //     icon: "yellow",
-    //     label: "Geico",
-    //   },
-    // },
   },
 
   // Statistics configuration for Client A

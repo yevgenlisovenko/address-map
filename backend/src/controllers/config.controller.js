@@ -20,6 +20,7 @@ export const getConfig = (req, res) => {
       },
       ai: {
         enabled: config.ai.enabled,
+        maxMarkers: config.ai.maxMarkers,
         // Send only prompt metadata (id and label), not the actual prompts
         prompts: config.ai.prompts.map(p => ({
           id: p.id,

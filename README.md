@@ -441,6 +441,12 @@ AI_REJECT_UNAUTHORIZED=true
 # Comma-separated list of allowed properties to send to AI (default: all)
 # Example: "category,rating,verified"
 AI_ALLOWED_PROPERTIES=
+
+# Maximum number of markers allowed for AI analysis (default: 1000)
+AI_MAX_MARKERS=1000
+
+# API body size limit for JSON payloads (default: 10mb)
+API_BODY_LIMIT=10mb
 ```
 
 ### Database Configuration
