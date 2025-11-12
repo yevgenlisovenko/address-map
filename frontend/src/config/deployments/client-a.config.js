@@ -62,6 +62,12 @@ export default {
       'Lemonade': {
         icon: 'violet',
       },
+      'Midvale Insurance Program': {
+        icon: 'violet',
+      },
+      'Elephant Homeowners Insurance Program': {
+        icon: 'violet',
+      },
     },
     // Marker icon mappings by partnerId
     // partnerId: {
