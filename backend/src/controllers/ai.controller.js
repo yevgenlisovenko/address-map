@@ -6,6 +6,7 @@
 import { config } from '../config.js';
 import openaiService from '../services/openai.service.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
+import logger from '../utils/logger.js';
 
 /**
  * Analyze markers using AI
@@ -54,6 +55,14 @@ export const analyzeMarkers = asyncHandler(async (req, res) => {
 
   // Return result
   if (result.success) {
+    // Log successful AI analysis for monitoring and usage tracking
+    logger.info('AI analysis completed', {
+      promptId,
+      model: config.ai.model,
+      markersAnalyzed: filteredMarkers.length,
+      usage: result.usage
+    });
+
     res.json({
       success: true,
       response: result.response,
@@ -61,6 +70,14 @@ export const analyzeMarkers = asyncHandler(async (req, res) => {
       markersAnalyzed: filteredMarkers.length
     });
   } else {
+    // Log failed AI analysis for debugging and monitoring
+    logger.warn('AI analysis failed', {
+      promptId,
+      markersCount: markers.length,
+      error: result.error,
+      errorMessage: result.message
+    });
+
     res.status(400).json({
       success: false,
       error: result.error,
