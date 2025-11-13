@@ -52,27 +52,34 @@ class OpenAIService {
    * @param {string} systemPrompt - System prompt for AI
    * @param {string} userPrompt - User prompt for AI
    * @param {string} markersData - JSON string of markers data
-   * @returns {Promise<{success: boolean, response?: string, usage?: object, error?: string, message?: string}>}
+   * @returns {Promise<{success: boolean, response?: string, usage?: object, payloadSizeBytes?: number, error?: string, message?: string}>}
    */
   async analyzeMarkers(systemPrompt, userPrompt, markersData) {
+    // Build payload object (single source of truth)
+    const payload = {
+      model: config.ai.model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `${userPrompt}\n\n${markersData}` }
+      ],
+      max_tokens: config.ai.maxTokens,
+      temperature: config.ai.temperature
+    };
+
+    // Calculate payload size
+    const payloadSizeBytes = Buffer.byteLength(JSON.stringify(payload), 'utf8');
+
     try {
       const client = this.getClient();
 
-      // Make direct API call to OpenAI Chat Completions endpoint
-      const response = await client.post('/chat/completions', {
-        model: config.ai.model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `${userPrompt}\n\n${markersData}` }
-        ],
-        max_tokens: config.ai.maxTokens,
-        temperature: config.ai.temperature
-      });
+      // Make API call using the same payload object
+      const response = await client.post('/chat/completions', payload);
 
       return {
         success: true,
         response: response.data.choices[0].message.content,
-        usage: response.data.usage
+        usage: response.data.usage,
+        payloadSizeBytes
       };
     } catch (error) {
       // Handle OpenAI API errors
@@ -84,7 +91,8 @@ class OpenAIService {
           return {
             success: false,
             error: 'TOO_MANY_MARKERS',
-            message: 'Too many markers to analyze. Please filter the map to show fewer markers.'
+            message: 'Too many markers to analyze. Please filter the map to show fewer markers.',
+            payloadSizeBytes
           };
         }
 
@@ -92,7 +100,8 @@ class OpenAIService {
         return {
           success: false,
           error: openaiError.code || 'OPENAI_ERROR',
-          message: openaiError.message || 'An error occurred with the OpenAI API'
+          message: openaiError.message || 'An error occurred with the OpenAI API',
+          payloadSizeBytes
         };
       }
 
