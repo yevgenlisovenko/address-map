@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import './MarkerPopup.css';
 
@@ -28,8 +29,9 @@ function formatPropertyValue(value) {
 /**
  * MarkerPopup component - Displays marker information in Leaflet popup
  * Shows header info (location, timestamp) and properties table
+ * Memoized to prevent unnecessary re-renders when marker hasn't changed
  */
-export default function MarkerPopup({ marker }) {
+function MarkerPopup({ marker }) {
   const hasProperties = marker.properties && Object.keys(marker.properties).length > 0;
 
   return (
@@ -91,3 +93,9 @@ MarkerPopup.propTypes = {
     properties: PropTypes.object,
   }).isRequired,
 };
+
+// Export memoized version - only re-renders if marker reference changes
+export default memo(MarkerPopup, (prevProps, nextProps) => {
+  // Only re-render if marker reference changed
+  return prevProps.marker === nextProps.marker;
+});

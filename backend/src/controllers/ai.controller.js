@@ -6,6 +6,7 @@
 import { config } from '../config.js';
 import openaiService from '../services/openai.service.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
+import logger from '../utils/logger.js';
 
 /**
  * Analyze markers using AI
@@ -45,15 +46,29 @@ export const analyzeMarkers = asyncHandler(async (req, res) => {
   // Convert markers to JSON string
   const markersData = JSON.stringify(filteredMarkers, null, 2);
 
-  // Call OpenAI service
+  // Call OpenAI service (service calculates payload size)
   const result = await openaiService.analyzeMarkers(
     promptConfig.systemPrompt,
     promptConfig.userPrompt,
     markersData
   );
 
+  // Get payload size from service response
+  const payloadSizeBytes = result.payloadSizeBytes;
+  const payloadSizeKB = Math.round(payloadSizeBytes / 1024);
+
   // Return result
   if (result.success) {
+    // Log successful AI analysis for monitoring and usage tracking
+    logger.info('AI analysis completed', {
+      promptId,
+      model: config.ai.model,
+      markersAnalyzed: filteredMarkers.length,
+      payloadSizeBytes,
+      payloadSizeKB,
+      usage: result.usage
+    });
+
     res.json({
       success: true,
       response: result.response,
@@ -61,6 +76,16 @@ export const analyzeMarkers = asyncHandler(async (req, res) => {
       markersAnalyzed: filteredMarkers.length
     });
   } else {
+    // Log failed AI analysis for debugging and monitoring
+    logger.warn('AI analysis failed', {
+      promptId,
+      markersCount: markers.length,
+      payloadSizeBytes,
+      payloadSizeKB,
+      error: result.error,
+      errorMessage: result.message
+    });
+
     res.status(400).json({
       success: false,
       error: result.error,

@@ -17,6 +17,11 @@ import ho3MarkerIconImage from "../assets/markerIcons/marker-icon-HO3.png";
 import ho4MarkerIconImage from "../assets/markerIcons/marker-icon-HO4.png";
 import ho6MarkerIconImage from "../assets/markerIcons/marker-icon-HO6.png";
 import hf9MarkerIconImage from "../assets/markerIcons/marker-icon-HF9.png";
+import blueHMarkerIconImage from "../assets/markerIcons/marker-icon-blue-H.png";
+import greenPMarkerIconImage from "../assets/markerIcons/marker-icon-green-P.png";
+import redAMarkerIconImage from "../assets/markerIcons/marker-icon-red-A.png";
+import violetOMarkerIconImage from "../assets/markerIcons/marker-icon-violet-O.png";
+import yellowGMarkerIconImage from "../assets/markerIcons/marker-icon-yellow-G.png";
 import markerShadowImage from "../assets/markerIcons/marker-shadow.png";
 
 // Import deployment configs
@@ -55,6 +60,12 @@ const ho4MarkerIcon = createMarkerIcon(ho4MarkerIconImage);
 const ho6MarkerIcon = createMarkerIcon(ho6MarkerIconImage);
 const hf9MarkerIcon = createMarkerIcon(hf9MarkerIconImage);
 
+const blueHMarkerIcon = createMarkerIcon(blueHMarkerIconImage);
+const greenPMarkerIcon = createMarkerIcon(greenPMarkerIconImage);
+const redAMarkerIcon = createMarkerIcon(redAMarkerIconImage);
+const violetOMarkerIcon = createMarkerIcon(violetOMarkerIconImage);
+const yellowGMarkerIcon = createMarkerIcon(yellowGMarkerIconImage);
+
 // Export grey as the default marker
 export const defaultMarkerIcon = greyMarkerIcon;
 
@@ -71,6 +82,13 @@ const ICON_REGISTRY = {
   ho4: { icon: ho4MarkerIcon, url: ho4MarkerIconImage },
   ho6: { icon: ho6MarkerIcon, url: ho6MarkerIconImage },
   hf9: { icon: hf9MarkerIcon, url: hf9MarkerIconImage },
+
+  // Partner-specific icons
+  blueH: { icon: blueHMarkerIcon, url: blueHMarkerIconImage },
+  greenP: { icon: greenPMarkerIcon, url: greenPMarkerIconImage },
+  redA: { icon: redAMarkerIcon, url: redAMarkerIconImage },
+  violetO: { icon: violetOMarkerIcon, url: violetOMarkerIconImage },
+  yellowG: { icon: yellowGMarkerIcon, url: yellowGMarkerIconImage },
 
   // Generic color icons
   blue: { icon: blueMarkerIcon, url: blueMarkerIconImage },
@@ -153,6 +171,11 @@ export const MARKER_ICON_URLS = {
   ho4: ho4MarkerIconImage,
   ho6: ho6MarkerIconImage,
   hf9: hf9MarkerIconImage,
+  blueH: blueHMarkerIconImage,
+  greenP: greenPMarkerIconImage,
+  redA: redAMarkerIconImage,
+  violetO: violetOMarkerIconImage,
+  yellowG: yellowGMarkerIconImage,
 };
 
 /**
@@ -170,37 +193,72 @@ export const PROPERTY_ICON_CONFIG = transformConfig(rawConfig);
 export const PROPERTY_MARKERS_MAP = PROPERTY_ICON_CONFIG;
 export const PROPERTY_ICON_URLS = PROPERTY_ICON_CONFIG;
 
+// Cache for marker icon lookups - improves performance by avoiding repeated property iterations
+const iconCache = new Map();
+
+/**
+ * Generate a stable cache key from marker properties
+ * Only includes properties that affect icon selection
+ * @param {Object} marker - Marker object with properties
+ * @returns {string} Cache key
+ */
+function getIconCacheKey(marker) {
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return 'default';
+  }
+
+  // Build key from properties that exist in PROPERTY_ICON_CONFIG
+  // This ensures we only include properties that affect icon selection
+  const relevantProps = [];
+  for (const propName of Object.keys(PROPERTY_ICON_CONFIG)) {
+    const value = marker.properties[propName];
+    if (value !== undefined) {
+      relevantProps.push(`${propName}:${value}`);
+    }
+  }
+
+  return relevantProps.length > 0 ? relevantProps.join('|') : 'default';
+}
+
 /**
  * Get the appropriate Leaflet marker icon based on marker properties
+ * Cached for performance - subsequent calls with same properties return cached result
  * Used for rendering markers on the map
  * @param {Object} marker - Marker object with properties
  * @returns {L.Icon} Leaflet icon object
  */
 export function getMarkerIcon(marker) {
-  // Check if marker has properties
-  if (!marker.properties || Object.keys(marker.properties).length === 0) {
-    return defaultMarkerIcon;
+  // Check cache first
+  const cacheKey = getIconCacheKey(marker);
+  if (iconCache.has(cacheKey)) {
+    return iconCache.get(cacheKey);
   }
 
-  // Loop through PROPERTY_ICON_CONFIG keys to find matching property
-  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
-    // Check if marker has this property
-    if (marker.properties[propertyName] !== undefined) {
-      const propertyValue = marker.properties[propertyName];
-      const iconData = valueToIconMap[propertyValue];
+  // Check if marker has properties
+  let icon = defaultMarkerIcon;
+  if (marker.properties && Object.keys(marker.properties).length > 0) {
+    // Loop through PROPERTY_ICON_CONFIG keys to find matching property
+    for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
+      // Check if marker has this property
+      if (marker.properties[propertyName] !== undefined) {
+        const propertyValue = marker.properties[propertyName];
+        const iconData = valueToIconMap[propertyValue];
 
-      // Get icon from unified config
-      const icon = iconData?.icon;
+        // Get icon from unified config
+        const foundIcon = iconData?.icon;
 
-      // Return icon if mapping found
-      if (icon) {
-        return icon;
+        // Use found icon if mapping exists
+        if (foundIcon) {
+          icon = foundIcon;
+          break;
+        }
       }
     }
   }
 
-  // No mapping found, return default
-  return defaultMarkerIcon;
+  // Cache the result for future lookups
+  iconCache.set(cacheKey, icon);
+  return icon;
 }
 
 /**

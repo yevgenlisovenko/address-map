@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Map from './components/map/Map';
 import Sidebar from './components/layout/Sidebar';
 import InfoPanel from './components/layout/InfoPanel';
@@ -54,6 +54,14 @@ function AppContent() {
     customStartTime,
     propertyFilters
   );
+
+  // Create a stable copy of visible markers to prevent React reconciliation issues
+  // Don't sort - markers are already in correct order (newest first):
+  // - Initial pins come sorted from backend
+  // - New pins are prepended at position 0
+  const sortedVisibleMarkers = useMemo(() => {
+    return [...visibleMarkers];
+  }, [visibleMarkers]);
 
   // Event handlers (memoized)
   const handleTimeWindowChange = useCallback((newTimeWindow) => {
@@ -152,7 +160,7 @@ function AppContent() {
         isConnected={isConnected}
         sidebarVisible={isSidebarVisible}
         config={config}
-        visibleMarkers={visibleMarkers}
+        visibleMarkers={sortedVisibleMarkers}
       />
 
       {/* Sidebar - always rendered, controlled by CSS transform */}
@@ -162,7 +170,7 @@ function AppContent() {
         onTimeWindowChange={handleTimeWindowChange}
         onCustomTimeSubmit={handleCustomTimeSubmit}
         markers={markers}
-        visibleMarkers={visibleMarkers}
+        visibleMarkers={sortedVisibleMarkers}
         showAllPins={showAllPins}
         pinsToShow={DEFAULT_PINS_TO_SHOW}
         onToggleShowAll={handleToggleShowAll}
@@ -173,7 +181,7 @@ function AppContent() {
 
       <div className="map-container">
         <Map
-          markers={visibleMarkers}
+          markers={sortedVisibleMarkers}
           sidebarVisible={isSidebarVisible}
           stateHighlightData={stateHighlightData}
           markerToPan={markerToPan}

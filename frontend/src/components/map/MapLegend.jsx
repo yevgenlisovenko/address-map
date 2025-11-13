@@ -174,7 +174,7 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
                         <div className="legend-group-items">
                           {group.items.map((item) => (
                             <div key={item.value} className="legend-item legend-group-item">
-                              <span className="legend-marker-label">{item.label}</span>
+                              <span className="legend-marker-label">• {item.label}</span>
                             </div>
                           ))}
                         </div>

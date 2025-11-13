@@ -17,7 +17,7 @@ export default function PropertyFilter({ markers, propertyFilters, onFilterChang
     // Start with empty filters (no items selected)
     const initialFilters = {};
     setFilters(initialFilters);
-    onFilterChange(initialFilters);
+    // Don't call onFilterChange here - parent already has empty filters as default
 
     // All dropdowns collapsed by default
     const initialExpanded = {};

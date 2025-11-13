@@ -24,98 +24,54 @@ export default {
     // Marker icon mappings by partnerNameShort
     partnerNameShort: {
       'Homesite': {
-        icon: 'blue'
+        icon: 'blueH'
       },
       'HOMESITE MOBILE': {
-        icon: 'blue',
+        icon: 'blueH',
+      },
+      'HOMESITE INSURANCE': {
+        icon: 'blueH',
       },
       'Homesite Homeowners Insurance Program': {
-        icon: 'blue',
+        icon: 'blueH',
+      },
+      'Homesite Insurance Program': {
+        icon: 'blueH',
       },
       'GEICO Agency': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'GEICO Direct': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'GEICO CC': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'GEICO Insurance Agency, LLC': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'GEICO Insurance Agency, Inc.': {
-        icon: 'yellow',
+        icon: 'yellowG',
       },
       'American Family Insurance': {
-        icon: 'red',
+        icon: 'redA',
       },
       'Progressive Home, by Homesite': {
-        icon: 'green',
+        icon: 'greenP',
       },
       'CoverMyStuff Insurance Program': {
-        icon: 'violet',
-      }
+        icon: 'violetO',
+      },
+      'Lemonade': {
+        icon: 'violetO',
+      },
+      'Midvale Insurance Program': {
+        icon: 'violetO',
+      },
+      'Elephant Homeowners Insurance Program': {
+        icon: 'violetO',
+      },
     },
-    // Marker icon mappings by partnerId
-    // partnerId: {
-    //   1237: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   1243: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   1245: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   2849: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   7312: {
-    //     icon: "red",
-    //     label: "American Family Insurance",
-    //   },
-    //   2329: {
-    //     icon: "blue",
-    //     label: "Homesite",
-    //   },
-    //   2711: {
-    //     icon: "blue",
-    //     label: "Homesite",
-    //   },
-    //   2845: {
-    //     icon: "blue",
-    //     label: "Homesite",
-    //   },
-    //   1271: {
-    //     icon: "green",
-    //     label: "Progressive",
-    //   },
-    //   8: {
-    //     icon: "green",
-    //     label: "Progressive",
-    //   },
-    //   1041: {
-    //     icon: "yellow",
-    //     label: "Geico",
-    //   },
-    //   1042: {
-    //     icon: "yellow",
-    //     label: "Geico",
-    //   },
-    //   1821: {
-    //     icon: "yellow",
-    //     label: "Geico",
-    //   },
-    //   2709: {
-    //     icon: "yellow",
-    //     label: "Geico",
-    //   },
-    // },
   },
 
   // Statistics configuration for Client A
@@ -139,7 +95,7 @@ export default {
       // },
       {
         propertyName: "partnerNameShort",
-        displayName: "Partner",
+        displayName: "By Partner",
         enabled: true,
         aggregations: [
           {
@@ -153,20 +109,20 @@ export default {
         ],
       },
     ],
-    maxItemsPerProperty: 100, // Show top 10 for client A
+    maxItemsPerProperty: 100, // Show top 100 for client A
     sortOrder: "desc",
     aggregations: [
-      // {
-      //   id: 'total-policies',
-      //   propertyName: null, // null = count markers
-      //   displayName: 'Total Policies',
-      //   operations: ['count'],
-      //   format: 'number',
-      //   decimals: 0,
-      //   showInStats: true,
-      //   showInInfoPanel: true,
-      //   enabled: true,
-      // },
+      {
+        id: 'premiumStats',
+        propertyName: 'premium',
+        displayName: 'By Premium',
+        operations: ['sum'],
+        format: 'currency',
+        decimals: 0,
+        showInStats: true,
+        showInInfoPanel: false,
+        enabled: true
+      },
     ],
   },
 
@@ -202,13 +158,30 @@ export default {
     autoGroupDuplicates: true,
     // Custom labels for grouped items (by icon ID)
     groupLabels: {
-      yellow: 'GEICO',
-      blue: 'Homesite',
-      red: 'AmFam',
-      green: 'Progressive',
-      violet: 'Others',
+      yellowG: 'GEICO',
+      blueH: 'Homesite',
+      redA: 'AmFam',
+      greenP: 'Progressive',
+      violetO: 'Others',
     },
     // Default state for groups (true = expanded, false = collapsed)
     defaultExpanded: false,
+  },
+
+  // Tooltip configuration
+  tooltip: {
+    enabled: true,
+    additionalFields: [
+      {
+        propertyName: 'partnerNameShort',
+        displayName: 'Partner',
+        order: 2
+      },
+      {
+        propertyName: 'premium',
+        displayName: 'Premium',
+        order: 3
+      }
+    ]
   },
 };

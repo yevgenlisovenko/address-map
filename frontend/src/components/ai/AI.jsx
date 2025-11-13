@@ -15,6 +15,14 @@ export default function AI({ visibleMarkers }) {
     if (!visibleMarkers || visibleMarkers.length === 0) {
       return;
     }
+
+    // Validate marker count against server limit
+    const maxMarkers = config?.ai?.maxMarkers || 1000;
+    if (visibleMarkers.length > maxMarkers) {
+      // This shouldn't happen if UI disables buttons correctly, but safety check
+      return;
+    }
+
     analyzeMarkers(promptId, visibleMarkers);
   };
 
@@ -71,6 +79,8 @@ export default function AI({ visibleMarkers }) {
 
   const prompts = config.ai.prompts || [];
   const hasMarkers = visibleMarkers && visibleMarkers.length > 0;
+  const maxMarkers = config.ai.maxMarkers || 1000;
+  const tooManyMarkers = visibleMarkers && visibleMarkers.length > maxMarkers;
 
   return (
     <div className="ai-container">
@@ -83,7 +93,7 @@ export default function AI({ visibleMarkers }) {
             key={prompt.id}
             className="ai-prompt-button"
             onClick={() => handleAnalyze(prompt.id)}
-            disabled={loading || !hasMarkers}
+            disabled={loading || !hasMarkers || tooManyMarkers}
           >
             {prompt.label}
           </button>
@@ -92,10 +102,17 @@ export default function AI({ visibleMarkers }) {
 
       {/* Markers Count Info */}
       <div className="ai-info">
-        {hasMarkers ? (
-          <p>{visibleMarkers.length} marker{visibleMarkers.length !== 1 ? 's' : ''} visible</p>
-        ) : (
+        {!hasMarkers ? (
           <p>No markers visible. Adjust filters to see markers.</p>
+        ) : tooManyMarkers ? (
+          <p className="ai-warning">
+            Too many markers ({visibleMarkers.length} / {maxMarkers} max).
+            Please use filters to reduce marker count.
+          </p>
+        ) : (
+          <p>
+            {visibleMarkers.length} / {maxMarkers} marker{visibleMarkers.length !== 1 ? 's' : ''} visible
+          </p>
         )}
       </div>
 
