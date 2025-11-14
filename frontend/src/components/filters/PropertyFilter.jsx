@@ -4,13 +4,18 @@ import { FILTER_CONFIG } from '../../config/filterConfig';
 import { useDynamicFilterValues } from '../../hooks/useDynamicFilterValues';
 import './PropertyFilter.css';
 
-export default function PropertyFilter({ markers, propertyFilters, onFilterChange }) {
+export default function PropertyFilter({ markers, propertyFilters, onFilterChange, focusedState }) {
   const [filters, setFilters] = useState(propertyFilters || {});
   const [expandedDropdowns, setExpandedDropdowns] = useState({});
 
   // Get enabled filterable properties from config with dynamic values
   const baseProperties = FILTER_CONFIG.filterableProperties.filter(p => p.enabled);
-  const enabledProperties = useDynamicFilterValues(markers || [], baseProperties);
+  const propertiesWithDynamicValues = useDynamicFilterValues(markers || [], baseProperties);
+
+  // Hide state filter when State Focus is active (focusedState !== null)
+  const enabledProperties = focusedState
+    ? propertiesWithDynamicValues.filter(p => p.propertyName !== 'state')
+    : propertiesWithDynamicValues;
 
   // Initialize dropdowns collapsed with no items selected (only on mount)
   useEffect(() => {
@@ -222,4 +227,5 @@ PropertyFilter.propTypes = {
   markers: PropTypes.array.isRequired,
   propertyFilters: PropTypes.object,
   onFilterChange: PropTypes.func.isRequired,
+  focusedState: PropTypes.string,
 };

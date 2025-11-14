@@ -130,17 +130,18 @@ export default {
   filters: {
     filterableProperties: [
       {
-        propertyName: "state",
-        displayName: "State",
+        propertyName: 'state',
+        displayName: 'State',
         enabled: true,
         // Static values: predefined dropdown options
+        // Note: Hidden when State Focus is active (use State Focus for single state + zoom)
         values: [
-          "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-          "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-          "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-          "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-          "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-        ],
+          'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+          'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+          'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+          'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+          'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+        ]
       },
       {
         propertyName: "partnerNameShort",
@@ -183,5 +184,19 @@ export default {
         order: 3
       }
     ]
+  },
+
+  // State Focus configuration
+  stateFocus: {
+    // Enable/disable state focus feature
+    enabled: true,
+    // Default focused state (null = "All States", or 'CA', 'TX', etc.)
+    defaultState: null,
+    // Available states for dropdown ('all' or array of abbreviations)
+    availableStates: 'all',
+    // Auto-zoom map to state bounds when state is selected
+    autoZoom: true,
+    // Color for focused state boundary highlight (very light/almost transparent orange)
+    highlightColor: 'rgba(255, 107, 53, 0.1)',
   },
 };

@@ -16,6 +16,7 @@
 }
 
 .info-panel.sidebar-open {
+  bottom: 5px;
   right: 303px;
 }
 

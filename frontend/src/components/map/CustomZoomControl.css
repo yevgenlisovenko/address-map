@@ -10,7 +10,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.custom-zoom-control button {
+.custom-zoom-control > button {
   width: 36px;
   height: 36px;
   border: none;
@@ -27,15 +27,19 @@
   border-radius: 4px;
 }
 
-.custom-zoom-control button:hover {
+.custom-zoom-control > button:hover {
   background: #535bf2;
   transform: scale(1.05);
 }
 
-.custom-zoom-control button:active {
+.custom-zoom-control > button:active {
   transform: scale(0.95);
 }
 
 .custom-zoom-control .reset-button {
   font-size: 16px;
+}
+
+.custom-zoom-control .state-selector-button {
+  font-size: 10px;
 }

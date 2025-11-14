@@ -1,8 +1,10 @@
 import { useMap } from 'react-leaflet';
+import PropTypes from 'prop-types';
 import { DEFAULT_MAP_VIEW } from '../../utils/constants';
+import StateSelectorControl from './StateSelectorControl';
 import './CustomZoomControl.css';
 
-function CustomZoomControl() {
+function CustomZoomControl({ focusedState, setFocusedState, stateFocusConfig }) {
   const map = useMap();
 
   const handleZoomIn = () => {
@@ -14,6 +16,12 @@ function CustomZoomControl() {
   };
 
   const handleReset = () => {
+    // Clear state focus
+    if (setFocusedState) {
+      setFocusedState(null);
+    }
+
+    // Reset map view
     map.flyTo(DEFAULT_MAP_VIEW.center, DEFAULT_MAP_VIEW.zoom, {
       duration: 1.5
     });
@@ -43,8 +51,32 @@ function CustomZoomControl() {
       >
         🏠
       </button>
+
+      {/* State selector control (if enabled) */}
+      {stateFocusConfig?.enabled && (
+        <StateSelectorControl
+          value={focusedState}
+          onChange={setFocusedState}
+          availableStates={stateFocusConfig.availableStates}
+        />
+      )}
     </div>
   );
 }
+
+CustomZoomControl.propTypes = {
+  focusedState: PropTypes.string,
+  setFocusedState: PropTypes.func,
+  stateFocusConfig: PropTypes.shape({
+    enabled: PropTypes.bool,
+    defaultState: PropTypes.string,
+    availableStates: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]),
+    autoZoom: PropTypes.bool,
+    highlightColor: PropTypes.string,
+  }),
+};
 
 export default CustomZoomControl;

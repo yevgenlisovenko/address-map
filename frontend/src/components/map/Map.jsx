@@ -11,6 +11,7 @@ import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 import MarkerPopup from "./MarkerPopup";
 import CustomZoomControl from "./CustomZoomControl";
+import StateFocusHandler from "./StateFocusHandler";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -80,7 +81,7 @@ MapMarker.propTypes = {
   }).isRequired,
 };
 
-function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger }) {
+function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig }) {
   // Default center and zoom from constants
   const { center: defaultCenter, zoom: defaultZoom } = DEFAULT_MAP_VIEW;
 
@@ -89,6 +90,26 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
     [24.396308, -125.0], // Southwest corner
     [49.384358, -66.93457], // Northeast corner
   ];
+
+  // Merge focused state highlight with regular state highlights
+  const mergedStateHighlightData = useMemo(() => {
+    if (!focusedState || !stateFocusConfig?.enabled) {
+      return stateHighlightData;
+    }
+
+    const apiColors = stateHighlightData?.colors || {};
+    const mergedColors = { ...apiColors };
+
+    // Only add focus color if the state is NOT already highlighted by API
+    if (!apiColors[focusedState]) {
+      mergedColors[focusedState] = stateFocusConfig.highlightColor || '#3388ff';
+    }
+
+    return {
+      colors: mergedColors,
+      groups: stateHighlightData?.groups || [],
+    };
+  }, [focusedState, stateHighlightData, stateFocusConfig]);
 
   // Component to handle map resize when sidebar visibility changes
   function MapResizeHandler() {
@@ -142,10 +163,22 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         />
 
         {/* State highlighting layer - renders BEFORE markers so markers appear on top */}
-        <StatesLayer stateColors={stateHighlightData?.colors || {}} />
+        <StatesLayer stateColors={mergedStateHighlightData?.colors || {}} />
 
-        {/* Custom zoom controls with Reset button */}
-        <CustomZoomControl />
+        {/* Custom zoom controls with Reset button and State selector */}
+        <CustomZoomControl
+          focusedState={focusedState}
+          setFocusedState={setFocusedState}
+          stateFocusConfig={stateFocusConfig}
+        />
+
+        {/* State focus handler for auto-zoom */}
+        {stateFocusConfig?.enabled && (
+          <StateFocusHandler
+            focusedState={focusedState}
+            autoZoom={stateFocusConfig.autoZoom}
+          />
+        )}
 
         {markers.map((marker) => (
           <MapMarker key={marker.id} marker={marker} />
@@ -157,7 +190,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
       </MapContainer>
 
       {/* Map Legend Overlay */}
-      <MapLegend stateHighlightData={stateHighlightData} />
+      <MapLegend stateHighlightData={mergedStateHighlightData} />
     </div>
   );
 }
@@ -197,6 +230,18 @@ Map.propTypes = {
     properties: PropTypes.object,
   }),
   panTrigger: PropTypes.number,
+  focusedState: PropTypes.string,
+  setFocusedState: PropTypes.func,
+  stateFocusConfig: PropTypes.shape({
+    enabled: PropTypes.bool,
+    defaultState: PropTypes.string,
+    availableStates: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]),
+    autoZoom: PropTypes.bool,
+    highlightColor: PropTypes.string,
+  }),
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -206,6 +251,8 @@ export default memo(Map, (prevProps, nextProps) => {
     prevProps.sidebarVisible === nextProps.sidebarVisible &&
     prevProps.stateHighlightData === nextProps.stateHighlightData &&
     prevProps.markerToPan === nextProps.markerToPan &&
-    prevProps.panTrigger === nextProps.panTrigger
+    prevProps.panTrigger === nextProps.panTrigger &&
+    prevProps.focusedState === nextProps.focusedState &&
+    prevProps.stateFocusConfig === nextProps.stateFocusConfig
   );
 });

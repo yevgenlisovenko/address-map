@@ -8,6 +8,7 @@ import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } fro
 import { usePropertyFilter } from './hooks/usePropertyFilter';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
 import { DEFAULT_PINS_TO_SHOW } from './utils/constants';
+import { STATE_FOCUS_CONFIG } from './config/stateFocusConfig';
 import './App.css';
 
 function App() {
@@ -37,17 +38,33 @@ function AppContent() {
   const [markerToPan, setMarkerToPan] = useState(null);
   const [panTrigger, setPanTrigger] = useState(0);
   const [propertyFilters, setPropertyFilters] = useState({});
+  const [focusedState, setFocusedState] = useState(null);
 
-  // Initialize selectedTimeWindow from config when loaded
+  // Initialize selectedTimeWindow from backend config when loaded
   useEffect(() => {
     if (config && config.pinStorage.defaultTimeWindow) {
       setSelectedTimeWindow(config.pinStorage.defaultTimeWindow);
     }
   }, [config]);
 
+  // Initialize focusedState from frontend deployment config (one-time on mount)
+  useEffect(() => {
+    if (STATE_FOCUS_CONFIG?.defaultState) {
+      setFocusedState(STATE_FOCUS_CONFIG.defaultState);
+    }
+  }, []); // Empty deps = run once on mount
+
+  // Filter markers by focused state (if any)
+  const stateFocusedMarkers = useMemo(() => {
+    if (focusedState) {
+      return markers.filter(marker => marker.properties?.state === focusedState);
+    }
+    return markers;
+  }, [markers, focusedState]);
+
   // Filter markers based on time window AND properties
   const visibleMarkers = usePropertyFilter(
-    markers,
+    stateFocusedMarkers,
     config,
     selectedTimeWindow,
     timeSelectionMode,
@@ -177,6 +194,7 @@ function AppContent() {
         onMarkerClick={handleMarkerClick}
         propertyFilters={propertyFilters}
         onPropertyFilterChange={handlePropertyFilterChange}
+        focusedState={focusedState}
       />
 
       <div className="map-container">
@@ -186,6 +204,9 @@ function AppContent() {
           stateHighlightData={stateHighlightData}
           markerToPan={markerToPan}
           panTrigger={panTrigger}
+          focusedState={focusedState}
+          setFocusedState={setFocusedState}
+          stateFocusConfig={STATE_FOCUS_CONFIG}
         />
       </div>
     </div>

@@ -154,6 +154,7 @@ export default {
         displayName: 'State',
         enabled: true,
         // Static values: predefined dropdown options
+        // Note: Hidden when State Focus is active (use State Focus for single state + zoom)
         values: [
           'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
           'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
@@ -210,5 +211,19 @@ export default {
         order: 2
       }
     ]
+  },
+
+  // State Focus configuration
+  stateFocus: {
+    // Enable/disable state focus feature
+    enabled: true,
+    // Default focused state (null = "All States", or 'CA', 'TX', etc.)
+    defaultState: null,
+    // Available states for dropdown ('all' or array of abbreviations)
+    availableStates: 'all',
+    // Auto-zoom map to state bounds when state is selected
+    autoZoom: true,
+    // Color for focused state boundary highlight (very light/almost transparent)
+    highlightColor: 'rgba(51, 136, 255, 0.1)',
   },
 };
