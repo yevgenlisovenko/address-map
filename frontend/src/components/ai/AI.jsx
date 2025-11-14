@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import { useAppConfig } from '../../contexts';
 import { useAIAnalysis } from '../../hooks/useAIAnalysis';
+import logger from '../../utils/logger';
 import './AI.css';
 
 export default function AI({ visibleMarkers }) {
@@ -42,7 +43,7 @@ export default function AI({ visibleMarkers }) {
         copyTimeoutRef.current = null;
       }, 2000);
     } catch (err) {
-      console.error('Failed to copy text:', err);
+      logger.error('Failed to copy text:', err);
     }
   };
 

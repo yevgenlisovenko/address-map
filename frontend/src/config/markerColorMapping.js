@@ -4,6 +4,7 @@
  */
 
 import L from 'leaflet';
+import logger from '../utils/logger';
 import blueMarkerIconImage from "../assets/markerIcons/marker-icon-2x-blue.png";
 import goldMarkerIconImage from "../assets/markerIcons/marker-icon-2x-gold.png";
 import redMarkerIconImage from "../assets/markerIcons/marker-icon-2x-red.png";
@@ -117,7 +118,7 @@ const deploymentName = import.meta.env.VITE_DEPLOYMENT_CONFIG || 'default';
 const deploymentConfig = DEPLOYMENT_CONFIGS[deploymentName] || DEPLOYMENT_CONFIGS.default;
 
 if (!DEPLOYMENT_CONFIGS[deploymentName] && deploymentName !== 'default') {
-  console.warn(`Deployment config "${deploymentName}" not found, using default`);
+  logger.warn(`Deployment config "${deploymentName}" not found, using default`);
 }
 
 // Export full deployment config for use by other components (e.g., MapLegend)
@@ -140,7 +141,7 @@ function transformConfig(rawConfig) {
       const iconData = ICON_REGISTRY[config.icon];
 
       if (!iconData) {
-        console.error(`Unknown icon ID: "${config.icon}" in deployment config for ${propertyName}.${propertyValue}`);
+        logger.error(`Unknown icon ID: "${config.icon}" in deployment config for ${propertyName}.${propertyValue}`);
         continue;
       }
 
