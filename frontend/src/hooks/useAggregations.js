@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { STATS_CONFIG } from '../config/statsConfig';
 import { formatValue } from '../utils/formatters';
-import logger from '../utils/logger';
+import { logger } from '../utils/logger';
 
 /**
  * Hook to calculate aggregations for visible markers

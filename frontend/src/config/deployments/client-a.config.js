@@ -199,4 +199,35 @@ export default {
     // Color for focused state boundary highlight (very light/almost transparent orange)
     highlightColor: 'rgba(255, 107, 53, 0.1)',
   },
+
+  // Map configuration
+  map: {
+    // Initial view settings
+    defaultView: {
+      center: [38.5283, -90.7795], // USA center
+      zoom: 5.25
+    },
+
+    // Zoom control settings
+    zoom: {
+      snap: 0.25,      // Snap increment for zoom levels
+      delta: 0.25,     // Zoom change per button click
+      min: 4,          // Minimum zoom level
+      max: 18          // Maximum zoom level
+    },
+
+    // Map bounds settings
+    bounds: {
+      enabled: false,  // Enable to restrict map panning to USA
+      coordinates: [[24.396308, -125.0], [49.384358, -66.93457]], // USA bounds
+      viscosity: 1.0   // Boundary strictness (1.0 = hard boundary)
+    },
+
+    // Marker pan settings (when clicking marker in sidebar)
+    markerPan: {
+      enabled: true,
+      zoomLevel: 12,   // Zoom level when panning to marker
+      duration: 1.5    // Animation duration in seconds
+    }
+  },
 };

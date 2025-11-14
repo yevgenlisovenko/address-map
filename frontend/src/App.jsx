@@ -9,6 +9,7 @@ import { usePropertyFilter } from './hooks/usePropertyFilter';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
 import { DEFAULT_PINS_TO_SHOW } from './utils/constants';
 import { STATE_FOCUS_CONFIG } from './config/stateFocusConfig';
+import { MAP_CONFIG } from './config/mapConfig';
 import './App.css';
 
 function App() {
@@ -207,6 +208,7 @@ function AppContent() {
           focusedState={focusedState}
           setFocusedState={setFocusedState}
           stateFocusConfig={STATE_FOCUS_CONFIG}
+          mapConfig={MAP_CONFIG}
         />
       </div>
     </div>

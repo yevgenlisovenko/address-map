@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import { useAppConfig } from '../../contexts';
 import { useAIAnalysis } from '../../hooks/useAIAnalysis';
-import logger from '../../utils/logger';
+import { logger } from '../../utils/logger';
 import './AI.css';
 
 export default function AI({ visibleMarkers }) {

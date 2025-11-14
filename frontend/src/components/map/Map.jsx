@@ -81,15 +81,10 @@ MapMarker.propTypes = {
   }).isRequired,
 };
 
-function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig }) {
-  // Default center and zoom from constants
-  const { center: defaultCenter, zoom: defaultZoom } = DEFAULT_MAP_VIEW;
-
-  // USA boundary coordinates (includes Alaska & Hawaii region)
-  const usaBounds = [
-    [24.396308, -125.0], // Southwest corner
-    [49.384358, -66.93457], // Northeast corner
-  ];
+function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig, mapConfig }) {
+  // Get map settings from config (with fallbacks to constants for backward compatibility)
+  const defaultCenter = mapConfig?.defaultView?.center || DEFAULT_MAP_VIEW.center;
+  const defaultZoom = mapConfig?.defaultView?.zoom || DEFAULT_MAP_VIEW.zoom;
 
   // Merge focused state highlight with regular state highlights
   const mergedStateHighlightData = useMemo(() => {
@@ -132,11 +127,15 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
     const map = useMap();
 
     useEffect(() => {
-      if (markerToPan && panTrigger > 0) {
-        // Pan to the selected marker
-        map.flyTo([markerToPan.lat, markerToPan.lon], 12, {
-          duration: 1.5 // smooth animation duration in seconds
-        });
+      if (markerToPan && panTrigger > 0 && mapConfig?.markerPan?.enabled !== false) {
+        // Pan to the selected marker with configurable zoom and duration
+        map.flyTo(
+          [markerToPan.lat, markerToPan.lon],
+          mapConfig?.markerPan?.zoomLevel || 12,
+          {
+            duration: mapConfig?.markerPan?.duration || 1.5
+          }
+        );
       }
     }, [panTrigger, map, markerToPan]);
 
@@ -149,13 +148,13 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         center={defaultCenter}
         zoom={defaultZoom}
         zoomControl={false}
-        zoomSnap={0.25}
-        zoomDelta={0.25}
+        zoomSnap={mapConfig?.zoom?.snap ?? 0.25}
+        zoomDelta={mapConfig?.zoom?.delta ?? 0.25}
         style={{ height: "100%", width: "100%" }}
-        // maxBounds={usaBounds}
-        // maxBoundsViscosity={1.0}
-        minZoom={4}
-        maxZoom={18}
+        maxBounds={mapConfig?.bounds?.enabled ? mapConfig.bounds.coordinates : undefined}
+        maxBoundsViscosity={mapConfig?.bounds?.enabled ? (mapConfig.bounds.viscosity ?? 1.0) : undefined}
+        minZoom={mapConfig?.zoom?.min ?? 4}
+        maxZoom={mapConfig?.zoom?.max ?? 18}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -242,6 +241,28 @@ Map.propTypes = {
     autoZoom: PropTypes.bool,
     highlightColor: PropTypes.string,
   }),
+  mapConfig: PropTypes.shape({
+    defaultView: PropTypes.shape({
+      center: PropTypes.arrayOf(PropTypes.number),
+      zoom: PropTypes.number,
+    }),
+    zoom: PropTypes.shape({
+      snap: PropTypes.number,
+      delta: PropTypes.number,
+      min: PropTypes.number,
+      max: PropTypes.number,
+    }),
+    bounds: PropTypes.shape({
+      enabled: PropTypes.bool,
+      coordinates: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+      viscosity: PropTypes.number,
+    }),
+    markerPan: PropTypes.shape({
+      enabled: PropTypes.bool,
+      zoomLevel: PropTypes.number,
+      duration: PropTypes.number,
+    }),
+  }),
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -253,6 +274,7 @@ export default memo(Map, (prevProps, nextProps) => {
     prevProps.markerToPan === nextProps.markerToPan &&
     prevProps.panTrigger === nextProps.panTrigger &&
     prevProps.focusedState === nextProps.focusedState &&
-    prevProps.stateFocusConfig === nextProps.stateFocusConfig
+    prevProps.stateFocusConfig === nextProps.stateFocusConfig &&
+    prevProps.mapConfig === nextProps.mapConfig
   );
 });

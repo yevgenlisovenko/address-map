@@ -4,7 +4,7 @@
  */
 
 import L from 'leaflet';
-import logger from '../utils/logger';
+import { logger } from '../utils/logger';
 import blueMarkerIconImage from "../assets/markerIcons/marker-icon-2x-blue.png";
 import goldMarkerIconImage from "../assets/markerIcons/marker-icon-2x-gold.png";
 import redMarkerIconImage from "../assets/markerIcons/marker-icon-2x-red.png";

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { formatValue } from '../utils/formatters';
-import logger from '../utils/logger';
+import { logger } from '../utils/logger';
 
 /**
  * Hook to calculate aggregations grouped by property values
