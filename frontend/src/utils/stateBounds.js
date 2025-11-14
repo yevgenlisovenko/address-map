@@ -73,20 +73,27 @@ const STATE_NAME_TO_ABBR = {
  * Based on geographic size - larger states get lower zoom levels
  */
 const STATE_ZOOM_LEVELS = {
-  // Very large states (zoomLevel 5)
-  'AK': 5, 'TX': 5,
-  // Large states (zoomLevel 6)
-  'CA': 6, 'MT': 6, 'NM': 6, 'AZ': 6, 'NV': 6, 'CO': 6, 'OR': 6, 'WY': 6, 'MI': 6,
-  // Medium-large states (zoomLevel 7)
-  'MN': 7, 'UT': 7, 'ID': 7, 'KS': 7, 'NE': 7, 'SD': 7, 'ND': 7, 'WA': 7, 'OK': 7,
-  'MO': 7, 'FL': 7, 'WI': 7, 'GA': 7, 'IL': 7, 'IA': 7,
-  // Medium states (zoomLevel 8)
-  'NY': 8, 'NC': 8, 'AR': 8, 'AL': 8, 'LA': 8, 'MS': 8, 'PA': 8, 'OH': 8,
-  'VA': 8, 'TN': 8, 'KY': 8, 'IN': 8, 'ME': 8, 'SC': 8, 'WV': 8,
-  // Small states (zoomLevel 9)
-  'MD': 9, 'HI': 9, 'VT': 9, 'NH': 9, 'MA': 9, 'NJ': 9, 'CT': 9,
-  // Very small states (zoomLevel 10)
-  'RI': 10, 'DE': 10, 'DC': 10,
+  // Very large states (zoomLevel 5+)
+  'AK': 5,
+  // Large states (zoomLevel 6+)
+  'TX': 6.5,
+  // Medium-large states (zoomLevel 7+)
+  'CA': 7, 'MN': 7, 'ID': 7,
+  'AZ': 7.5, 'NE': 7.5, 'OK': 7.5, 'VA': 7.5,
+  // Medium states (zoomLevel 8+)
+  'CO': 8, 'FL': 8, 'IL': 8, 'KS': 8, 'MI': 8, 'MO': 8, 'MT': 8,
+  'ND': 8, 'NM': 8, 'NV': 8, 'OR': 8, 'SD': 8, 'UT': 8, 'WA': 8,
+  'WI': 8, 'WY': 8, 'NY': 8, 'NC': 8, 'AR': 8, 'AL': 8, 'LA': 8,
+  'MS': 8, 'PA': 8, 'TN': 8, 'KY': 8, 'IN': 8, 'ME': 8, 'WV': 8,
+  'SC': 8.5,
+  // Small states (zoomLevel 9+)
+  'GA': 9, 'IA': 9, 'OH': 9, 'MD': 9, 'HI': 9, 'VT': 9, 'NH': 9,
+  'MA': 9, 'NJ': 9,
+  'CT': 9.5,
+  // Very small states (zoomLevel 10+)
+  'DE': 10, 'PR': 10,
+  'RI': 10.5,
+  'DC': 12,
 };
 
 /**
