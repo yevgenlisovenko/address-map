@@ -260,7 +260,7 @@ export default {
     // New marker highlight settings (visual distinction for newly added markers)
     newMarkerHighlight: {
       enabled: false,
-      duration: 5000,  // How long (ms) the highlight remains (4 seconds)
+      duration: 4000,  // How long (ms) the highlight remains (4 seconds)
       style: 'blink'    // Visual style: 'glow', 'bright', 'shadow', or 'blink'
     }
   },

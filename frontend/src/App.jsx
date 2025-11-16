@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import Map from './components/map/Map';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import MapComponent from './components/map/Map';
 import Sidebar from './components/layout/Sidebar';
 import InfoPanel from './components/layout/InfoPanel';
 import LoadingSpinner from './components/common/LoadingSpinner';
@@ -58,29 +58,55 @@ function AppContent() {
     }
   }, []); // Empty deps = run once on mount
 
-  // Auto-clear __isNew flag after configured duration
+  // Auto-clear __isNew flag after configured duration (individual timeouts per marker)
+  const timeoutMapRef = useRef(new Map()); // Stores marker.id -> timeoutId
+
   useEffect(() => {
-    // Skip if feature is disabled
-    if (!NEW_MARKER_HIGHLIGHT_CONFIG?.enabled) return;
+    // Skip if feature is disabled - clear any existing timeouts
+    if (!NEW_MARKER_HIGHLIGHT_CONFIG?.enabled) {
+      timeoutMapRef.current.forEach(timerId => clearTimeout(timerId));
+      timeoutMapRef.current.clear();
+      return;
+    }
 
-    // Find markers with __isNew flag
-    const newMarkers = markers.filter(marker => marker.__isNew);
-    if (newMarkers.length === 0) return;
+    // Find NEW markers that don't already have timeouts scheduled
+    const newMarkers = markers.filter(
+      marker => marker.__isNew && !timeoutMapRef.current.has(marker.id)
+    );
 
-    // Set timeout to clear __isNew flag after configured duration
-    const duration = NEW_MARKER_HIGHLIGHT_CONFIG.duration || 8000;
-    const timerId = setTimeout(() => {
-      setMarkers(prevMarkers =>
-        prevMarkers.map(marker =>
-          marker.__isNew
-            ? { ...marker, __isNew: false }
-            : marker
-        )
-      );
-    }, duration);
+    const duration = NEW_MARKER_HIGHLIGHT_CONFIG.duration || 4000;
 
-    // Cleanup: clear timeout on unmount or when markers change
-    return () => clearTimeout(timerId);
+    // Create individual timeout for each new marker
+    newMarkers.forEach(marker => {
+      const timerId = setTimeout(() => {
+        // Clear __isNew flag for THIS specific marker only
+        setMarkers(prevMarkers =>
+          prevMarkers.map(m =>
+            m.id === marker.id ? { ...m, __isNew: false } : m
+          )
+        );
+        // Remove from timeout map after clearing
+        timeoutMapRef.current.delete(marker.id);
+      }, duration);
+
+      // Store timeout ID for this marker
+      timeoutMapRef.current.set(marker.id, timerId);
+    });
+
+    // Cleanup timeouts for markers that were removed from array (filtered out, etc.)
+    const currentMarkerIds = new Set(markers.map(m => m.id));
+    timeoutMapRef.current.forEach((timerId, markerId) => {
+      if (!currentMarkerIds.has(markerId)) {
+        clearTimeout(timerId);
+        timeoutMapRef.current.delete(markerId);
+      }
+    });
+
+    // Cleanup: clear all pending timeouts on unmount
+    return () => {
+      timeoutMapRef.current.forEach(timerId => clearTimeout(timerId));
+      timeoutMapRef.current.clear();
+    };
   }, [markers, setMarkers]);
 
   // Filter markers by focused state (if any)
@@ -227,7 +253,7 @@ function AppContent() {
       />
 
       <div className="map-container">
-        <Map
+        <MapComponent
           markers={sortedVisibleMarkers}
           sidebarVisible={isSidebarVisible}
           stateHighlightData={stateHighlightData}

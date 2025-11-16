@@ -60,6 +60,7 @@ const MapMarker = memo(({ marker }) => {
     <Marker
       position={[marker.lat, marker.lon]}
       icon={icon}
+      zIndexOffset={marker.__isNew ? 1000 : 0}
     >
       {/* Tooltip: Shows brief info on hover */}
       <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
