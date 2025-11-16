@@ -168,7 +168,7 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
                           {isGroupExpanded ? '▼' : '▶'}
                         </span>
                         <span className="legend-marker-label">{group.groupLabel}</span>
-                        <span className="legend-group-count">({group.count})</span>
+                        {/* <span className="legend-group-count">({group.count})</span> */}
                       </div>
                       {isGroupExpanded && (
                         <div className="legend-group-items">

@@ -5,10 +5,11 @@
  * Applied via L.Icon className option when marker has __isNew flag.
  *
  * Available styles:
- * - glow: Golden drop-shadow effect
- * - bright: Increased brightness
- * - shadow: Larger golden shadow with opacity
+ * - glow: Golden drop-shadow effect (static)
+ * - bright: Increased brightness (static)
+ * - shadow: Larger golden shadow with opacity (static)
  * - blink: Opacity pulsing animation
+ * - glow-pulse: Animated glow intensity
  */
 
 /* Glow style - prominent golden drop-shadow with multiple layers */
@@ -38,4 +39,18 @@
 
 .leaflet-marker-icon.marker-new-blink {
   animation: markerBlink 1s ease-in-out infinite;
+}
+
+/* Glow-pulse style - animated glow intensity */
+@keyframes markerGlowPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px gold);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px gold) brightness(1.3);
+  }
+}
+
+.leaflet-marker-icon.marker-new-glow-pulse {
+  animation: markerGlowPulse 1.2s ease-in-out infinite;
 }
