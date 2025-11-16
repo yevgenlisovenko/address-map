@@ -228,6 +228,13 @@ export default {
       enabled: true,
       zoomLevel: 12,   // Zoom level when panning to marker
       duration: 1.5    // Animation duration in seconds
+    },
+
+    // New marker highlight settings (visual distinction for newly added markers)
+    newMarkerHighlight: {
+      enabled: false,
+      duration: 8000,  // How long (ms) the highlight remains (8 seconds)
+      style: 'glow'    // Visual style: 'glow', 'bright', 'shadow', or 'blink'
     }
   },
 };

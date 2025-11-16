@@ -21,7 +21,8 @@ export const useMarkers = (socket) => {
 
     const handleAddPin = (data) => {
       logger.log('New pin received:', data);
-      setMarkers((prev) => [data, ...prev]);
+      // Add temporary flag to indicate this marker is new
+      setMarkers((prev) => [{ ...data, __isNew: true }, ...prev]);
       setStatus(`Pin added: ${data.displayName}`);
     };
 

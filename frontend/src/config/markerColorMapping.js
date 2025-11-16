@@ -32,9 +32,10 @@ import clientAConfig from './deployments/client-a.config.js';
 /**
  * Factory function to create a Leaflet marker icon
  * @param {string} iconUrl - URL to the marker icon image
+ * @param {string} className - Optional CSS class name(s) for animation support
  * @returns {L.Icon} Configured Leaflet icon
  */
-const createMarkerIcon = (iconUrl) => {
+const createMarkerIcon = (iconUrl, className = 'marker-default') => {
   return new L.Icon({
     iconUrl,
     shadowUrl: markerShadowImage,
@@ -42,6 +43,7 @@ const createMarkerIcon = (iconUrl) => {
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
     shadowSize: [41, 41],
+    className: className,
   });
 };
 
@@ -294,3 +296,8 @@ export function getMarkerIconUrl(marker) {
   // No mapping found, return default
   return defaultMarkerIconUrl;
 }
+
+/**
+ * Export createMarkerIcon for creating icons with custom className (e.g., for animations)
+ */
+export { createMarkerIcon };

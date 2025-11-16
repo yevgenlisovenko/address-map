@@ -10,7 +10,10 @@ import { useDocumentMeta } from './hooks/useDocumentMeta';
 import { DEFAULT_PINS_TO_SHOW } from './utils/constants';
 import { STATE_FOCUS_CONFIG } from './config/stateFocusConfig';
 import { MAP_CONFIG } from './config/mapConfig';
+import { NEW_MARKER_HIGHLIGHT_CONFIG } from './config/newMarkerHighlightConfig';
+import 'leaflet/dist/leaflet.css';
 import './App.css';
+import './styles/newMarkerHighlight.css';
 
 function App() {
   return (
@@ -28,7 +31,7 @@ function AppContent() {
 
   // Access shared state via contexts
   const { config, loading, error } = useAppConfig();
-  const { socket, isConnected, markers, setStatus, stateHighlightData } = useSocketContext();
+  const { socket, isConnected, markers, setMarkers, setStatus, stateHighlightData } = useSocketContext();
 
   // UI state
   const [showAllPins, setShowAllPins] = useState(false);
@@ -54,6 +57,31 @@ function AppContent() {
       setFocusedState(STATE_FOCUS_CONFIG.defaultState);
     }
   }, []); // Empty deps = run once on mount
+
+  // Auto-clear __isNew flag after configured duration
+  useEffect(() => {
+    // Skip if feature is disabled
+    if (!NEW_MARKER_HIGHLIGHT_CONFIG?.enabled) return;
+
+    // Find markers with __isNew flag
+    const newMarkers = markers.filter(marker => marker.__isNew);
+    if (newMarkers.length === 0) return;
+
+    // Set timeout to clear __isNew flag after configured duration
+    const duration = NEW_MARKER_HIGHLIGHT_CONFIG.duration || 8000;
+    const timerId = setTimeout(() => {
+      setMarkers(prevMarkers =>
+        prevMarkers.map(marker =>
+          marker.__isNew
+            ? { ...marker, __isNew: false }
+            : marker
+        )
+      );
+    }, duration);
+
+    // Cleanup: clear timeout on unmount or when markers change
+    return () => clearTimeout(timerId);
+  }, [markers, setMarkers]);
 
   // Filter markers by focused state (if any)
   const stateFocusedMarkers = useMemo(() => {

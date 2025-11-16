@@ -2,10 +2,10 @@ import { useEffect, memo, useMemo } from "react";
 import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { getMarkerIcon } from "../../config/markerColorMapping";
+import { getMarkerIcon, createMarkerIcon } from "../../config/markerColorMapping";
 import { DEFAULT_MAP_VIEW } from "../../utils/constants";
 import { TOOLTIP_CONFIG } from "../../config/tooltipConfig";
+import { NEW_MARKER_HIGHLIGHT_CONFIG } from "../../config/newMarkerHighlightConfig";
 import { formatTooltipContent } from "../../utils/tooltipFormatter";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
@@ -33,9 +33,23 @@ function MapBoundsUpdater({ markers }) {
 // Memoized individual marker component to prevent unnecessary re-renders
 // Only re-renders when marker position/properties actually change
 const MapMarker = memo(({ marker }) => {
-  // getMarkerIcon now uses cache, but we also memoize to prevent recalculation
-  // unless marker properties change (marker.id is stable, properties may vary)
-  const icon = useMemo(() => getMarkerIcon(marker), [marker.id, marker.properties]);
+  // Create marker icon with optional highlight for new markers
+  const icon = useMemo(() => {
+    // Early return if feature disabled OR marker is not new - ZERO overhead
+    if (!NEW_MARKER_HIGHLIGHT_CONFIG?.enabled || !marker.__isNew) {
+      return getMarkerIcon(marker);
+    }
+
+    // Feature enabled and marker is new - apply highlight style
+    const baseIcon = getMarkerIcon(marker);
+    const style = NEW_MARKER_HIGHLIGHT_CONFIG.style || 'glow';
+    const className = `marker-new-${style}`;
+
+    return createMarkerIcon(
+      baseIcon.options.iconUrl,
+      className
+    );
+  }, [marker.id, marker.properties, marker.__isNew]);
 
   // Memoize tooltip content using deployment configuration
   const tooltipContent = useMemo(() => {
@@ -66,7 +80,8 @@ const MapMarker = memo(({ marker }) => {
     prevProps.marker.lat === nextProps.marker.lat &&
     prevProps.marker.lon === nextProps.marker.lon &&
     prevProps.marker.timestamp === nextProps.marker.timestamp &&
-    prevProps.marker.properties === nextProps.marker.properties
+    prevProps.marker.properties === nextProps.marker.properties &&
+    prevProps.marker.__isNew === nextProps.marker.__isNew
   );
 });
 
