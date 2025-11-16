@@ -10,6 +10,7 @@
  * - shadow: Larger golden shadow with opacity (static)
  * - blink: Opacity pulsing animation
  * - glow-pulse: Animated glow intensity
+ * - fade-pulse: Complete fade in/out animation
  */
 
 /* Glow style - prominent golden drop-shadow with multiple layers */
@@ -53,4 +54,14 @@
 
 .leaflet-marker-icon.marker-new-glow-pulse {
   animation: markerGlowPulse 1.2s ease-in-out infinite;
+}
+
+/* Fade-pulse style - complete fade in/out (dramatic) */
+@keyframes markerFadePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.leaflet-marker-icon.marker-new-fade-pulse {
+  animation: markerFadePulse 1s ease-in-out infinite;
 }
