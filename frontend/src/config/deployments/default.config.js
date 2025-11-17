@@ -261,7 +261,7 @@ export default {
     newMarkerHighlight: {
       enabled: true,
       duration: 5000,  // How long (ms) the highlight remains
-      style: 'blink'    // Visual style: 'glow', 'bright', 'shadow', 'blink', 'glow-pulse', or 'fade-pulse'
+      style: 'blink-bright'    // Visual style: 'glow', 'bright', 'shadow', 'blink', 'blink-bright', 'glow-pulse', or 'fade-pulse'
     }
   },
 };

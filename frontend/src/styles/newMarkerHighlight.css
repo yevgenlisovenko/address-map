@@ -9,6 +9,7 @@
  * - bright: Increased brightness (static)
  * - shadow: Larger golden shadow with opacity (static)
  * - blink: Opacity pulsing animation
+ * - blink-bright: Combines blink with 2x brightness
  * - glow-pulse: Animated glow intensity
  * - fade-pulse: Complete fade in/out animation
  */
@@ -39,6 +40,12 @@
 }
 
 .leaflet-marker-icon.marker-new-blink {
+  animation: markerBlink 1s ease-in-out infinite;
+}
+
+/* Blink-bright style - combines blink animation with high brightness */
+.leaflet-marker-icon.marker-new-blink-bright {
+  filter: brightness(2);
   animation: markerBlink 1s ease-in-out infinite;
 }
 

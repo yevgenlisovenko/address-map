@@ -26,8 +26,8 @@ const DEPLOYMENT_CONFIGS = {
  */
 const DEFAULT_NEW_MARKER_HIGHLIGHT_CONFIG = {
   enabled: false,
-  duration: 8000,  // 8 seconds
-  style: 'glow',
+  duration: 8000,  // in milliseconds
+  style: 'blink-bright',
 };
 
 /**
