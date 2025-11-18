@@ -131,17 +131,24 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
 
   return (
     <div className={`map-legend ${isExpanded ? 'expanded' : 'collapsed'}`}>
-      <div
-        className="legend-header"
-        onClick={() => setIsExpanded(!isExpanded)}
-        title={isExpanded ? 'Click to collapse' : 'Click to expand'}
-      >
-        <span className="legend-title">🗺️ Legend</span>
-        <span className="legend-toggle">{isExpanded ? '▼' : '▶'}</span>
-      </div>
-
-      {isExpanded && (
+      {!isExpanded ? (
+        <div
+          className="legend-collapsed-button"
+          onClick={() => setIsExpanded(true)}
+          title="Click to expand"
+        >
+          <span>Legend</span>
+          <span className="legend-toggle">▶</span>
+        </div>
+      ) : (
         <div className="legend-content">
+          <button
+            className="legend-collapse-toggle"
+            onClick={() => setIsExpanded(false)}
+            title="Click to collapse"
+          >
+            ▼
+          </button>
           {/* Marker property legends */}
           {hasMappings && (
             <div className="legend-section">

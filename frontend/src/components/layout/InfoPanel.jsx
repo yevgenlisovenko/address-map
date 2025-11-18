@@ -85,18 +85,25 @@ export default function InfoPanel({
   const hasFilters = filterDisplay && filterDisplay.length > 0;
 
   return (
-    <div className={`info-panel ${sidebarVisible ? 'sidebar-open' : ''}`}>
-      <div
-        className="info-panel-header"
-        onClick={() => setIsExpanded(!isExpanded)}
-        title={isExpanded ? 'Click to collapse' : 'Click to expand'}
-      >
-        <span className="info-panel-title">📊 Info Panel</span>
-        <span className="info-panel-toggle">{isExpanded ? '▼' : '▶'}</span>
-      </div>
-
-      {isExpanded && (
+    <div className={`info-panel ${sidebarVisible ? 'sidebar-open' : ''} ${isExpanded ? 'expanded' : 'collapsed'}`}>
+      {!isExpanded ? (
+        <div
+          className="info-collapsed-button"
+          onClick={() => setIsExpanded(true)}
+          title="Click to expand"
+        >
+          <span>Info</span>
+          <span className="info-panel-toggle">▶</span>
+        </div>
+      ) : (
         <div className="info-panel-content">
+          <button
+            className="info-collapse-toggle"
+            onClick={() => setIsExpanded(false)}
+            title="Click to collapse"
+          >
+            ▼
+          </button>
         {/* Time Window */}
         <div className="info-section">
           <div className="info-section-icon">⏱️</div>
