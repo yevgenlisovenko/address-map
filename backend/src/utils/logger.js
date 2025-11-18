@@ -32,6 +32,9 @@ const colors = {
 // Tell winston about the custom colors
 winston.addColors(colors);
 
+// Get service name from config
+const serviceName = config.service?.name || 'real-time-map';
+
 // Define log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
@@ -39,7 +42,7 @@ const logFormat = winston.format.combine(
   winston.format.splat(),
   winston.format.printf((info) => {
     const { timestamp, level, message, stack, ...meta } = info;
-    let log = `${timestamp} [${level.toUpperCase()}]: ${message}`;
+    let log = `[${serviceName}] ${timestamp} [${level.toUpperCase()}]: ${message}`;
 
     // Add stack trace for errors
     if (stack) {

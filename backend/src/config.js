@@ -4,6 +4,10 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const config = {
+  // Service identification
+  service: {
+    name: process.env.SERVICE_NAME || 'real-time-map'
+  },
   port: process.env.PORT || 3001,
   corsOrigin: process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
