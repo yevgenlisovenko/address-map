@@ -143,7 +143,7 @@ const logger = winston.createLogger({
 // Log the logger initialization (will only show if level allows info or higher)
 logger.info("Logger initialized", {
   level: logger.level,
-  environment: process.env.NODE_ENV || "development",
+  environment: process.env.NODE_ENV || "dev",
   configuredLevel: config.logging.level,
 });
 
