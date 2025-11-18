@@ -13,6 +13,10 @@ export const getConfig = (req, res) => {
   try {
     // Send pin-related config to frontend
     const clientConfig = {
+      service: {
+        name: config.service.name,
+        environment: config.service.environment
+      },
       pinStorage: {
         timeWindowOptions: config.pinStorage.timeWindowOptions,
         defaultTimeWindow: config.pinStorage.defaultTimeWindow,

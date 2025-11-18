@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAggregations } from '../../hooks/useAggregations';
 import { STATS_CONFIG } from '../../config/statsConfig';
+import { BACKEND_URL } from '../../utils/constants';
 import './InfoPanel.css';
 
 export default function InfoPanel({
@@ -16,6 +17,7 @@ export default function InfoPanel({
   visibleMarkers
 }) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [showConnectionTooltip, setShowConnectionTooltip] = useState(false);
 
   // Calculate aggregations for visible markers
   const aggregations = useAggregations(visibleMarkers || []);
@@ -172,12 +174,22 @@ export default function InfoPanel({
         {/* Connection Status - At the bottom */}
         <div className="info-section info-section-connection">
           <div className="info-section-icon">🔗</div>
-          <div className="info-section-content">
-            <div className="info-section-label">Connection Status</div>
+          <div
+            className="info-section-content info-connection-wrapper"
+            onMouseEnter={() => setShowConnectionTooltip(true)}
+            onMouseLeave={() => setShowConnectionTooltip(false)}
+          >
             <div className={`info-connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
               <span className="connection-indicator">●</span>
               {isConnected ? 'Connected' : 'Disconnected'}
             </div>
+            {showConnectionTooltip && (
+              <div className="connection-tooltip">
+                <div><strong>Server:</strong> {config?.service?.name || 'Unknown'}</div>
+                <div><strong>Environment:</strong> {config?.service?.environment || 'Unknown'}</div>
+                <div><strong>URL:</strong> {BACKEND_URL}</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
