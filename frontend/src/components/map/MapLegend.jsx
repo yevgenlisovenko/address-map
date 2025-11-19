@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { PROPERTY_MARKERS_MAP, defaultMarkerIcon, DEPLOYMENT_CONFIG } from '../../config/markerColorMapping';
 import './MapLegend.css';
 
-export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] } }) {
-  const [isExpanded, setIsExpanded] = useState(true);
+export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] }, onClose }) {
   const [expandedGroups, setExpandedGroups] = useState({});
 
   // Get legend configuration from deployment config (loaded at build time)
@@ -130,25 +129,15 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
   }
 
   return (
-    <div className={`map-legend ${isExpanded ? 'expanded' : 'collapsed'}`}>
-      {!isExpanded ? (
-        <div
-          className="legend-collapsed-button"
-          onClick={() => setIsExpanded(true)}
-          title="Click to expand"
+    <div className="map-legend">
+      <div className="legend-content">
+        <button
+          className="legend-close-button"
+          onClick={onClose}
+          title="Close legend"
         >
-          <span>Legend</span>
-          <span className="legend-toggle">▶</span>
-        </div>
-      ) : (
-        <div className="legend-content">
-          <button
-            className="legend-collapse-toggle"
-            onClick={() => setIsExpanded(false)}
-            title="Click to collapse"
-          >
-            ▼
-          </button>
+          ✕
+        </button>
           {/* Marker property legends */}
           {hasMappings && (
             <div className="legend-section">
@@ -226,7 +215,6 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
             </div>
           )}
         </div>
-      )}
     </div>
   );
 }
@@ -242,4 +230,5 @@ MapLegend.propTypes = {
       })
     ),
   }),
+  onClose: PropTypes.func,
 };

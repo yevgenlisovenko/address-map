@@ -11,6 +11,7 @@ import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 import MarkerPopup from "./MarkerPopup";
 import CustomZoomControl from "./CustomZoomControl";
+import PanelToggleControl from "./PanelToggleControl";
 import StateFocusHandler from "./StateFocusHandler";
 
 // Fix for default marker icons in React-Leaflet
@@ -97,7 +98,7 @@ MapMarker.propTypes = {
   }).isRequired,
 };
 
-function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig, mapConfig, isViewingPinDetail, setIsViewingPinDetail }) {
+function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig, mapConfig, isViewingPinDetail, setIsViewingPinDetail, showMapLegend, setShowMapLegend, showInfoPanel, setShowInfoPanel }) {
   // Get map settings from config (with fallbacks to constants for backward compatibility)
   const defaultCenter = mapConfig?.defaultView?.center || DEFAULT_MAP_VIEW.center;
   const defaultZoom = mapConfig?.defaultView?.zoom || DEFAULT_MAP_VIEW.zoom;
@@ -180,6 +181,14 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         {/* State highlighting layer - renders BEFORE markers so markers appear on top */}
         <StatesLayer stateColors={mergedStateHighlightData?.colors || {}} />
 
+        {/* Panel toggle controls - positioned above zoom controls */}
+        <PanelToggleControl
+          showMapLegend={showMapLegend}
+          setShowMapLegend={setShowMapLegend}
+          showInfoPanel={showInfoPanel}
+          setShowInfoPanel={setShowInfoPanel}
+        />
+
         {/* Custom zoom controls with Reset button and State selector */}
         <CustomZoomControl
           focusedState={focusedState}
@@ -207,7 +216,12 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
       </MapContainer>
 
       {/* Map Legend Overlay */}
-      <MapLegend stateHighlightData={mergedStateHighlightData} />
+      {showMapLegend && (
+        <MapLegend
+          stateHighlightData={mergedStateHighlightData}
+          onClose={() => setShowMapLegend(false)}
+        />
+      )}
     </div>
   );
 }
@@ -283,6 +297,10 @@ Map.propTypes = {
   }),
   isViewingPinDetail: PropTypes.bool,
   setIsViewingPinDetail: PropTypes.func,
+  showMapLegend: PropTypes.bool,
+  setShowMapLegend: PropTypes.func,
+  showInfoPanel: PropTypes.bool,
+  setShowInfoPanel: PropTypes.func,
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -296,6 +314,8 @@ export default memo(Map, (prevProps, nextProps) => {
     prevProps.focusedState === nextProps.focusedState &&
     prevProps.stateFocusConfig === nextProps.stateFocusConfig &&
     prevProps.mapConfig === nextProps.mapConfig &&
-    prevProps.isViewingPinDetail === nextProps.isViewingPinDetail
+    prevProps.isViewingPinDetail === nextProps.isViewingPinDetail &&
+    prevProps.showMapLegend === nextProps.showMapLegend &&
+    prevProps.showInfoPanel === nextProps.showInfoPanel
   );
 });

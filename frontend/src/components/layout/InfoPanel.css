@@ -20,35 +20,8 @@
   right: 303px;
 }
 
-.info-panel.collapsed {
-  min-width: auto;
-}
-
-/* Collapsed state - small "Info ▶" button */
-.info-collapsed-button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  cursor: pointer;
-  user-select: none;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.info-collapsed-button:hover {
-  background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
-}
-
-.info-panel-toggle {
-  font-size: 10px;
-  color: white;
-}
-
-/* Collapse toggle button in top-right corner when expanded */
-.info-collapse-toggle {
+/* Close button in top-right corner */
+.info-close-button {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -66,7 +39,7 @@
   transition: background-color 0.2s;
 }
 
-.info-collapse-toggle:hover {
+.info-close-button:hover {
   background: rgba(102, 126, 234, 0.25);
 }
 

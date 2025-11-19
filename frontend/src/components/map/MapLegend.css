@@ -14,35 +14,8 @@
   overflow: hidden;
 }
 
-.map-legend.collapsed {
-  min-width: auto;
-}
-
-/* Collapsed state - small "Legend ▶" button */
-.legend-collapsed-button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  cursor: pointer;
-  user-select: none;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.legend-collapsed-button:hover {
-  background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
-}
-
-.legend-toggle {
-  font-size: 10px;
-  color: white;
-}
-
-/* Collapse toggle button in top-right corner when expanded */
-.legend-collapse-toggle {
+/* Close button in top-right corner */
+.legend-close-button {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -60,7 +33,7 @@
   transition: background-color 0.2s;
 }
 
-.legend-collapse-toggle:hover {
+.legend-close-button:hover {
   background: rgba(102, 126, 234, 0.25);
 }
 

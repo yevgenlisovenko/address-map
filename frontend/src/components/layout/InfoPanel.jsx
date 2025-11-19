@@ -14,9 +14,16 @@ export default function InfoPanel({
   isConnected,
   sidebarVisible,
   config,
-  visibleMarkers
+  visibleMarkers,
+  onClose
 }) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  // Check if info panel should be shown based on environment variable
+  const showInfoPanelEnv = import.meta.env.VITE_SHOW_INFO_PANEL !== 'false';
+
+  if (!showInfoPanelEnv) {
+    return null;
+  }
+
   const [showConnectionTooltip, setShowConnectionTooltip] = useState(false);
 
   // Calculate aggregations for visible markers
@@ -87,25 +94,15 @@ export default function InfoPanel({
   const hasFilters = filterDisplay && filterDisplay.length > 0;
 
   return (
-    <div className={`info-panel ${sidebarVisible ? 'sidebar-open' : ''} ${isExpanded ? 'expanded' : 'collapsed'}`}>
-      {!isExpanded ? (
-        <div
-          className="info-collapsed-button"
-          onClick={() => setIsExpanded(true)}
-          title="Click to expand"
+    <div className={`info-panel ${sidebarVisible ? 'sidebar-open' : ''}`}>
+      <div className="info-panel-content">
+        <button
+          className="info-close-button"
+          onClick={onClose}
+          title="Close info panel"
         >
-          <span>Info</span>
-          <span className="info-panel-toggle">▶</span>
-        </div>
-      ) : (
-        <div className="info-panel-content">
-          <button
-            className="info-collapse-toggle"
-            onClick={() => setIsExpanded(false)}
-            title="Click to collapse"
-          >
-            ▼
-          </button>
+          ✕
+        </button>
         {/* Time Window */}
         <div className="info-section">
           <div className="info-section-icon">⏱️</div>
@@ -193,7 +190,6 @@ export default function InfoPanel({
           </div>
         </div>
       </div>
-      )}
     </div>
   );
 }
@@ -207,5 +203,6 @@ InfoPanel.propTypes = {
   isConnected: PropTypes.bool.isRequired,
   sidebarVisible: PropTypes.bool.isRequired,
   config: PropTypes.object,
-  visibleMarkers: PropTypes.array
+  visibleMarkers: PropTypes.array,
+  onClose: PropTypes.func
 };

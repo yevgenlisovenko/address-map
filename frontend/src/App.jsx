@@ -44,6 +44,8 @@ function AppContent() {
   const [propertyFilters, setPropertyFilters] = useState({});
   const [focusedState, setFocusedState] = useState(null);
   const [isViewingPinDetail, setIsViewingPinDetail] = useState(false);
+  const [showMapLegend, setShowMapLegend] = useState(true);
+  const [showInfoPanel, setShowInfoPanel] = useState(true);
 
   // Initialize selectedTimeWindow from backend config when loaded
   useEffect(() => {
@@ -230,17 +232,20 @@ function AppContent() {
       </button>
 
       {/* Info Panel */}
-      <InfoPanel
-        selectedTimeWindow={selectedTimeWindow}
-        timeSelectionMode={timeSelectionMode}
-        customStartTime={customStartTime}
-        propertyFilters={propertyFilters}
-        pinCount={visibleMarkers.length}
-        isConnected={isConnected}
-        sidebarVisible={isSidebarVisible}
-        config={config}
-        visibleMarkers={sortedVisibleMarkers}
-      />
+      {showInfoPanel && (
+        <InfoPanel
+          selectedTimeWindow={selectedTimeWindow}
+          timeSelectionMode={timeSelectionMode}
+          customStartTime={customStartTime}
+          propertyFilters={propertyFilters}
+          pinCount={visibleMarkers.length}
+          isConnected={isConnected}
+          sidebarVisible={isSidebarVisible}
+          config={config}
+          visibleMarkers={sortedVisibleMarkers}
+          onClose={() => setShowInfoPanel(false)}
+        />
+      )}
 
       {/* Sidebar - always rendered, controlled by CSS transform */}
       <Sidebar
@@ -272,6 +277,10 @@ function AppContent() {
           mapConfig={MAP_CONFIG}
           isViewingPinDetail={isViewingPinDetail}
           setIsViewingPinDetail={setIsViewingPinDetail}
+          showMapLegend={showMapLegend}
+          setShowMapLegend={setShowMapLegend}
+          showInfoPanel={showInfoPanel}
+          setShowInfoPanel={setShowInfoPanel}
         />
       </div>
     </div>
