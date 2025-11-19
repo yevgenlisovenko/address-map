@@ -21,8 +21,8 @@
 export default {
   // Marker icon mappings
   markerIconMapping: {
-    // Marker icon mappings by partnerNameShort
-    partnerNameShort: {
+    // Marker icon mappings by partnerName
+    partnerName: {
       'Homesite': {
         icon: 'blueH'
       },
@@ -94,7 +94,7 @@ export default {
       //   // ],
       // },
       {
-        propertyName: "partnerNameShort",
+        propertyName: "partnerName",
         displayName: "By Partner",
         enabled: true,
         aggregations: [
@@ -144,7 +144,7 @@ export default {
         ]
       },
       {
-        propertyName: "partnerNameShort",
+        propertyName: "partnerName",
         displayName: "Partner",
         enabled: true,
         // Dynamic values: auto-generate from marker data
@@ -174,7 +174,7 @@ export default {
     enabled: true,
     additionalFields: [
       {
-        propertyName: 'partnerNameShort',
+        propertyName: 'partnerName',
         displayName: 'Partner',
         order: 2
       },

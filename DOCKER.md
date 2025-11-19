@@ -132,13 +132,13 @@ VITE_DEPLOYMENT_CONFIG=default
 ### Deployment Configuration
 
 The frontend supports multiple deployment configurations via the `VITE_DEPLOYMENT_CONFIG` environment variable. This controls:
-- **Marker icon mappings** - Which property to use for marker colors (formCode, partnerNameShort, etc.)
+- **Marker icon mappings** - Which property to use for marker colors (formCode, partnerName, etc.)
 - **Statistics configuration** - Which properties to track, aggregations to calculate
 - **Filter configuration** - Which filters to display (static dropdowns, dynamic dropdowns, text inputs)
 
 **Available configurations:**
 - `default` - Uses formCode-based marker icons (HO3, HO4, HO6, HF9), tracks state and formCode
-- `client-a` - Uses partnerNameShort-based marker icons, tracks state and partnerNameShort
+- `client-a` - Uses partnerName-based marker icons, tracks state and partnerName
 
 **To build with a specific configuration:**
 
