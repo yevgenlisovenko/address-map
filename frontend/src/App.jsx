@@ -44,8 +44,13 @@ function AppContent() {
   const [propertyFilters, setPropertyFilters] = useState({});
   const [focusedState, setFocusedState] = useState(null);
   const [isViewingPinDetail, setIsViewingPinDetail] = useState(false);
-  const [showMapLegend, setShowMapLegend] = useState(true);
-  const [showInfoPanel, setShowInfoPanel] = useState(true);
+  // Initial visibility from env vars (default: true)
+  const [showMapLegend, setShowMapLegend] = useState(
+    import.meta.env.VITE_LEGEND_INITIAL_VISIBLE !== 'false'
+  );
+  const [showInfoPanel, setShowInfoPanel] = useState(
+    import.meta.env.VITE_INFO_PANEL_INITIAL_VISIBLE !== 'false'
+  );
 
   // Initialize selectedTimeWindow from backend config when loaded
   useEffect(() => {
