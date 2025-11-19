@@ -35,7 +35,9 @@ function AppContent() {
 
   // UI state
   const [showAllPins, setShowAllPins] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(
+    import.meta.env.VITE_SIDEBAR_INITIAL_VISIBLE === 'true'
+  );
   const [selectedTimeWindow, setSelectedTimeWindow] = useState('1hr');
   const [timeSelectionMode, setTimeSelectionMode] = useState('preset');
   const [customStartTime, setCustomStartTime] = useState(null);
