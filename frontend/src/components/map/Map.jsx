@@ -97,7 +97,7 @@ MapMarker.propTypes = {
   }).isRequired,
 };
 
-function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig, mapConfig }) {
+function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig, mapConfig, isViewingPinDetail, setIsViewingPinDetail }) {
   // Get map settings from config (with fallbacks to constants for backward compatibility)
   const defaultCenter = mapConfig?.defaultView?.center || DEFAULT_MAP_VIEW.center;
   const defaultZoom = mapConfig?.defaultView?.zoom || DEFAULT_MAP_VIEW.zoom;
@@ -185,6 +185,8 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
           focusedState={focusedState}
           setFocusedState={setFocusedState}
           stateFocusConfig={stateFocusConfig}
+          isViewingPinDetail={isViewingPinDetail}
+          setIsViewingPinDetail={setIsViewingPinDetail}
         />
 
         {/* State focus handler for auto-zoom */}
@@ -279,6 +281,8 @@ Map.propTypes = {
       duration: PropTypes.number,
     }),
   }),
+  isViewingPinDetail: PropTypes.bool,
+  setIsViewingPinDetail: PropTypes.func,
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -291,6 +295,7 @@ export default memo(Map, (prevProps, nextProps) => {
     prevProps.panTrigger === nextProps.panTrigger &&
     prevProps.focusedState === nextProps.focusedState &&
     prevProps.stateFocusConfig === nextProps.stateFocusConfig &&
-    prevProps.mapConfig === nextProps.mapConfig
+    prevProps.mapConfig === nextProps.mapConfig &&
+    prevProps.isViewingPinDetail === nextProps.isViewingPinDetail
   );
 });

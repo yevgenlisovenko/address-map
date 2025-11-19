@@ -43,6 +43,7 @@ function AppContent() {
   const [panTrigger, setPanTrigger] = useState(0);
   const [propertyFilters, setPropertyFilters] = useState({});
   const [focusedState, setFocusedState] = useState(null);
+  const [isViewingPinDetail, setIsViewingPinDetail] = useState(false);
 
   // Initialize selectedTimeWindow from backend config when loaded
   useEffect(() => {
@@ -184,10 +185,16 @@ function AppContent() {
   const handleMarkerClick = useCallback((marker) => {
     setMarkerToPan(marker);
     setPanTrigger(prev => prev + 1);
+    setIsViewingPinDetail(true);
   }, []);
 
   const handlePropertyFilterChange = useCallback((filters) => {
     setPropertyFilters(filters);
+  }, []);
+
+  const handleFocusedStateChange = useCallback((state) => {
+    setFocusedState(state);
+    setIsViewingPinDetail(false);
   }, []);
 
   // Auto-reset markerToPan and panTrigger after panning completes
@@ -260,9 +267,11 @@ function AppContent() {
           markerToPan={markerToPan}
           panTrigger={panTrigger}
           focusedState={focusedState}
-          setFocusedState={setFocusedState}
+          setFocusedState={handleFocusedStateChange}
           stateFocusConfig={STATE_FOCUS_CONFIG}
           mapConfig={MAP_CONFIG}
+          isViewingPinDetail={isViewingPinDetail}
+          setIsViewingPinDetail={setIsViewingPinDetail}
         />
       </div>
     </div>
