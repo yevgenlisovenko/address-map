@@ -32,6 +32,14 @@ services:
       args:
         - VITE_BACKEND_URL=${VITE_BACKEND_URL:-http://localhost:3001}
         - VITE_DEPLOYMENT_CONFIG=${VITE_DEPLOYMENT_CONFIG:-default}
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:3001}
+        - VITE_APP_TITLE=${VITE_APP_TITLE:-}
+        - VITE_APP_FAVICON=${VITE_APP_FAVICON:-}
+        - VITE_SHOW_LEGEND=${VITE_SHOW_LEGEND:-true}
+        - VITE_SHOW_INFO_PANEL=${VITE_SHOW_INFO_PANEL:-true}
+        - VITE_LEGEND_INITIAL_VISIBLE=${VITE_LEGEND_INITIAL_VISIBLE:-true}
+        - VITE_INFO_PANEL_INITIAL_VISIBLE=${VITE_INFO_PANEL_INITIAL_VISIBLE:-true}
+        - VITE_SIDEBAR_INITIAL_VISIBLE=${VITE_SIDEBAR_INITIAL_VISIBLE:-false}
     container_name: real-time-map-frontend
     ports:
       - "3000:80"
