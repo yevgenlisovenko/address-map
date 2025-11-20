@@ -1,15 +1,15 @@
 import { useEffect, memo, useMemo } from "react";
 import PropTypes from 'prop-types';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import { getMarkerIcon, createMarkerIcon } from "../../config/markerColorMapping";
 import { DEFAULT_MAP_VIEW } from "../../utils/constants";
 import { TOOLTIP_CONFIG } from "../../config/tooltipConfig";
 import { NEW_MARKER_HIGHLIGHT_CONFIG } from "../../config/newMarkerHighlightConfig";
-import { formatTooltipContent } from "../../utils/tooltipFormatter";
+import { formatTooltipHTML } from "../../utils/tooltipFormatter";
+import { formatPopupContent } from "../../utils/popupFormatter";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
-import MarkerPopup from "./MarkerPopup";
 import CustomZoomControl from "./CustomZoomControl";
 import PanelToggleControl from "./PanelToggleControl";
 import StateFocusHandler from "./StateFocusHandler";
@@ -52,27 +52,31 @@ const MapMarker = memo(({ marker }) => {
     );
   }, [marker.id, marker.properties, marker.__isNew]);
 
-  // Memoize tooltip content using deployment configuration
-  const tooltipContent = useMemo(() => {
-    return formatTooltipContent(marker, TOOLTIP_CONFIG);
-  }, [marker.type, marker.address, marker.displayName, marker.timestamp, marker.properties]);
-
   return (
     <Marker
       position={[marker.lat, marker.lon]}
       icon={icon}
       zIndexOffset={marker.__isNew ? 1000 : 0}
-    >
-      {/* Tooltip: Shows brief info on hover */}
-      <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
-        {tooltipContent}
-      </Tooltip>
-
-      {/* Popup: Shows full details on click */}
-      <Popup>
-        <MarkerPopup marker={marker} />
-      </Popup>
-    </Marker>
+      eventHandlers={{
+        click: (e) => {
+          const popupContent = formatPopupContent(marker);
+          e.target.bindPopup(popupContent).openPopup();
+        },
+        mouseover: (e) => {
+          const tooltipHTML = formatTooltipHTML(marker, TOOLTIP_CONFIG);
+          if (tooltipHTML) {
+            e.target.bindTooltip(tooltipHTML, {
+              direction: "top",
+              offset: [0, -20],
+              opacity: 0.9
+            }).openTooltip();
+          }
+        },
+        mouseout: (e) => {
+          e.target.closeTooltip();
+        }
+      }}
+    />
   );
 }, (prevProps, nextProps) => {
   // Custom comparison: only re-render if marker data actually changed

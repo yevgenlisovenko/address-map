@@ -91,3 +91,45 @@ export function formatTooltipContent(marker, config) {
     </>
   );
 }
+
+/**
+ * Convert tooltip JSX to HTML string for Leaflet
+ * formatTooltipContent returns JSX, but Leaflet needs plain HTML
+ * @param {Object} marker - Marker object with properties
+ * @param {Object} config - Tooltip configuration from deployment config
+ * @returns {string} HTML string for tooltip content
+ */
+export function formatTooltipHTML(marker, config) {
+  // Check if tooltips are enabled
+  if (!config.enabled) {
+    return '';
+  }
+
+  const lines = [];
+
+  // Line 1: Name
+  const name = marker.type === "address" ? marker.address : marker.displayName;
+  if (name) {
+    lines.push(name);
+  }
+
+  // Line 2: Time
+  if (marker.timestamp) {
+    const time = new Date(marker.timestamp).toLocaleTimeString();
+    lines.push(time);
+  }
+
+  // Additional properties from config
+  if (config.additionalFields && config.additionalFields.length > 0) {
+    const sortedFields = [...config.additionalFields].sort((a, b) => a.order - b.order);
+    sortedFields.forEach(field => {
+      const value = marker.properties?.[field.propertyName];
+      if (value !== null && value !== undefined) {
+        lines.push(`${field.displayName}: ${value}`);
+      }
+    });
+  }
+
+  // Convert to HTML string
+  return lines.map(line => `<div>${line}</div>`).join('');
+}
