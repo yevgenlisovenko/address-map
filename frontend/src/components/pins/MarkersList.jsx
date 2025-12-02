@@ -174,7 +174,7 @@ export default function MarkersList({
           handleToggleExpand,
           handleLocationClick
         }}
-        style={{ height: 600, width: "100%" }}
+        style={{ width: "100%" }}
         className="markers-virtual-list"
         overscanCount={5}
       />

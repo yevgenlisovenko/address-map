@@ -116,8 +116,10 @@
 .pins-tab-scrollable {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: 0 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Stats Tab Scrollable Content */
