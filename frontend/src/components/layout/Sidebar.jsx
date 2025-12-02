@@ -15,9 +15,6 @@ export default function Sidebar({
   onCustomTimeSubmit,
   markers,
   visibleMarkers,
-  showAllPins,
-  pinsToShow,
-  onToggleShowAll,
   onMarkerClick,
   propertyFilters,
   onPropertyFilterChange,
@@ -65,9 +62,6 @@ export default function Sidebar({
         <div className="pins-tab-scrollable">
           <MarkersList
             markers={visibleMarkers}
-            showAllPins={showAllPins}
-            pinsToShow={pinsToShow}
-            onToggleShowAll={onToggleShowAll}
             onMarkerClick={onMarkerClick}
           />
         </div>
@@ -122,9 +116,6 @@ Sidebar.propTypes = {
   onCustomTimeSubmit: PropTypes.func.isRequired,
   markers: PropTypes.array.isRequired,
   visibleMarkers: PropTypes.array.isRequired,
-  showAllPins: PropTypes.bool.isRequired,
-  pinsToShow: PropTypes.number.isRequired,
-  onToggleShowAll: PropTypes.func.isRequired,
   onMarkerClick: PropTypes.func,
   propertyFilters: PropTypes.object,
   onPropertyFilterChange: PropTypes.func.isRequired,

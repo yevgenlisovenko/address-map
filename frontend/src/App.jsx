@@ -7,7 +7,6 @@ import ErrorMessage from './components/common/ErrorMessage';
 import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } from './contexts';
 import { usePropertyFilter } from './hooks/usePropertyFilter';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
-import { DEFAULT_PINS_TO_SHOW } from './utils/constants';
 import { STATE_FOCUS_CONFIG } from './config/stateFocusConfig';
 import { MAP_CONFIG } from './config/mapConfig';
 import { NEW_MARKER_HIGHLIGHT_CONFIG } from './config/newMarkerHighlightConfig';
@@ -34,7 +33,6 @@ function AppContent() {
   const { socket, isConnected, markers, setMarkers, setStatus, stateHighlightData } = useSocketContext();
 
   // UI state
-  const [showAllPins, setShowAllPins] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(
     import.meta.env.VITE_SIDEBAR_INITIAL_VISIBLE === 'true'
   );
@@ -187,10 +185,6 @@ function AppContent() {
     setIsSidebarVisible(prev => !prev);
   }, []);
 
-  const handleToggleShowAll = useCallback(() => {
-    setShowAllPins(prev => !prev);
-  }, []);
-
   const handleMarkerClick = useCallback((marker) => {
     setMarkerToPan(marker);
     setPanTrigger(prev => prev + 1);
@@ -262,9 +256,6 @@ function AppContent() {
         onCustomTimeSubmit={handleCustomTimeSubmit}
         markers={markers}
         visibleMarkers={sortedVisibleMarkers}
-        showAllPins={showAllPins}
-        pinsToShow={DEFAULT_PINS_TO_SHOW}
-        onToggleShowAll={handleToggleShowAll}
         onMarkerClick={handleMarkerClick}
         propertyFilters={propertyFilters}
         onPropertyFilterChange={handlePropertyFilterChange}
