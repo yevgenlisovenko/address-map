@@ -154,6 +154,7 @@ export default {
         displayName: 'State',
         enabled: true,
         // Static values: predefined dropdown options
+        // Note: Hidden when State Focus is active (use State Focus for single state + zoom)
         values: [
           'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
           'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
@@ -210,5 +211,57 @@ export default {
         order: 2
       }
     ]
+  },
+
+  // State Focus configuration
+  stateFocus: {
+    // Enable/disable state focus feature
+    enabled: true,
+    // Default focused state (null = "All States", or 'CA', 'TX', etc.)
+    defaultState: null,
+    // Available states for dropdown ('all' or array of abbreviations)
+    availableStates: 'all',
+    // Auto-zoom map to state bounds when state is selected
+    autoZoom: true,
+    // Color for focused state boundary highlight (very light/almost transparent)
+    highlightColor: 'rgba(51, 136, 255, 0.1)',
+  },
+
+  // Map configuration
+  map: {
+    // Initial view settings
+    defaultView: {
+      center: [38.5283, -90.7795], // USA center
+      zoom: 5.25
+    },
+
+    // Zoom control settings
+    zoom: {
+      snap: 0.25,      // Snap increment for zoom levels
+      delta: 0.25,     // Zoom change per button click
+      min: 4,          // Minimum zoom level
+      max: 18          // Maximum zoom level
+    },
+
+    // Map bounds settings
+    bounds: {
+      enabled: false,  // Enable to restrict map panning to USA
+      coordinates: [[24.396308, -125.0], [49.384358, -66.93457]], // USA bounds
+      viscosity: 1.0   // Boundary strictness (1.0 = hard boundary)
+    },
+
+    // Marker pan settings (when clicking marker in sidebar)
+    markerPan: {
+      enabled: true,
+      zoomLevel: 12,   // Zoom level when panning to marker
+      duration: 1.5    // Animation duration in seconds
+    },
+
+    // New marker highlight settings (visual distinction for newly added markers)
+    newMarkerHighlight: {
+      enabled: true,
+      duration: 5000,  // How long (ms) the highlight remains
+      style: 'blink-bright'    // Visual style: 'glow', 'bright', 'shadow', 'blink', 'blink-bright', 'glow-pulse', or 'fade-pulse'
+    }
   },
 };

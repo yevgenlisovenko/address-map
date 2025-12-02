@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { STATS_CONFIG } from '../config/statsConfig';
 import { formatValue } from '../utils/formatters';
+import { logger } from '../utils/logger';
 
 /**
  * Hook to calculate aggregations for visible markers
@@ -93,7 +94,7 @@ export function useAggregations(visibleMarkers) {
             break;
 
           default:
-            console.warn(`Unknown aggregation operation: ${operation}`);
+            logger.warn(`Unknown aggregation operation: ${operation}`);
             value = 0;
         }
 

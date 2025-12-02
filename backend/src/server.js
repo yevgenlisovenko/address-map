@@ -136,9 +136,10 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 // Start server
 httpServer.listen(config.port, async () => {
+  logger.info(`Service "${config.service.name}" started`);
   logger.info(`Server running on http://localhost:${config.port}`);
   logger.info('WebSocket server ready for connections');
-  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`Environment: ${config.service.environment}`);
 
   // Initialize database and polling after server starts
   await initializeServices();

@@ -20,7 +20,8 @@ export default function Sidebar({
   onToggleShowAll,
   onMarkerClick,
   propertyFilters,
-  onPropertyFilterChange
+  onPropertyFilterChange,
+  focusedState
 }) {
   // Get config and connection status from contexts
   const { config } = useAppConfig();
@@ -95,6 +96,7 @@ export default function Sidebar({
             markers={markers}
             propertyFilters={propertyFilters}
             onFilterChange={onPropertyFilterChange}
+            focusedState={focusedState}
           />
         </div>
         <div className="sidebar-scrollable-middle"></div>
@@ -126,4 +128,5 @@ Sidebar.propTypes = {
   onMarkerClick: PropTypes.func,
   propertyFilters: PropTypes.object,
   onPropertyFilterChange: PropTypes.func.isRequired,
+  focusedState: PropTypes.string,
 };

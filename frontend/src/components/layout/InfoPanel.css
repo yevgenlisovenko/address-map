@@ -16,42 +16,41 @@
 }
 
 .info-panel.sidebar-open {
+  bottom: 5px;
   right: 303px;
 }
 
-/* Header */
-.info-panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 18px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+/* Close button in top-right corner */
+.info-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(102, 126, 234, 0.15);
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  user-select: none;
-}
-
-.info-panel-title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 10px;
+  color: #667eea;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  transition: background-color 0.2s;
 }
 
-.info-panel-toggle {
-  font-size: 14px;
-  color: white;
-  transition: transform 0.2s;
+.info-close-button:hover {
+  background: rgba(102, 126, 234, 0.25);
 }
 
 /* Content */
 .info-panel-content {
-  padding: 16px 18px;
+  position: relative;
+  padding: 12px 14px;
+  padding-right: 38px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 }
 
 /* Info Section */
@@ -105,7 +104,7 @@
 .info-filter-item {
   font-size: 13px;
   line-height: 1.5;
-  padding: 6px 10px;
+  padding: 4px 8px;
   background: #f8f9fa;
   border-radius: 6px;
   border-left: 3px solid #667eea;
@@ -126,7 +125,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .info-stat-item {
@@ -147,9 +146,9 @@
 
 /* Connection Status Section */
 .info-section-connection {
-  padding-top: 12px;
+  padding-top: 8px;
   border-top: 1px solid #e0e0e0;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .info-connection-status {
@@ -180,6 +179,32 @@
 
 .info-connection-status.disconnected .connection-indicator {
   color: #dc3545;
+}
+
+/* Connection tooltip */
+.info-connection-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.connection-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.connection-tooltip div {
+  margin: 2px 0;
+  color: #333;
 }
 
 /* Pulse animation for connected status */

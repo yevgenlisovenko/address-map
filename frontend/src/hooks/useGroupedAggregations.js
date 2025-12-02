@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { formatValue } from '../utils/formatters';
+import { logger } from '../utils/logger';
 
 /**
  * Hook to calculate aggregations grouped by property values
@@ -120,7 +121,7 @@ export function useGroupedAggregations(visibleMarkers, trackedProperties) {
                 break;
 
               default:
-                console.warn(`Unknown aggregation operation: ${operation}`);
+                logger.warn(`Unknown aggregation operation: ${operation}`);
                 value = 0;
             }
 

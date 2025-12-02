@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import Map from './components/map/Map';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import MapComponent from './components/map/Map';
 import Sidebar from './components/layout/Sidebar';
 import InfoPanel from './components/layout/InfoPanel';
 import LoadingSpinner from './components/common/LoadingSpinner';
@@ -8,7 +8,12 @@ import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } fro
 import { usePropertyFilter } from './hooks/usePropertyFilter';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
 import { DEFAULT_PINS_TO_SHOW } from './utils/constants';
+import { STATE_FOCUS_CONFIG } from './config/stateFocusConfig';
+import { MAP_CONFIG } from './config/mapConfig';
+import { NEW_MARKER_HIGHLIGHT_CONFIG } from './config/newMarkerHighlightConfig';
+import 'leaflet/dist/leaflet.css';
 import './App.css';
+import './styles/newMarkerHighlight.css';
 
 function App() {
   return (
@@ -26,28 +31,105 @@ function AppContent() {
 
   // Access shared state via contexts
   const { config, loading, error } = useAppConfig();
-  const { socket, isConnected, markers, setStatus, stateHighlightData } = useSocketContext();
+  const { socket, isConnected, markers, setMarkers, setStatus, stateHighlightData } = useSocketContext();
 
   // UI state
   const [showAllPins, setShowAllPins] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(
+    import.meta.env.VITE_SIDEBAR_INITIAL_VISIBLE === 'true'
+  );
   const [selectedTimeWindow, setSelectedTimeWindow] = useState('1hr');
   const [timeSelectionMode, setTimeSelectionMode] = useState('preset');
   const [customStartTime, setCustomStartTime] = useState(null);
   const [markerToPan, setMarkerToPan] = useState(null);
   const [panTrigger, setPanTrigger] = useState(0);
   const [propertyFilters, setPropertyFilters] = useState({});
+  const [focusedState, setFocusedState] = useState(null);
+  const [isViewingPinDetail, setIsViewingPinDetail] = useState(false);
+  // Initial visibility from env vars (default: true)
+  const [showMapLegend, setShowMapLegend] = useState(
+    import.meta.env.VITE_LEGEND_INITIAL_VISIBLE !== 'false'
+  );
+  const [showInfoPanel, setShowInfoPanel] = useState(
+    import.meta.env.VITE_INFO_PANEL_INITIAL_VISIBLE !== 'false'
+  );
 
-  // Initialize selectedTimeWindow from config when loaded
+  // Initialize selectedTimeWindow from backend config when loaded
   useEffect(() => {
     if (config && config.pinStorage.defaultTimeWindow) {
       setSelectedTimeWindow(config.pinStorage.defaultTimeWindow);
     }
   }, [config]);
 
+  // Initialize focusedState from frontend deployment config (one-time on mount)
+  useEffect(() => {
+    if (STATE_FOCUS_CONFIG?.defaultState) {
+      setFocusedState(STATE_FOCUS_CONFIG.defaultState);
+    }
+  }, []); // Empty deps = run once on mount
+
+  // Auto-clear __isNew flag after configured duration (individual timeouts per marker)
+  const timeoutMapRef = useRef(new Map()); // Stores marker.id -> timeoutId
+
+  useEffect(() => {
+    // Skip if feature is disabled - clear any existing timeouts
+    if (!NEW_MARKER_HIGHLIGHT_CONFIG?.enabled) {
+      timeoutMapRef.current.forEach(timerId => clearTimeout(timerId));
+      timeoutMapRef.current.clear();
+      return;
+    }
+
+    // Find NEW markers that don't already have timeouts scheduled
+    const newMarkers = markers.filter(
+      marker => marker.__isNew && !timeoutMapRef.current.has(marker.id)
+    );
+
+    const duration = NEW_MARKER_HIGHLIGHT_CONFIG.duration || 4000;
+
+    // Create individual timeout for each new marker
+    newMarkers.forEach(marker => {
+      const timerId = setTimeout(() => {
+        // Clear __isNew flag for THIS specific marker only
+        setMarkers(prevMarkers =>
+          prevMarkers.map(m =>
+            m.id === marker.id ? { ...m, __isNew: false } : m
+          )
+        );
+        // Remove from timeout map after clearing
+        timeoutMapRef.current.delete(marker.id);
+      }, duration);
+
+      // Store timeout ID for this marker
+      timeoutMapRef.current.set(marker.id, timerId);
+    });
+
+    // Cleanup timeouts for markers that were removed from array (filtered out, etc.)
+    const currentMarkerIds = new Set(markers.map(m => m.id));
+    timeoutMapRef.current.forEach((timerId, markerId) => {
+      if (!currentMarkerIds.has(markerId)) {
+        clearTimeout(timerId);
+        timeoutMapRef.current.delete(markerId);
+      }
+    });
+
+    // Cleanup: clear all pending timeouts on unmount
+    return () => {
+      timeoutMapRef.current.forEach(timerId => clearTimeout(timerId));
+      timeoutMapRef.current.clear();
+    };
+  }, [markers, setMarkers]);
+
+  // Filter markers by focused state (if any)
+  const stateFocusedMarkers = useMemo(() => {
+    if (focusedState) {
+      return markers.filter(marker => marker.properties?.state === focusedState);
+    }
+    return markers;
+  }, [markers, focusedState]);
+
   // Filter markers based on time window AND properties
   const visibleMarkers = usePropertyFilter(
-    markers,
+    stateFocusedMarkers,
     config,
     selectedTimeWindow,
     timeSelectionMode,
@@ -112,10 +194,16 @@ function AppContent() {
   const handleMarkerClick = useCallback((marker) => {
     setMarkerToPan(marker);
     setPanTrigger(prev => prev + 1);
+    setIsViewingPinDetail(true);
   }, []);
 
   const handlePropertyFilterChange = useCallback((filters) => {
     setPropertyFilters(filters);
+  }, []);
+
+  const handleFocusedStateChange = useCallback((state) => {
+    setFocusedState(state);
+    setIsViewingPinDetail(false);
   }, []);
 
   // Auto-reset markerToPan and panTrigger after panning completes
@@ -151,17 +239,20 @@ function AppContent() {
       </button>
 
       {/* Info Panel */}
-      <InfoPanel
-        selectedTimeWindow={selectedTimeWindow}
-        timeSelectionMode={timeSelectionMode}
-        customStartTime={customStartTime}
-        propertyFilters={propertyFilters}
-        pinCount={visibleMarkers.length}
-        isConnected={isConnected}
-        sidebarVisible={isSidebarVisible}
-        config={config}
-        visibleMarkers={sortedVisibleMarkers}
-      />
+      {showInfoPanel && (
+        <InfoPanel
+          selectedTimeWindow={selectedTimeWindow}
+          timeSelectionMode={timeSelectionMode}
+          customStartTime={customStartTime}
+          propertyFilters={propertyFilters}
+          pinCount={visibleMarkers.length}
+          isConnected={isConnected}
+          sidebarVisible={isSidebarVisible}
+          config={config}
+          visibleMarkers={sortedVisibleMarkers}
+          onClose={() => setShowInfoPanel(false)}
+        />
+      )}
 
       {/* Sidebar - always rendered, controlled by CSS transform */}
       <Sidebar
@@ -177,15 +268,26 @@ function AppContent() {
         onMarkerClick={handleMarkerClick}
         propertyFilters={propertyFilters}
         onPropertyFilterChange={handlePropertyFilterChange}
+        focusedState={focusedState}
       />
 
       <div className="map-container">
-        <Map
+        <MapComponent
           markers={sortedVisibleMarkers}
           sidebarVisible={isSidebarVisible}
           stateHighlightData={stateHighlightData}
           markerToPan={markerToPan}
           panTrigger={panTrigger}
+          focusedState={focusedState}
+          setFocusedState={handleFocusedStateChange}
+          stateFocusConfig={STATE_FOCUS_CONFIG}
+          mapConfig={MAP_CONFIG}
+          isViewingPinDetail={isViewingPinDetail}
+          setIsViewingPinDetail={setIsViewingPinDetail}
+          showMapLegend={showMapLegend}
+          setShowMapLegend={setShowMapLegend}
+          showInfoPanel={showInfoPanel}
+          setShowInfoPanel={setShowInfoPanel}
         />
       </div>
     </div>

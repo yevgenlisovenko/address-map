@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAggregations } from '../../hooks/useAggregations';
 import { STATS_CONFIG } from '../../config/statsConfig';
+import { BACKEND_URL } from '../../utils/constants';
 import './InfoPanel.css';
 
 export default function InfoPanel({
@@ -13,9 +14,17 @@ export default function InfoPanel({
   isConnected,
   sidebarVisible,
   config,
-  visibleMarkers
+  visibleMarkers,
+  onClose
 }) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  // Check if info panel should be shown based on environment variable
+  const showInfoPanelEnv = import.meta.env.VITE_SHOW_INFO_PANEL !== 'false';
+
+  if (!showInfoPanelEnv) {
+    return null;
+  }
+
+  const [showConnectionTooltip, setShowConnectionTooltip] = useState(false);
 
   // Calculate aggregations for visible markers
   const aggregations = useAggregations(visibleMarkers || []);
@@ -86,17 +95,14 @@ export default function InfoPanel({
 
   return (
     <div className={`info-panel ${sidebarVisible ? 'sidebar-open' : ''}`}>
-      <div
-        className="info-panel-header"
-        onClick={() => setIsExpanded(!isExpanded)}
-        title={isExpanded ? 'Click to collapse' : 'Click to expand'}
-      >
-        <span className="info-panel-title">📊 Info Panel</span>
-        <span className="info-panel-toggle">{isExpanded ? '▼' : '▶'}</span>
-      </div>
-
-      {isExpanded && (
-        <div className="info-panel-content">
+      <div className="info-panel-content">
+        <button
+          className="info-close-button"
+          onClick={onClose}
+          title="Close info panel"
+        >
+          ✕
+        </button>
         {/* Time Window */}
         <div className="info-section">
           <div className="info-section-icon">⏱️</div>
@@ -165,16 +171,25 @@ export default function InfoPanel({
         {/* Connection Status - At the bottom */}
         <div className="info-section info-section-connection">
           <div className="info-section-icon">🔗</div>
-          <div className="info-section-content">
-            <div className="info-section-label">Connection Status</div>
+          <div
+            className="info-section-content info-connection-wrapper"
+            onMouseEnter={() => setShowConnectionTooltip(true)}
+            onMouseLeave={() => setShowConnectionTooltip(false)}
+          >
             <div className={`info-connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
               <span className="connection-indicator">●</span>
               {isConnected ? 'Connected' : 'Disconnected'}
             </div>
+            {showConnectionTooltip && (
+              <div className="connection-tooltip">
+                <div><strong>Server:</strong> {config?.service?.name || 'Unknown'}</div>
+                <div><strong>Environment:</strong> {config?.service?.environment || 'Unknown'}</div>
+                <div><strong>URL:</strong> {BACKEND_URL}</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-      )}
     </div>
   );
 }
@@ -188,5 +203,6 @@ InfoPanel.propTypes = {
   isConnected: PropTypes.bool.isRequired,
   sidebarVisible: PropTypes.bool.isRequired,
   config: PropTypes.object,
-  visibleMarkers: PropTypes.array
+  visibleMarkers: PropTypes.array,
+  onClose: PropTypes.func
 };

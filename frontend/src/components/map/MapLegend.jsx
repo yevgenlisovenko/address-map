@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { PROPERTY_MARKERS_MAP, defaultMarkerIcon, DEPLOYMENT_CONFIG } from '../../config/markerColorMapping';
 import './MapLegend.css';
 
-export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] } }) {
-  const [isExpanded, setIsExpanded] = useState(true);
+export default function MapLegend({ stateHighlightData = { colors: {}, groups: [] }, onClose }) {
   const [expandedGroups, setExpandedGroups] = useState({});
 
   // Get legend configuration from deployment config (loaded at build time)
@@ -130,18 +129,15 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
   }
 
   return (
-    <div className={`map-legend ${isExpanded ? 'expanded' : 'collapsed'}`}>
-      <div
-        className="legend-header"
-        onClick={() => setIsExpanded(!isExpanded)}
-        title={isExpanded ? 'Click to collapse' : 'Click to expand'}
-      >
-        <span className="legend-title">🗺️ Legend</span>
-        <span className="legend-toggle">{isExpanded ? '▼' : '▶'}</span>
-      </div>
-
-      {isExpanded && (
-        <div className="legend-content">
+    <div className="map-legend">
+      <div className="legend-content">
+        <button
+          className="legend-close-button"
+          onClick={onClose}
+          title="Close legend"
+        >
+          ✕
+        </button>
           {/* Marker property legends */}
           {hasMappings && (
             <div className="legend-section">
@@ -168,7 +164,7 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
                           {isGroupExpanded ? '▼' : '▶'}
                         </span>
                         <span className="legend-marker-label">{group.groupLabel}</span>
-                        <span className="legend-group-count">({group.count})</span>
+                        {/* <span className="legend-group-count">({group.count})</span> */}
                       </div>
                       {isGroupExpanded && (
                         <div className="legend-group-items">
@@ -219,7 +215,6 @@ export default function MapLegend({ stateHighlightData = { colors: {}, groups: [
             </div>
           )}
         </div>
-      )}
     </div>
   );
 }
@@ -235,4 +230,5 @@ MapLegend.propTypes = {
       })
     ),
   }),
+  onClose: PropTypes.func,
 };

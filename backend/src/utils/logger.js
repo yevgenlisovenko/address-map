@@ -32,6 +32,10 @@ const colors = {
 // Tell winston about the custom colors
 winston.addColors(colors);
 
+// Get service name and environment from config
+const serviceName = config.service?.name || 'real-time-map';
+const environment = config.service?.environment || 'dev';
+
 // Define log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
@@ -39,7 +43,7 @@ const logFormat = winston.format.combine(
   winston.format.splat(),
   winston.format.printf((info) => {
     const { timestamp, level, message, stack, ...meta } = info;
-    let log = `${timestamp} [${level.toUpperCase()}]: ${message}`;
+    let log = `[${serviceName}] [${environment}] ${timestamp} [${level.toUpperCase()}]: ${message}`;
 
     // Add stack trace for errors
     if (stack) {
@@ -139,7 +143,7 @@ const logger = winston.createLogger({
 // Log the logger initialization (will only show if level allows info or higher)
 logger.info("Logger initialized", {
   level: logger.level,
-  environment: process.env.NODE_ENV || "development",
+  environment: process.env.NODE_ENV || "dev",
   configuredLevel: config.logging.level,
 });
 

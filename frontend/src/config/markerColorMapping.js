@@ -4,6 +4,7 @@
  */
 
 import L from 'leaflet';
+import { logger } from '../utils/logger';
 import blueMarkerIconImage from "../assets/markerIcons/marker-icon-2x-blue.png";
 import goldMarkerIconImage from "../assets/markerIcons/marker-icon-2x-gold.png";
 import redMarkerIconImage from "../assets/markerIcons/marker-icon-2x-red.png";
@@ -31,9 +32,10 @@ import clientAConfig from './deployments/client-a.config.js';
 /**
  * Factory function to create a Leaflet marker icon
  * @param {string} iconUrl - URL to the marker icon image
+ * @param {string} className - Optional CSS class name(s) for animation support
  * @returns {L.Icon} Configured Leaflet icon
  */
-const createMarkerIcon = (iconUrl) => {
+const createMarkerIcon = (iconUrl, className = 'marker-default') => {
   return new L.Icon({
     iconUrl,
     shadowUrl: markerShadowImage,
@@ -41,6 +43,7 @@ const createMarkerIcon = (iconUrl) => {
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
     shadowSize: [41, 41],
+    className: className,
   });
 };
 
@@ -117,7 +120,7 @@ const deploymentName = import.meta.env.VITE_DEPLOYMENT_CONFIG || 'default';
 const deploymentConfig = DEPLOYMENT_CONFIGS[deploymentName] || DEPLOYMENT_CONFIGS.default;
 
 if (!DEPLOYMENT_CONFIGS[deploymentName] && deploymentName !== 'default') {
-  console.warn(`Deployment config "${deploymentName}" not found, using default`);
+  logger.warn(`Deployment config "${deploymentName}" not found, using default`);
 }
 
 // Export full deployment config for use by other components (e.g., MapLegend)
@@ -140,7 +143,7 @@ function transformConfig(rawConfig) {
       const iconData = ICON_REGISTRY[config.icon];
 
       if (!iconData) {
-        console.error(`Unknown icon ID: "${config.icon}" in deployment config for ${propertyName}.${propertyValue}`);
+        logger.error(`Unknown icon ID: "${config.icon}" in deployment config for ${propertyName}.${propertyValue}`);
         continue;
       }
 
@@ -293,3 +296,8 @@ export function getMarkerIconUrl(marker) {
   // No mapping found, return default
   return defaultMarkerIconUrl;
 }
+
+/**
+ * Export createMarkerIcon for creating icons with custom className (e.g., for animations)
+ */
+export { createMarkerIcon };

@@ -1,16 +1,18 @@
 import { useEffect, memo, useMemo } from "react";
 import PropTypes from 'prop-types';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { getMarkerIcon } from "../../config/markerColorMapping";
+import { getMarkerIcon, createMarkerIcon } from "../../config/markerColorMapping";
 import { DEFAULT_MAP_VIEW } from "../../utils/constants";
 import { TOOLTIP_CONFIG } from "../../config/tooltipConfig";
-import { formatTooltipContent } from "../../utils/tooltipFormatter";
+import { NEW_MARKER_HIGHLIGHT_CONFIG } from "../../config/newMarkerHighlightConfig";
+import { formatTooltipHTML } from "../../utils/tooltipFormatter";
+import { formatPopupContent } from "../../utils/popupFormatter";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
-import MarkerPopup from "./MarkerPopup";
 import CustomZoomControl from "./CustomZoomControl";
+import PanelToggleControl from "./PanelToggleControl";
+import StateFocusHandler from "./StateFocusHandler";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -32,30 +34,49 @@ function MapBoundsUpdater({ markers }) {
 // Memoized individual marker component to prevent unnecessary re-renders
 // Only re-renders when marker position/properties actually change
 const MapMarker = memo(({ marker }) => {
-  // getMarkerIcon now uses cache, but we also memoize to prevent recalculation
-  // unless marker properties change (marker.id is stable, properties may vary)
-  const icon = useMemo(() => getMarkerIcon(marker), [marker.id, marker.properties]);
+  // Create marker icon with optional highlight for new markers
+  const icon = useMemo(() => {
+    // Early return if feature disabled OR marker is not new - ZERO overhead
+    if (!NEW_MARKER_HIGHLIGHT_CONFIG?.enabled || !marker.__isNew) {
+      return getMarkerIcon(marker);
+    }
 
-  // Memoize tooltip content using deployment configuration
-  const tooltipContent = useMemo(() => {
-    return formatTooltipContent(marker, TOOLTIP_CONFIG);
-  }, [marker.type, marker.address, marker.displayName, marker.timestamp, marker.properties]);
+    // Feature enabled and marker is new - apply highlight style
+    const baseIcon = getMarkerIcon(marker);
+    const style = NEW_MARKER_HIGHLIGHT_CONFIG.style || 'glow';
+    const className = `marker-new-${style}`;
+
+    return createMarkerIcon(
+      baseIcon.options.iconUrl,
+      className
+    );
+  }, [marker.id, marker.properties, marker.__isNew]);
 
   return (
     <Marker
       position={[marker.lat, marker.lon]}
       icon={icon}
-    >
-      {/* Tooltip: Shows brief info on hover */}
-      <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
-        {tooltipContent}
-      </Tooltip>
-
-      {/* Popup: Shows full details on click */}
-      <Popup>
-        <MarkerPopup marker={marker} />
-      </Popup>
-    </Marker>
+      zIndexOffset={marker.__isNew ? 1000 : 0}
+      eventHandlers={{
+        click: (e) => {
+          const popupContent = formatPopupContent(marker);
+          e.target.bindPopup(popupContent).openPopup();
+        },
+        mouseover: (e) => {
+          const tooltipHTML = formatTooltipHTML(marker, TOOLTIP_CONFIG);
+          if (tooltipHTML) {
+            e.target.bindTooltip(tooltipHTML, {
+              direction: "top",
+              offset: [0, -20],
+              opacity: 0.9
+            }).openTooltip();
+          }
+        },
+        mouseout: (e) => {
+          e.target.closeTooltip();
+        }
+      }}
+    />
   );
 }, (prevProps, nextProps) => {
   // Custom comparison: only re-render if marker data actually changed
@@ -65,7 +86,8 @@ const MapMarker = memo(({ marker }) => {
     prevProps.marker.lat === nextProps.marker.lat &&
     prevProps.marker.lon === nextProps.marker.lon &&
     prevProps.marker.timestamp === nextProps.marker.timestamp &&
-    prevProps.marker.properties === nextProps.marker.properties
+    prevProps.marker.properties === nextProps.marker.properties &&
+    prevProps.marker.__isNew === nextProps.marker.__isNew
   );
 });
 
@@ -80,15 +102,30 @@ MapMarker.propTypes = {
   }).isRequired,
 };
 
-function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger }) {
-  // Default center and zoom from constants
-  const { center: defaultCenter, zoom: defaultZoom } = DEFAULT_MAP_VIEW;
+function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig, mapConfig, isViewingPinDetail, setIsViewingPinDetail, showMapLegend, setShowMapLegend, showInfoPanel, setShowInfoPanel }) {
+  // Get map settings from config (with fallbacks to constants for backward compatibility)
+  const defaultCenter = mapConfig?.defaultView?.center || DEFAULT_MAP_VIEW.center;
+  const defaultZoom = mapConfig?.defaultView?.zoom || DEFAULT_MAP_VIEW.zoom;
 
-  // USA boundary coordinates (includes Alaska & Hawaii region)
-  const usaBounds = [
-    [24.396308, -125.0], // Southwest corner
-    [49.384358, -66.93457], // Northeast corner
-  ];
+  // Merge focused state highlight with regular state highlights
+  const mergedStateHighlightData = useMemo(() => {
+    if (!focusedState || !stateFocusConfig?.enabled) {
+      return stateHighlightData;
+    }
+
+    const apiColors = stateHighlightData?.colors || {};
+    const mergedColors = { ...apiColors };
+
+    // Only add focus color if the state is NOT already highlighted by API
+    if (!apiColors[focusedState]) {
+      mergedColors[focusedState] = stateFocusConfig.highlightColor || '#3388ff';
+    }
+
+    return {
+      colors: mergedColors,
+      groups: stateHighlightData?.groups || [],
+    };
+  }, [focusedState, stateHighlightData, stateFocusConfig]);
 
   // Component to handle map resize when sidebar visibility changes
   function MapResizeHandler() {
@@ -111,11 +148,15 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
     const map = useMap();
 
     useEffect(() => {
-      if (markerToPan && panTrigger > 0) {
-        // Pan to the selected marker
-        map.flyTo([markerToPan.lat, markerToPan.lon], 12, {
-          duration: 1.5 // smooth animation duration in seconds
-        });
+      if (markerToPan && panTrigger > 0 && mapConfig?.markerPan?.enabled !== false) {
+        // Pan to the selected marker with configurable zoom and duration
+        map.flyTo(
+          [markerToPan.lat, markerToPan.lon],
+          mapConfig?.markerPan?.zoomLevel || 12,
+          {
+            duration: mapConfig?.markerPan?.duration || 1.5
+          }
+        );
       }
     }, [panTrigger, map, markerToPan]);
 
@@ -128,13 +169,13 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         center={defaultCenter}
         zoom={defaultZoom}
         zoomControl={false}
-        zoomSnap={0.25}
-        zoomDelta={0.25}
+        zoomSnap={mapConfig?.zoom?.snap ?? 0.25}
+        zoomDelta={mapConfig?.zoom?.delta ?? 0.25}
         style={{ height: "100%", width: "100%" }}
-        // maxBounds={usaBounds}
-        // maxBoundsViscosity={1.0}
-        minZoom={4}
-        maxZoom={18}
+        maxBounds={mapConfig?.bounds?.enabled ? mapConfig.bounds.coordinates : undefined}
+        maxBoundsViscosity={mapConfig?.bounds?.enabled ? (mapConfig.bounds.viscosity ?? 1.0) : undefined}
+        minZoom={mapConfig?.zoom?.min ?? 4}
+        maxZoom={mapConfig?.zoom?.max ?? 18}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -142,10 +183,32 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         />
 
         {/* State highlighting layer - renders BEFORE markers so markers appear on top */}
-        <StatesLayer stateColors={stateHighlightData?.colors || {}} />
+        <StatesLayer stateColors={mergedStateHighlightData?.colors || {}} />
 
-        {/* Custom zoom controls with Reset button */}
-        <CustomZoomControl />
+        {/* Panel toggle controls - positioned above zoom controls */}
+        <PanelToggleControl
+          showMapLegend={showMapLegend}
+          setShowMapLegend={setShowMapLegend}
+          showInfoPanel={showInfoPanel}
+          setShowInfoPanel={setShowInfoPanel}
+        />
+
+        {/* Custom zoom controls with Reset button and State selector */}
+        <CustomZoomControl
+          focusedState={focusedState}
+          setFocusedState={setFocusedState}
+          stateFocusConfig={stateFocusConfig}
+          isViewingPinDetail={isViewingPinDetail}
+          setIsViewingPinDetail={setIsViewingPinDetail}
+        />
+
+        {/* State focus handler for auto-zoom */}
+        {stateFocusConfig?.enabled && (
+          <StateFocusHandler
+            focusedState={focusedState}
+            autoZoom={stateFocusConfig.autoZoom}
+          />
+        )}
 
         {markers.map((marker) => (
           <MapMarker key={marker.id} marker={marker} />
@@ -157,7 +220,12 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
       </MapContainer>
 
       {/* Map Legend Overlay */}
-      <MapLegend stateHighlightData={stateHighlightData} />
+      {showMapLegend && (
+        <MapLegend
+          stateHighlightData={mergedStateHighlightData}
+          onClose={() => setShowMapLegend(false)}
+        />
+      )}
     </div>
   );
 }
@@ -197,6 +265,46 @@ Map.propTypes = {
     properties: PropTypes.object,
   }),
   panTrigger: PropTypes.number,
+  focusedState: PropTypes.string,
+  setFocusedState: PropTypes.func,
+  stateFocusConfig: PropTypes.shape({
+    enabled: PropTypes.bool,
+    defaultState: PropTypes.string,
+    availableStates: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]),
+    autoZoom: PropTypes.bool,
+    highlightColor: PropTypes.string,
+  }),
+  mapConfig: PropTypes.shape({
+    defaultView: PropTypes.shape({
+      center: PropTypes.arrayOf(PropTypes.number),
+      zoom: PropTypes.number,
+    }),
+    zoom: PropTypes.shape({
+      snap: PropTypes.number,
+      delta: PropTypes.number,
+      min: PropTypes.number,
+      max: PropTypes.number,
+    }),
+    bounds: PropTypes.shape({
+      enabled: PropTypes.bool,
+      coordinates: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+      viscosity: PropTypes.number,
+    }),
+    markerPan: PropTypes.shape({
+      enabled: PropTypes.bool,
+      zoomLevel: PropTypes.number,
+      duration: PropTypes.number,
+    }),
+  }),
+  isViewingPinDetail: PropTypes.bool,
+  setIsViewingPinDetail: PropTypes.func,
+  showMapLegend: PropTypes.bool,
+  setShowMapLegend: PropTypes.func,
+  showInfoPanel: PropTypes.bool,
+  setShowInfoPanel: PropTypes.func,
 };
 
 // Memoize Map component to prevent unnecessary re-renders
@@ -206,6 +314,12 @@ export default memo(Map, (prevProps, nextProps) => {
     prevProps.sidebarVisible === nextProps.sidebarVisible &&
     prevProps.stateHighlightData === nextProps.stateHighlightData &&
     prevProps.markerToPan === nextProps.markerToPan &&
-    prevProps.panTrigger === nextProps.panTrigger
+    prevProps.panTrigger === nextProps.panTrigger &&
+    prevProps.focusedState === nextProps.focusedState &&
+    prevProps.stateFocusConfig === nextProps.stateFocusConfig &&
+    prevProps.mapConfig === nextProps.mapConfig &&
+    prevProps.isViewingPinDetail === nextProps.isViewingPinDetail &&
+    prevProps.showMapLegend === nextProps.showMapLegend &&
+    prevProps.showInfoPanel === nextProps.showInfoPanel
   );
 });
