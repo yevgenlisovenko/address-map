@@ -301,3 +301,140 @@ export function getMarkerIconUrl(marker) {
  * Export createMarkerIcon for creating icons with custom className (e.g., for animations)
  */
 export { createMarkerIcon };
+
+/**
+ * Get the marker type identifier based on marker properties
+ * Uses the same property matching logic as getMarkerIcon
+ * @param {Object} marker - Marker object with properties
+ * @returns {string} Type identifier (icon ID) or 'default'
+ */
+export function getMarkerType(marker) {
+  // Check if marker has properties
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return 'default';
+  }
+
+  // Loop through PROPERTY_ICON_CONFIG keys to find matching property
+  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
+    // Check if marker has this property
+    if (marker.properties[propertyName] !== undefined) {
+      const propertyValue = marker.properties[propertyName];
+      const iconData = valueToIconMap[propertyValue];
+
+      // Return the icon ID as the type identifier
+      if (iconData?.iconId) {
+        return iconData.iconId;
+      }
+    }
+  }
+
+  return 'default';
+}
+
+/**
+ * Marker Type Configuration for Clustering
+ * Maps icon IDs to display colors and labels
+ * Used for type-aware clustering visualization
+ */
+export const MARKER_TYPE_CONFIG = {
+  // Form-specific types
+  ho3: {
+    color: '#3388ff',      // Blue
+    rgb: { r: 51, g: 136, b: 255 },
+    label: 'HO3',
+  },
+  ho4: {
+    color: '#ff8800',      // Orange
+    rgb: { r: 255, g: 136, b: 0 },
+    label: 'HO4',
+  },
+  ho6: {
+    color: '#88cc00',      // Green
+    rgb: { r: 136, g: 204, b: 0 },
+    label: 'HO6',
+  },
+  hf9: {
+    color: '#cc3388',      // Purple/Violet
+    rgb: { r: 204, g: 51, b: 136 },
+    label: 'HF9',
+  },
+
+  // Partner-specific types
+  blueH: {
+    color: '#3388ff',
+    rgb: { r: 51, g: 136, b: 255 },
+    label: 'Partner H',
+  },
+  greenP: {
+    color: '#00cc44',
+    rgb: { r: 0, g: 204, b: 68 },
+    label: 'Partner P',
+  },
+  redA: {
+    color: '#ff4444',
+    rgb: { r: 255, g: 68, b: 68 },
+    label: 'Partner A',
+  },
+  violetO: {
+    color: '#cc44cc',
+    rgb: { r: 204, g: 68, b: 204 },
+    label: 'Partner O',
+  },
+  yellowG: {
+    color: '#ffcc00',
+    rgb: { r: 255, g: 204, b: 0 },
+    label: 'Partner G',
+  },
+
+  // Generic color types
+  blue: {
+    color: '#3388ff',
+    rgb: { r: 51, g: 136, b: 255 },
+    label: 'Blue',
+  },
+  gold: {
+    color: '#ffd700',
+    rgb: { r: 255, g: 215, b: 0 },
+    label: 'Gold',
+  },
+  red: {
+    color: '#ff4444',
+    rgb: { r: 255, g: 68, b: 68 },
+    label: 'Red',
+  },
+  green: {
+    color: '#44ff44',
+    rgb: { r: 68, g: 255, b: 68 },
+    label: 'Green',
+  },
+  orange: {
+    color: '#ff8800',
+    rgb: { r: 255, g: 136, b: 0 },
+    label: 'Orange',
+  },
+  yellow: {
+    color: '#ffff00',
+    rgb: { r: 255, g: 255, b: 0 },
+    label: 'Yellow',
+  },
+  violet: {
+    color: '#cc44cc',
+    rgb: { r: 204, g: 68, b: 204 },
+    label: 'Violet',
+  },
+  grey: {
+    color: '#888888',
+    rgb: { r: 136, g: 136, b: 136 },
+    label: 'Grey',
+  },
+  black: {
+    color: '#333333',
+    rgb: { r: 51, g: 51, b: 51 },
+    label: 'Black',
+  },
+  default: {
+    color: '#888888',
+    rgb: { r: 136, g: 136, b: 136 },
+    label: 'Default',
+  },
+};

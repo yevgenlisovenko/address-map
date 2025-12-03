@@ -1,19 +1,24 @@
 import { useEffect, memo, useMemo } from "react";
 import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from "leaflet";
-import { getMarkerIcon, createMarkerIcon } from "../../config/markerColorMapping";
+import { getMarkerIcon, createMarkerIcon, DEPLOYMENT_CONFIG } from "../../config/markerColorMapping";
 import { DEFAULT_MAP_VIEW } from "../../utils/constants";
 import { TOOLTIP_CONFIG } from "../../config/tooltipConfig";
 import { NEW_MARKER_HIGHLIGHT_CONFIG } from "../../config/newMarkerHighlightConfig";
 import { formatTooltipHTML } from "../../utils/tooltipFormatter";
 import { formatPopupContent } from "../../utils/popupFormatter";
+import { createTypeAwareClusterIcon, createClusterTooltipContent } from "../../utils/clusterUtils";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 import CustomZoomControl from "./CustomZoomControl";
 import PanelToggleControl from "./PanelToggleControl";
 import StateFocusHandler from "./StateFocusHandler";
 import NamedErrorBoundary from "../common/NamedErrorBoundary";
+import 'react-leaflet-cluster/dist/assets/MarkerCluster.css';
+import 'react-leaflet-cluster/dist/assets/MarkerCluster.Default.css';
+import '../../styles/ClusterStyles.css';
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -58,6 +63,7 @@ const MapMarker = memo(({ marker }) => {
       position={[marker.lat, marker.lon]}
       icon={icon}
       zIndexOffset={marker.__isNew ? 1000 : 0}
+      markerData={marker}  // Store marker data for cluster utilities
       eventHandlers={{
         click: (e) => {
           const popupContent = formatPopupContent(marker);
@@ -107,6 +113,11 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
   // Get map settings from config (with fallbacks to constants for backward compatibility)
   const defaultCenter = mapConfig?.defaultView?.center || DEFAULT_MAP_VIEW.center;
   const defaultZoom = mapConfig?.defaultView?.zoom || DEFAULT_MAP_VIEW.zoom;
+
+  // Get clustering config from mapConfig or DEPLOYMENT_CONFIG
+  const clusterConfig = useMemo(() => {
+    return mapConfig?.clustering || DEPLOYMENT_CONFIG.map?.clustering || { enabled: false };
+  }, [mapConfig]);
 
   // Merge focused state highlight with regular state highlights
   const mergedStateHighlightData = useMemo(() => {
@@ -213,9 +224,44 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
           />
         )}
 
-        {markers.map((marker) => (
-          <MapMarker key={marker.id} marker={marker} />
-        ))}
+        {/* Markers with optional clustering */}
+        {clusterConfig?.enabled ? (
+          <MarkerClusterGroup
+            maxClusterRadius={clusterConfig.maxClusterRadius || 80}
+            disableClusteringAtZoom={clusterConfig.disableClusteringAtZoom || 15}
+            showCoverageOnHover={clusterConfig.showCoverageOnHover ?? false}
+            spiderfyOnMaxZoom={clusterConfig.spiderfyOnMaxZoom ?? true}
+            animate={clusterConfig.animate ?? true}
+            chunkedLoading={clusterConfig.chunkedLoading ?? true}
+            iconCreateFunction={(cluster) => createTypeAwareClusterIcon(cluster, clusterConfig)}
+            eventHandlers={{
+              clustermouseover: (e) => {
+                if (clusterConfig.typeAware?.showTooltipBreakdown) {
+                  const tooltipContent = createClusterTooltipContent(e.layer);
+                  e.layer.bindTooltip(tooltipContent, {
+                    direction: "top",
+                    offset: [0, -10],
+                    opacity: 0.9,
+                    className: 'cluster-tooltip'
+                  }).openTooltip();
+                }
+              },
+              clustermouseout: (e) => {
+                if (clusterConfig.typeAware?.showTooltipBreakdown) {
+                  e.layer.closeTooltip();
+                }
+              }
+            }}
+          >
+            {markers.map((marker) => (
+              <MapMarker key={marker.id} marker={marker} />
+            ))}
+          </MarkerClusterGroup>
+        ) : (
+          markers.map((marker) => (
+            <MapMarker key={marker.id} marker={marker} />
+          ))
+        )}
 
         {/* <MapBoundsUpdater markers={markers} /> */}
         <MapResizeHandler />
