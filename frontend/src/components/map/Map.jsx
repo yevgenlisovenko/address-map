@@ -13,6 +13,7 @@ import StatesLayer from "./StatesLayer";
 import CustomZoomControl from "./CustomZoomControl";
 import PanelToggleControl from "./PanelToggleControl";
 import StateFocusHandler from "./StateFocusHandler";
+import NamedErrorBoundary from "../common/NamedErrorBoundary";
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -183,7 +184,9 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         />
 
         {/* State highlighting layer - renders BEFORE markers so markers appear on top */}
-        <StatesLayer stateColors={mergedStateHighlightData?.colors || {}} />
+        <NamedErrorBoundary name="StatesLayer" silent>
+          <StatesLayer stateColors={mergedStateHighlightData?.colors || {}} />
+        </NamedErrorBoundary>
 
         {/* Panel toggle controls - positioned above zoom controls */}
         <PanelToggleControl

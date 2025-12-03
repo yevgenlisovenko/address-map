@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { logger } from '../../utils/logger';
+import { useError } from '../../contexts/ErrorContext';
 
 /**
  * Custom hook to manage markers state from socket events
@@ -9,6 +10,7 @@ import { logger } from '../../utils/logger';
 export const useMarkers = (socket) => {
   const [markers, setMarkers] = useState([]);
   const [status, setStatus] = useState('');
+  const { showError } = useError();
 
   useEffect(() => {
     if (!socket) return;
@@ -29,6 +31,7 @@ export const useMarkers = (socket) => {
     const handleError = (error) => {
       logger.error('Socket error:', error);
       setStatus(`Error: ${error.message}`);
+      showError(`Socket error: ${error.message}`);
     };
 
     // Register event listeners

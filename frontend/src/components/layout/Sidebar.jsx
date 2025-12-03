@@ -5,6 +5,8 @@ import MarkersList from '../pins/MarkersList';
 import Stats from '../stats/Stats';
 import PropertyFilter from '../filters/PropertyFilter';
 import AI from '../ai/AI';
+import NamedErrorBoundary from '../common/NamedErrorBoundary';
+import SidebarSectionFallback from '../common/fallbacks/SidebarSectionFallback';
 import { useAppConfig, useSocketContext } from '../../contexts';
 import './Sidebar.css';
 
@@ -60,17 +62,27 @@ export default function Sidebar({
       {/* Pins Tab Content */}
       <div className={`pins-tab-content ${activeTab === 'pins' ? 'active-tab' : ''}`}>
         <div className="pins-tab-scrollable">
-          <MarkersList
-            markers={visibleMarkers}
-            onMarkerClick={onMarkerClick}
-          />
+          <NamedErrorBoundary
+            name="MarkersList"
+            fallback={<SidebarSectionFallback sectionName="Markers List" icon="📍" />}
+          >
+            <MarkersList
+              markers={visibleMarkers}
+              onMarkerClick={onMarkerClick}
+            />
+          </NamedErrorBoundary>
         </div>
       </div>
 
       {/* Stats Tab Content */}
       <div className={`stats-tab-content ${activeTab === 'stats' ? 'active-tab' : ''}`}>
         <div className="stats-tab-scrollable">
-          <Stats markers={visibleMarkers} />
+          <NamedErrorBoundary
+            name="Stats"
+            fallback={<SidebarSectionFallback sectionName="Statistics" icon="📊" />}
+          >
+            <Stats markers={visibleMarkers} />
+          </NamedErrorBoundary>
         </div>
       </div>
 
@@ -101,7 +113,12 @@ export default function Sidebar({
       {config?.ai?.enabled && (
         <div className={`ai-tab-content ${activeTab === 'ai' ? 'active-tab' : ''}`}>
           <div className="ai-tab-scrollable">
-            <AI visibleMarkers={visibleMarkers} />
+            <NamedErrorBoundary
+              name="AI"
+              fallback={<SidebarSectionFallback sectionName="AI Analysis" icon="🤖" />}
+            >
+              <AI visibleMarkers={visibleMarkers} />
+            </NamedErrorBoundary>
           </div>
         </div>
       )}

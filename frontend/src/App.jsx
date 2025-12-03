@@ -4,6 +4,10 @@ import Sidebar from './components/layout/Sidebar';
 import InfoPanel from './components/layout/InfoPanel';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorMessage from './components/common/ErrorMessage';
+import ErrorDisplay from './components/common/ErrorDisplay';
+import NamedErrorBoundary from './components/common/NamedErrorBoundary';
+import MapFallback from './components/common/fallbacks/MapFallback';
+import SidebarSectionFallback from './components/common/fallbacks/SidebarSectionFallback';
 import { AppConfigProvider, SocketProvider, useAppConfig, useSocketContext } from './contexts';
 import { usePropertyFilter } from './hooks/usePropertyFilter';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
@@ -135,13 +139,10 @@ function AppContent() {
     propertyFilters
   );
 
-  // Create a stable copy of visible markers to prevent React reconciliation issues
-  // Don't sort - markers are already in correct order (newest first):
+  // Markers are already in correct order (newest first):
   // - Initial pins come sorted from backend
   // - New pins are prepended at position 0
-  const sortedVisibleMarkers = useMemo(() => {
-    return [...visibleMarkers];
-  }, [visibleMarkers]);
+  // - usePropertyFilter preserves order when filtering
 
   // Event handlers (memoized)
   const handleTimeWindowChange = useCallback((newTimeWindow) => {
@@ -224,6 +225,9 @@ function AppContent() {
 
   return (
     <div className="app">
+      {/* Global error/warning/info display */}
+      <ErrorDisplay />
+
       {/* Sidebar toggle button */}
       <button
         className={`sidebar-toggle-button ${isSidebarVisible ? 'sidebar-open' : ''}`}
@@ -234,52 +238,73 @@ function AppContent() {
 
       {/* Info Panel */}
       {showInfoPanel && (
-        <InfoPanel
-          selectedTimeWindow={selectedTimeWindow}
-          timeSelectionMode={timeSelectionMode}
-          customStartTime={customStartTime}
-          propertyFilters={propertyFilters}
-          pinCount={visibleMarkers.length}
-          isConnected={isConnected}
-          sidebarVisible={isSidebarVisible}
-          config={config}
-          visibleMarkers={sortedVisibleMarkers}
-          onClose={() => setShowInfoPanel(false)}
-        />
+        <NamedErrorBoundary
+          name="InfoPanel"
+          fallback={<SidebarSectionFallback sectionName="Info Panel" icon="ℹ️" />}
+        >
+          <InfoPanel
+            selectedTimeWindow={selectedTimeWindow}
+            timeSelectionMode={timeSelectionMode}
+            customStartTime={customStartTime}
+            propertyFilters={propertyFilters}
+            pinCount={visibleMarkers.length}
+            isConnected={isConnected}
+            sidebarVisible={isSidebarVisible}
+            config={config}
+            visibleMarkers={visibleMarkers}
+            onClose={() => setShowInfoPanel(false)}
+          />
+        </NamedErrorBoundary>
       )}
 
       {/* Sidebar - always rendered, controlled by CSS transform */}
-      <Sidebar
-        isVisible={isSidebarVisible}
-        selectedTimeWindow={selectedTimeWindow}
-        onTimeWindowChange={handleTimeWindowChange}
-        onCustomTimeSubmit={handleCustomTimeSubmit}
-        markers={markers}
-        visibleMarkers={sortedVisibleMarkers}
-        onMarkerClick={handleMarkerClick}
-        propertyFilters={propertyFilters}
-        onPropertyFilterChange={handlePropertyFilterChange}
-        focusedState={focusedState}
-      />
+      <NamedErrorBoundary
+        name="Sidebar"
+        fallback={
+          <div className={`sidebar ${isSidebarVisible ? 'visible' : 'hidden'}`}>
+            <SidebarSectionFallback sectionName="Sidebar" icon="📋" />
+          </div>
+        }
+      >
+        <Sidebar
+          isVisible={isSidebarVisible}
+          selectedTimeWindow={selectedTimeWindow}
+          onTimeWindowChange={handleTimeWindowChange}
+          onCustomTimeSubmit={handleCustomTimeSubmit}
+          markers={markers}
+          visibleMarkers={visibleMarkers}
+          onMarkerClick={handleMarkerClick}
+          propertyFilters={propertyFilters}
+          onPropertyFilterChange={handlePropertyFilterChange}
+          focusedState={focusedState}
+        />
+      </NamedErrorBoundary>
 
       <div className="map-container">
-        <MapComponent
-          markers={sortedVisibleMarkers}
-          sidebarVisible={isSidebarVisible}
-          stateHighlightData={stateHighlightData}
-          markerToPan={markerToPan}
-          panTrigger={panTrigger}
-          focusedState={focusedState}
-          setFocusedState={handleFocusedStateChange}
-          stateFocusConfig={STATE_FOCUS_CONFIG}
-          mapConfig={MAP_CONFIG}
-          isViewingPinDetail={isViewingPinDetail}
-          setIsViewingPinDetail={setIsViewingPinDetail}
-          showMapLegend={showMapLegend}
-          setShowMapLegend={setShowMapLegend}
-          showInfoPanel={showInfoPanel}
-          setShowInfoPanel={setShowInfoPanel}
-        />
+        <NamedErrorBoundary
+          name="Map"
+          fallback={({ onReset }) => (
+            <MapFallback markers={visibleMarkers} onReset={onReset} />
+          )}
+        >
+          <MapComponent
+            markers={visibleMarkers}
+            sidebarVisible={isSidebarVisible}
+            stateHighlightData={stateHighlightData}
+            markerToPan={markerToPan}
+            panTrigger={panTrigger}
+            focusedState={focusedState}
+            setFocusedState={handleFocusedStateChange}
+            stateFocusConfig={STATE_FOCUS_CONFIG}
+            mapConfig={MAP_CONFIG}
+            isViewingPinDetail={isViewingPinDetail}
+            setIsViewingPinDetail={setIsViewingPinDetail}
+            showMapLegend={showMapLegend}
+            setShowMapLegend={setShowMapLegend}
+            showInfoPanel={showInfoPanel}
+            setShowInfoPanel={setShowInfoPanel}
+          />
+        </NamedErrorBoundary>
       </div>
     </div>
   );
