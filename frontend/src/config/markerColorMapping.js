@@ -339,49 +339,49 @@ export function getMarkerType(marker) {
 export const MARKER_TYPE_CONFIG = {
   // Form-specific types
   ho3: {
-    color: '#3388ff',      // Blue
+    color: '#3486BF',      // Blue
     rgb: { r: 51, g: 136, b: 255 },
     label: 'HO3',
   },
   ho4: {
-    color: '#ff8800',      // Orange
+    color: '#F9C33C',      // Yellow
     rgb: { r: 255, g: 136, b: 0 },
     label: 'HO4',
   },
   ho6: {
-    color: '#88cc00',      // Green
+    color: '#52B065',      // Green
     rgb: { r: 136, g: 204, b: 0 },
     label: 'HO6',
   },
   hf9: {
-    color: '#cc3388',      // Purple/Violet
+    color: '#CC3F30',      // Red
     rgb: { r: 204, g: 51, b: 136 },
     label: 'HF9',
   },
 
   // Partner-specific types
   blueH: {
-    color: '#3388ff',
+    color: '#3486BF',
     rgb: { r: 51, g: 136, b: 255 },
     label: 'Partner H',
   },
   greenP: {
-    color: '#00cc44',
+    color: '#52B065',
     rgb: { r: 0, g: 204, b: 68 },
     label: 'Partner P',
   },
   redA: {
-    color: '#ff4444',
+    color: '#CC3F30',
     rgb: { r: 255, g: 68, b: 68 },
     label: 'Partner A',
   },
   violetO: {
-    color: '#cc44cc',
+    color: '#8A31DA',
     rgb: { r: 204, g: 68, b: 204 },
     label: 'Partner O',
   },
   yellowG: {
-    color: '#ffcc00',
+    color: '#F9C33C',
     rgb: { r: 255, g: 204, b: 0 },
     label: 'Partner G',
   },
