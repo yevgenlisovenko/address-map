@@ -12,6 +12,13 @@
   justify-content: center;
 }
 
+/* Override default Leaflet cluster backgrounds to prevent square artifacts */
+.marker-cluster-smart.marker-cluster-small,
+.marker-cluster-smart.marker-cluster-medium,
+.marker-cluster-smart.marker-cluster-large {
+  background-color: transparent !important;
+}
+
 /* Inner cluster circle with dynamic background color */
 .cluster-inner {
   width: 100%;
