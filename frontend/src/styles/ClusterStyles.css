@@ -83,17 +83,17 @@
 }
 
 .marker-cluster-medium .cluster-mixed-badge {
-  font-size: 11px;
-  padding: 3px 6px;
+  font-size: 9px;
+  padding: 2px 4px;
   top: -6px;
   right: -6px;
 }
 
 .marker-cluster-large .cluster-mixed-badge {
-  font-size: 12px;
-  padding: 3px 7px;
-  top: -7px;
-  right: -7px;
+  font-size: 9px;
+  padding: 2px 4px;
+  top: -6px;
+  right: -6px;
 }
 
 /* Cluster tooltip */
