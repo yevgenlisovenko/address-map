@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
 import PinTimeSelector from '../pins/PinTimeSelector';
 import MarkersList from '../pins/MarkersList';
 import Stats from '../stats/Stats';
@@ -8,27 +7,32 @@ import AI from '../ai/AI';
 import NamedErrorBoundary from '../common/NamedErrorBoundary';
 import SidebarSectionFallback from '../common/fallbacks/SidebarSectionFallback';
 import { useAppConfig, useSocketContext } from '../../contexts';
+import { useUIState } from '../../contexts/UIStateContext';
+import { useFilterState } from '../../contexts/FilterStateContext';
+import { useMapInteraction } from '../../contexts/MapInteractionContext';
+import { useFilteredMarkers } from '../../hooks/useFilteredMarkers';
 import './Sidebar.css';
 
-export default function Sidebar({
-  isVisible,
-  selectedTimeWindow,
-  onTimeWindowChange,
-  onCustomTimeSubmit,
-  markers,
-  visibleMarkers,
-  onMarkerClick,
-  propertyFilters,
-  onPropertyFilterChange,
-  focusedState
-}) {
-  // Get config and connection status from contexts
+export default function Sidebar() {
+  // Get state from contexts
   const { config } = useAppConfig();
-  const { isConnected } = useSocketContext();
+  const { isConnected, markers } = useSocketContext();
+  const { isSidebarVisible } = useUIState();
+  const {
+    selectedTimeWindow,
+    onTimeWindowChange,
+    onCustomTimeSubmit,
+    propertyFilters,
+    onPropertyFilterChange,
+    focusedState
+  } = useFilterState();
+  const { onMarkerClick } = useMapInteraction();
+  const visibleMarkers = useFilteredMarkers();
+
   const [activeTab, setActiveTab] = useState('pins');
 
   return (
-    <div className={`sidebar ${isVisible ? 'visible' : 'hidden'}`}>
+    <div className={`sidebar ${isSidebarVisible ? 'visible' : 'hidden'}`}>
       {/* Tab Navigation */}
       <div className="sidebar-tabs">
         <button
@@ -125,16 +129,3 @@ export default function Sidebar({
     </div>
   );
 }
-
-Sidebar.propTypes = {
-  isVisible: PropTypes.bool.isRequired,
-  selectedTimeWindow: PropTypes.string.isRequired,
-  onTimeWindowChange: PropTypes.func.isRequired,
-  onCustomTimeSubmit: PropTypes.func.isRequired,
-  markers: PropTypes.array.isRequired,
-  visibleMarkers: PropTypes.array.isRequired,
-  onMarkerClick: PropTypes.func,
-  propertyFilters: PropTypes.object,
-  onPropertyFilterChange: PropTypes.func.isRequired,
-  focusedState: PropTypes.string,
-};

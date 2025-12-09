@@ -1,22 +1,28 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useAppConfig, useSocketContext } from '../../contexts';
+import { useUIState } from '../../contexts/UIStateContext';
+import { useFilterState } from '../../contexts/FilterStateContext';
+import { useFilteredMarkers } from '../../hooks/useFilteredMarkers';
 import { useAggregations } from '../../hooks/useAggregations';
 import { STATS_CONFIG } from '../../config/statsConfig';
 import { BACKEND_URL } from '../../utils/constants';
 import './InfoPanel.css';
 
-export default function InfoPanel({
-  selectedTimeWindow,
-  timeSelectionMode,
-  customStartTime,
-  propertyFilters,
-  pinCount,
-  isConnected,
-  sidebarVisible,
-  config,
-  visibleMarkers,
-  onClose
-}) {
+export default function InfoPanel({ onClose }) {
+  // Access state from contexts
+  const { config } = useAppConfig();
+  const { isConnected } = useSocketContext();
+  const { isSidebarVisible } = useUIState();
+  const {
+    selectedTimeWindow,
+    timeSelectionMode,
+    customStartTime,
+    propertyFilters
+  } = useFilterState();
+  const visibleMarkers = useFilteredMarkers();
+
+  const pinCount = visibleMarkers.length;
   // Check if info panel should be shown based on environment variable
   const showInfoPanelEnv = import.meta.env.VITE_SHOW_INFO_PANEL !== 'false';
 
@@ -94,7 +100,7 @@ export default function InfoPanel({
   const hasFilters = filterDisplay && filterDisplay.length > 0;
 
   return (
-    <div className={`info-panel ${sidebarVisible ? 'sidebar-open' : ''}`}>
+    <div className={`info-panel ${isSidebarVisible ? 'sidebar-open' : ''}`}>
       <div className="info-panel-content">
         <button
           className="info-close-button"
@@ -195,14 +201,5 @@ export default function InfoPanel({
 }
 
 InfoPanel.propTypes = {
-  selectedTimeWindow: PropTypes.string.isRequired,
-  timeSelectionMode: PropTypes.string.isRequired,
-  customStartTime: PropTypes.number,
-  propertyFilters: PropTypes.object,
-  pinCount: PropTypes.number.isRequired,
-  isConnected: PropTypes.bool.isRequired,
-  sidebarVisible: PropTypes.bool.isRequired,
-  config: PropTypes.object,
-  visibleMarkers: PropTypes.array,
-  onClose: PropTypes.func
+  onClose: PropTypes.func.isRequired
 };

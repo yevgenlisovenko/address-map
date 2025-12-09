@@ -6,3 +6,6 @@
 export { AppConfigProvider, useAppConfig } from './AppConfigContext';
 export { SocketProvider, useSocketContext } from './SocketContext';
 export { ErrorProvider, useError } from './ErrorContext';
+export { UIStateProvider, useUIState } from './UIStateContext';
+export { FilterStateProvider, useFilterState } from './FilterStateContext';
+export { MapInteractionProvider, useMapInteraction } from './MapInteractionContext';

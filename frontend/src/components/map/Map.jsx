@@ -1,5 +1,4 @@
 import { useEffect, memo, useMemo } from "react";
-import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from "leaflet";
@@ -10,6 +9,13 @@ import { NEW_MARKER_HIGHLIGHT_CONFIG } from "../../config/newMarkerHighlightConf
 import { formatTooltipHTML } from "../../utils/tooltipFormatter";
 import { formatPopupContent } from "../../utils/popupFormatter";
 import { createTypeAwareClusterIcon, createClusterTooltipContent } from "../../utils/clusterUtils";
+import { STATE_FOCUS_CONFIG } from "../../config/stateFocusConfig";
+import { MAP_CONFIG } from "../../config/mapConfig";
+import { useSocketContext } from "../../contexts";
+import { useUIState } from "../../contexts/UIStateContext";
+import { useFilterState } from "../../contexts/FilterStateContext";
+import { useMapInteraction } from "../../contexts/MapInteractionContext";
+import { useFilteredMarkers } from "../../hooks/useFilteredMarkers";
 import MapLegend from "./MapLegend";
 import StatesLayer from "./StatesLayer";
 import CustomZoomControl from "./CustomZoomControl";
@@ -100,16 +106,18 @@ const MapMarker = memo(({ marker }) => {
 
 MapMarker.displayName = 'MapMarker';
 
-MapMarker.propTypes = {
-  marker: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    lat: PropTypes.number.isRequired,
-    lon: PropTypes.number.isRequired,
-    properties: PropTypes.object,
-  }).isRequired,
-};
+function Map() {
+  // Get state from contexts
+  const { stateHighlightData } = useSocketContext();
+  const { isSidebarVisible, showMapLegend, setShowMapLegend, showInfoPanel, setShowInfoPanel } = useUIState();
+  const { focusedState, onFocusedStateChange } = useFilterState();
+  const { markerToPan, panTrigger, isViewingPinDetail, setIsViewingPinDetail } = useMapInteraction();
+  const markers = useFilteredMarkers();
 
-function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrigger, focusedState, setFocusedState, stateFocusConfig, mapConfig, isViewingPinDetail, setIsViewingPinDetail, showMapLegend, setShowMapLegend, showInfoPanel, setShowInfoPanel }) {
+  // Use imported config constants
+  const stateFocusConfig = STATE_FOCUS_CONFIG;
+  const mapConfig = MAP_CONFIG;
+
   // Get map settings from config (with fallbacks to constants for backward compatibility)
   const defaultCenter = mapConfig?.defaultView?.center || DEFAULT_MAP_VIEW.center;
   const defaultZoom = mapConfig?.defaultView?.zoom || DEFAULT_MAP_VIEW.zoom;
@@ -150,7 +158,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
       }, 300);
 
       return () => clearTimeout(timer);
-    }, [sidebarVisible, map]);
+    }, [isSidebarVisible, map]);
 
     return null;
   }
@@ -210,7 +218,7 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
         {/* Custom zoom controls with Reset button and State selector */}
         <CustomZoomControl
           focusedState={focusedState}
-          setFocusedState={setFocusedState}
+          setFocusedState={onFocusedStateChange}
           stateFocusConfig={stateFocusConfig}
           isViewingPinDetail={isViewingPinDetail}
           setIsViewingPinDetail={setIsViewingPinDetail}
@@ -279,96 +287,6 @@ function Map({ markers, sidebarVisible, stateHighlightData, markerToPan, panTrig
   );
 }
 
-Map.propTypes = {
-  markers: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      lat: PropTypes.number.isRequired,
-      lon: PropTypes.number.isRequired,
-      timestamp: PropTypes.string.isRequired,
-      displayName: PropTypes.string,
-      type: PropTypes.string,
-      address: PropTypes.string,
-      properties: PropTypes.object,
-    })
-  ).isRequired,
-  sidebarVisible: PropTypes.bool.isRequired,
-  stateHighlightData: PropTypes.shape({
-    colors: PropTypes.object,
-    groups: PropTypes.arrayOf(
-      PropTypes.shape({
-        label: PropTypes.string,
-        color: PropTypes.string,
-        states: PropTypes.arrayOf(PropTypes.string),
-      })
-    ),
-  }),
-  markerToPan: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    lat: PropTypes.number.isRequired,
-    lon: PropTypes.number.isRequired,
-    timestamp: PropTypes.string,
-    type: PropTypes.string,
-    address: PropTypes.string,
-    displayName: PropTypes.string,
-    properties: PropTypes.object,
-  }),
-  panTrigger: PropTypes.number,
-  focusedState: PropTypes.string,
-  setFocusedState: PropTypes.func,
-  stateFocusConfig: PropTypes.shape({
-    enabled: PropTypes.bool,
-    defaultState: PropTypes.string,
-    availableStates: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(PropTypes.string),
-    ]),
-    autoZoom: PropTypes.bool,
-    highlightColor: PropTypes.string,
-  }),
-  mapConfig: PropTypes.shape({
-    defaultView: PropTypes.shape({
-      center: PropTypes.arrayOf(PropTypes.number),
-      zoom: PropTypes.number,
-    }),
-    zoom: PropTypes.shape({
-      snap: PropTypes.number,
-      delta: PropTypes.number,
-      min: PropTypes.number,
-      max: PropTypes.number,
-    }),
-    bounds: PropTypes.shape({
-      enabled: PropTypes.bool,
-      coordinates: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
-      viscosity: PropTypes.number,
-    }),
-    markerPan: PropTypes.shape({
-      enabled: PropTypes.bool,
-      zoomLevel: PropTypes.number,
-      duration: PropTypes.number,
-    }),
-  }),
-  isViewingPinDetail: PropTypes.bool,
-  setIsViewingPinDetail: PropTypes.func,
-  showMapLegend: PropTypes.bool,
-  setShowMapLegend: PropTypes.func,
-  showInfoPanel: PropTypes.bool,
-  setShowInfoPanel: PropTypes.func,
-};
-
-// Memoize Map component to prevent unnecessary re-renders
-export default memo(Map, (prevProps, nextProps) => {
-  return (
-    prevProps.markers === nextProps.markers &&
-    prevProps.sidebarVisible === nextProps.sidebarVisible &&
-    prevProps.stateHighlightData === nextProps.stateHighlightData &&
-    prevProps.markerToPan === nextProps.markerToPan &&
-    prevProps.panTrigger === nextProps.panTrigger &&
-    prevProps.focusedState === nextProps.focusedState &&
-    prevProps.stateFocusConfig === nextProps.stateFocusConfig &&
-    prevProps.mapConfig === nextProps.mapConfig &&
-    prevProps.isViewingPinDetail === nextProps.isViewingPinDetail &&
-    prevProps.showMapLegend === nextProps.showMapLegend &&
-    prevProps.showInfoPanel === nextProps.showInfoPanel
-  );
-});
+// Export without memoization since we're using contexts
+// Context changes will trigger re-renders appropriately
+export default Map;
