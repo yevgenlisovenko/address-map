@@ -6,7 +6,7 @@
  */
 
 import L from 'leaflet';
-import { getMarkerType, MARKER_TYPE_CONFIG } from '../config/markerColorMapping';
+import { getMarkerType, MARKER_TYPE_CONFIG, PROPERTY_ICON_CONFIG, DEPLOYMENT_CONFIG } from '../config/markerColorMapping';
 
 /**
  * Count markers by type within a cluster
@@ -93,6 +93,39 @@ export function createTypeAwareClusterIcon(cluster, config = {}) {
 }
 
 /**
+ * Get descriptive label for a marker type
+ * Uses groupLabels when autoGroupDuplicates is enabled, matching MapLegend behavior
+ * Falls back to individual labels from PROPERTY_ICON_CONFIG, then generic label
+ * @param {string} type - Marker type ID (iconId)
+ * @param {Object} typeConfig - Type config from MARKER_TYPE_CONFIG
+ * @returns {string} Descriptive label (e.g., "GEICO" or "Homeowners (HO3)")
+ */
+function getDescriptiveLabel(type, typeConfig) {
+  // Get legend config from deployment config
+  const legendConfig = DEPLOYMENT_CONFIG?.legend || {
+    autoGroupDuplicates: false,
+    groupLabels: {},
+  };
+
+  // If auto-grouping is enabled and a group label exists, use it
+  if (legendConfig.autoGroupDuplicates && legendConfig.groupLabels[type]) {
+    return legendConfig.groupLabels[type];
+  }
+
+  // Otherwise, search PROPERTY_ICON_CONFIG for matching iconId to get individual label
+  for (const [property, values] of Object.entries(PROPERTY_ICON_CONFIG)) {
+    for (const [value, iconData] of Object.entries(values)) {
+      if (iconData.iconId === type) {
+        return iconData.label;
+      }
+    }
+  }
+
+  // Fallback to generic label if not found
+  return typeConfig.label;
+}
+
+/**
  * Create tooltip content showing type breakdown
  * @param {Object} cluster - Leaflet MarkerCluster object
  * @returns {string} HTML string for tooltip
@@ -108,10 +141,11 @@ export function createClusterTooltipContent(cluster) {
   // Build HTML
   const rows = sortedTypes.map(([type, count]) => {
     const typeConfig = MARKER_TYPE_CONFIG[type] || MARKER_TYPE_CONFIG.default;
+    const descriptiveLabel = getDescriptiveLabel(type, typeConfig);
     return `
       <div class="cluster-tooltip-row">
         <span class="cluster-tooltip-dot" style="background-color: ${typeConfig.color};"></span>
-        <span class="cluster-tooltip-label">${typeConfig.label}:</span>
+        <span class="cluster-tooltip-label">${descriptiveLabel}:</span>
         <span class="cluster-tooltip-count">${count}</span>
       </div>
     `;
