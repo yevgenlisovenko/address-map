@@ -109,7 +109,7 @@ MapMarker.displayName = 'MapMarker';
 function Map() {
   // Get state from contexts
   const { stateHighlightData } = useSocketContext();
-  const { isSidebarVisible, showMapLegend, setShowMapLegend, showInfoPanel, setShowInfoPanel } = useUIState();
+  const { isSidebarVisible, clusteringEnabled, showMapLegend, setShowMapLegend } = useUIState();
   const { focusedState, onFocusedStateChange } = useFilterState();
   const { markerToPan, panTrigger, isViewingPinDetail, setIsViewingPinDetail } = useMapInteraction();
   const markers = useFilteredMarkers();
@@ -123,9 +123,14 @@ function Map() {
   const defaultZoom = mapConfig?.defaultView?.zoom || DEFAULT_MAP_VIEW.zoom;
 
   // Get clustering config from mapConfig or DEPLOYMENT_CONFIG
+  // Override enabled property with runtime state from UIContext
   const clusterConfig = useMemo(() => {
-    return mapConfig?.clustering || DEPLOYMENT_CONFIG.map?.clustering || { enabled: false };
-  }, [mapConfig]);
+    const config = mapConfig?.clustering || DEPLOYMENT_CONFIG.map?.clustering || {};
+    return {
+      ...config,
+      enabled: clusteringEnabled  // Runtime override from toggle button
+    };
+  }, [mapConfig, clusteringEnabled]);
 
   // Merge focused state highlight with regular state highlights
   const mergedStateHighlightData = useMemo(() => {
@@ -208,12 +213,7 @@ function Map() {
         </NamedErrorBoundary>
 
         {/* Panel toggle controls - positioned above zoom controls */}
-        <PanelToggleControl
-          showMapLegend={showMapLegend}
-          setShowMapLegend={setShowMapLegend}
-          showInfoPanel={showInfoPanel}
-          setShowInfoPanel={setShowInfoPanel}
-        />
+        <PanelToggleControl />
 
         {/* Custom zoom controls with Reset button and State selector */}
         <CustomZoomControl

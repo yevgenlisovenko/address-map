@@ -1,7 +1,30 @@
 import { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { MAP_CONFIG } from '../config/mapConfig';
 
 const UIStateContext = createContext(null);
+
+/**
+ * Get initial clustering state from multiple sources with priority:
+ * 1. localStorage user preference (highest priority)
+ * 2. Environment variable override
+ * 3. Deployment config default (fallback)
+ */
+function getInitialClusteringState() {
+  // Check localStorage for user preference
+  const saved = localStorage.getItem('clustering-enabled');
+  if (saved !== null) {
+    return saved === 'true';
+  }
+
+  // Check environment variable override
+  if (import.meta.env.VITE_CLUSTERING_INITIAL_ENABLED !== undefined) {
+    return import.meta.env.VITE_CLUSTERING_INITIAL_ENABLED === 'true';
+  }
+
+  // Fall back to deployment config
+  return MAP_CONFIG?.clustering?.enabled ?? false;
+}
 
 /**
  * UIStateProvider - Manages UI visibility state for panels, sidebar, and legend
@@ -24,9 +47,26 @@ export function UIStateProvider({ children }) {
     import.meta.env.VITE_INFO_PANEL_INITIAL_VISIBLE !== 'false'
   );
 
+  // Clustering enabled state (from localStorage → env var → config, default: false)
+  const [clusteringEnabled, setClusteringEnabled] = useState(getInitialClusteringState);
+
   // Toggle sidebar helper
   const toggleSidebar = useCallback(() => {
     setIsSidebarVisible(prev => !prev);
+  }, []);
+
+  // Toggle clustering helper with localStorage persistence
+  const toggleClustering = useCallback(() => {
+    setClusteringEnabled(prev => {
+      const newValue = !prev;
+      try {
+        localStorage.setItem('clustering-enabled', String(newValue));
+      } catch (e) {
+        // Handle quota exceeded or localStorage disabled (e.g., private browsing)
+        console.warn('Could not persist clustering preference:', e);
+      }
+      return newValue;
+    });
   }, []);
 
   // Memoize context value to prevent unnecessary re-renders
@@ -35,15 +75,18 @@ export function UIStateProvider({ children }) {
     isSidebarVisible,
     showMapLegend,
     showInfoPanel,
+    clusteringEnabled,
 
     // Setters
     setIsSidebarVisible,
     setShowMapLegend,
     setShowInfoPanel,
+    setClusteringEnabled,
 
     // Helpers
     toggleSidebar,
-  }), [isSidebarVisible, showMapLegend, showInfoPanel, toggleSidebar]);
+    toggleClustering,
+  }), [isSidebarVisible, showMapLegend, showInfoPanel, clusteringEnabled, toggleSidebar, toggleClustering]);
 
   return (
     <UIStateContext.Provider value={value}>
