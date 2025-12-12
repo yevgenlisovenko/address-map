@@ -20,6 +20,8 @@ export default function Sidebar() {
   const { isSidebarVisible } = useUIState();
   const {
     selectedTimeWindow,
+    timeSelectionMode,
+    customStartTime,
     onTimeWindowChange,
     onCustomTimeSubmit,
     propertyFilters,
@@ -97,6 +99,8 @@ export default function Sidebar() {
             <PinTimeSelector
               config={config}
               selectedTimeWindow={selectedTimeWindow}
+              timeSelectionMode={timeSelectionMode}
+              customStartTime={customStartTime}
               onPresetChange={onTimeWindowChange}
               onCustomTimeSubmit={onCustomTimeSubmit}
               isConnected={isConnected}
