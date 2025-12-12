@@ -22,7 +22,7 @@ import { useFilteredMarkers } from '../../hooks/useFilteredMarkers';
  * All state access via contexts - no prop drilling
  */
 export default function AppLayout() {
-  const { isSidebarVisible, showInfoPanel, setShowInfoPanel } = useUIState();
+  const { isSidebarVisible, showInfoPanel, toggleInfoPanel } = useUIState();
   const visibleMarkers = useFilteredMarkers();
 
   return (
@@ -39,7 +39,7 @@ export default function AppLayout() {
           name="InfoPanel"
           fallback={<SidebarSectionFallback sectionName="Info Panel" icon="ℹ️" />}
         >
-          <InfoPanel onClose={() => setShowInfoPanel(false)} />
+          <InfoPanel onClose={toggleInfoPanel} />
         </NamedErrorBoundary>
       )}
 

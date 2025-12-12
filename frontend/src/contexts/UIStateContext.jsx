@@ -27,6 +27,50 @@ function getInitialClusteringState() {
 }
 
 /**
+ * Get initial map legend visibility state with priority:
+ * 1. localStorage user preference (highest priority)
+ * 2. Environment variable override
+ * 3. Default: true
+ */
+function getInitialLegendState() {
+  // Check localStorage for user preference
+  const saved = localStorage.getItem('map-legend-visible');
+  if (saved !== null) {
+    return saved === 'true';
+  }
+
+  // Check environment variable override
+  if (import.meta.env.VITE_LEGEND_INITIAL_VISIBLE !== undefined) {
+    return import.meta.env.VITE_LEGEND_INITIAL_VISIBLE !== 'false';
+  }
+
+  // Default to visible
+  return true;
+}
+
+/**
+ * Get initial info panel visibility state with priority:
+ * 1. localStorage user preference (highest priority)
+ * 2. Environment variable override
+ * 3. Default: true
+ */
+function getInitialInfoPanelState() {
+  // Check localStorage for user preference
+  const saved = localStorage.getItem('info-panel-visible');
+  if (saved !== null) {
+    return saved === 'true';
+  }
+
+  // Check environment variable override
+  if (import.meta.env.VITE_INFO_PANEL_INITIAL_VISIBLE !== undefined) {
+    return import.meta.env.VITE_INFO_PANEL_INITIAL_VISIBLE !== 'false';
+  }
+
+  // Default to visible
+  return true;
+}
+
+/**
  * UIStateProvider - Manages UI visibility state for panels, sidebar, and legend
  *
  * Centralizes all UI visibility toggles to eliminate prop drilling
@@ -37,15 +81,11 @@ export function UIStateProvider({ children }) {
     import.meta.env.VITE_SIDEBAR_INITIAL_VISIBLE === 'true'
   );
 
-  // Map legend visibility (from env var, default: true)
-  const [showMapLegend, setShowMapLegend] = useState(
-    import.meta.env.VITE_LEGEND_INITIAL_VISIBLE !== 'false'
-  );
+  // Map legend visibility (from localStorage → env var → default: true)
+  const [showMapLegend, setShowMapLegend] = useState(getInitialLegendState);
 
-  // Info panel visibility (from env var, default: true)
-  const [showInfoPanel, setShowInfoPanel] = useState(
-    import.meta.env.VITE_INFO_PANEL_INITIAL_VISIBLE !== 'false'
-  );
+  // Info panel visibility (from localStorage → env var → default: true)
+  const [showInfoPanel, setShowInfoPanel] = useState(getInitialInfoPanelState);
 
   // Clustering enabled state (from localStorage → env var → config, default: false)
   const [clusteringEnabled, setClusteringEnabled] = useState(getInitialClusteringState);
@@ -53,6 +93,32 @@ export function UIStateProvider({ children }) {
   // Toggle sidebar helper
   const toggleSidebar = useCallback(() => {
     setIsSidebarVisible(prev => !prev);
+  }, []);
+
+  // Toggle map legend helper with localStorage persistence
+  const toggleMapLegend = useCallback(() => {
+    setShowMapLegend(prev => {
+      const newValue = !prev;
+      try {
+        localStorage.setItem('map-legend-visible', String(newValue));
+      } catch (e) {
+        console.warn('Could not persist map legend preference:', e);
+      }
+      return newValue;
+    });
+  }, []);
+
+  // Toggle info panel helper with localStorage persistence
+  const toggleInfoPanel = useCallback(() => {
+    setShowInfoPanel(prev => {
+      const newValue = !prev;
+      try {
+        localStorage.setItem('info-panel-visible', String(newValue));
+      } catch (e) {
+        console.warn('Could not persist info panel preference:', e);
+      }
+      return newValue;
+    });
   }, []);
 
   // Toggle clustering helper with localStorage persistence
@@ -85,8 +151,10 @@ export function UIStateProvider({ children }) {
 
     // Helpers
     toggleSidebar,
+    toggleMapLegend,
+    toggleInfoPanel,
     toggleClustering,
-  }), [isSidebarVisible, showMapLegend, showInfoPanel, clusteringEnabled, toggleSidebar, toggleClustering]);
+  }), [isSidebarVisible, showMapLegend, showInfoPanel, clusteringEnabled, toggleSidebar, toggleMapLegend, toggleInfoPanel, toggleClustering]);
 
   return (
     <UIStateContext.Provider value={value}>

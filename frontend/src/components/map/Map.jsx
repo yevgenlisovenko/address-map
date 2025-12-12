@@ -109,7 +109,7 @@ MapMarker.displayName = 'MapMarker';
 function Map() {
   // Get state from contexts
   const { stateHighlightData } = useSocketContext();
-  const { isSidebarVisible, clusteringEnabled, showMapLegend, setShowMapLegend } = useUIState();
+  const { isSidebarVisible, clusteringEnabled, showMapLegend, toggleMapLegend } = useUIState();
   const { focusedState, onFocusedStateChange } = useFilterState();
   const { markerToPan, panTrigger, isViewingPinDetail, setIsViewingPinDetail } = useMapInteraction();
   const markers = useFilteredMarkers();
@@ -280,7 +280,7 @@ function Map() {
       {showMapLegend && (
         <MapLegend
           stateHighlightData={mergedStateHighlightData}
-          onClose={() => setShowMapLegend(false)}
+          onClose={toggleMapLegend}
         />
       )}
     </div>

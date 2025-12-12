@@ -9,9 +9,9 @@ import './PanelToggleControl.css';
 function PanelToggleControl() {
   const {
     showMapLegend,
-    setShowMapLegend,
+    toggleMapLegend,
     showInfoPanel,
-    setShowInfoPanel,
+    toggleInfoPanel,
     clusteringEnabled,
     toggleClustering
   } = useUIState();
@@ -32,7 +32,7 @@ function PanelToggleControl() {
     <div className="panel-toggle-control">
       {legendEnabled && (
         <button
-          onClick={() => setShowMapLegend(!showMapLegend)}
+          onClick={toggleMapLegend}
           title={showMapLegend ? 'Hide legend' : 'Show legend'}
           aria-label={showMapLegend ? 'Hide legend' : 'Show legend'}
           aria-pressed={showMapLegend}
@@ -43,7 +43,7 @@ function PanelToggleControl() {
       )}
       {infoPanelEnabled && (
         <button
-          onClick={() => setShowInfoPanel(!showInfoPanel)}
+          onClick={toggleInfoPanel}
           title={showInfoPanel ? 'Hide info panel' : 'Show info panel'}
           aria-label={showInfoPanel ? 'Hide info panel' : 'Show info panel'}
           aria-pressed={showInfoPanel}
