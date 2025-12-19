@@ -15,15 +15,20 @@ export async function initializeDatabase() {
   }
 
   try {
+    // Build database config - omit user/password if using Windows Authentication
     const dbConfig = {
       server: config.database.server,
       port: config.database.port,
       database: config.database.database,
-      user: config.database.user,
-      password: config.database.password,
       options: config.database.options,
       pool: config.database.pool
     };
+
+    // Add SQL Server Authentication credentials if not using Windows Authentication
+    if (!config.database.options.trustedConnection) {
+      dbConfig.user = config.database.user;
+      dbConfig.password = config.database.password;
+    }
 
     pool = await sql.connect(dbConfig);
     logger.info('Database connection established', {

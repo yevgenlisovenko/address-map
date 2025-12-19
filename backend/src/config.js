@@ -31,6 +31,7 @@ export const config = {
     options: {
       encrypt: process.env.DB_ENCRYPT === 'true' || true,
       trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' || false,
+      trustedConnection: process.env.DB_TRUSTED_CONNECTION === 'true' || false,
       enableArithAbort: true
     },
     pool: {
