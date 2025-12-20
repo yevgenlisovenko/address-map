@@ -51,7 +51,25 @@ export const config = {
       longitude: process.env.POLLING_COL_LON || 'longitude',
       label: process.env.POLLING_COL_LABEL || 'label',
       properties: process.env.POLLING_COL_PROPERTIES || null // Optional: JSON column name
-    }
+    },
+    // Field injection configuration - add derived fields based on lookup maps
+    fieldInjection: (() => {
+      if (!process.env.FIELD_INJECTION_CONFIG) {
+        return null;
+      }
+      try {
+        const config = JSON.parse(process.env.FIELD_INJECTION_CONFIG);
+        // Validate structure
+        if (!config.lookups || typeof config.lookups !== 'object') {
+          console.warn('FIELD_INJECTION_CONFIG: Invalid structure, missing "lookups" object');
+          return null;
+        }
+        return config;
+      } catch (error) {
+        console.warn('FIELD_INJECTION_CONFIG: Failed to parse JSON:', error.message);
+        return null;
+      }
+    })()
   },
   stateHighlight: {
     defaultColor: process.env.DEFAULT_STATE_COLOR || '#FF0000' // Red
