@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -52,21 +53,32 @@ export const config = {
       label: process.env.POLLING_COL_LABEL || 'label',
       properties: process.env.POLLING_COL_PROPERTIES || null // Optional: JSON column name
     },
-    // Field injection configuration - add derived fields based on lookup maps
+    // Field injection configuration - load from deployment-specific JSON file
     fieldInjection: (() => {
-      if (!process.env.FIELD_INJECTION_CONFIG) {
-        return null;
-      }
+      const deploymentConfig = process.env.DEPLOYMENT_CONFIG || 'default';
+      const configPath = path.join(__dirname, '..', 'config', 'field-injection', `${deploymentConfig}.json`);
+
       try {
-        const config = JSON.parse(process.env.FIELD_INJECTION_CONFIG);
-        // Validate structure
-        if (!config.lookups || typeof config.lookups !== 'object') {
-          console.warn('FIELD_INJECTION_CONFIG: Invalid structure, missing "lookups" object');
+        // Check if file exists
+        if (!fs.existsSync(configPath)) {
+          console.warn(`Field injection config file not found: ${configPath}`);
           return null;
         }
+
+        // Read and parse JSON file
+        const fileContent = fs.readFileSync(configPath, 'utf8');
+        const config = JSON.parse(fileContent);
+
+        // Validate structure
+        if (!config.lookups || typeof config.lookups !== 'object') {
+          console.warn(`Field injection config invalid structure in ${configPath}: missing "lookups" object`);
+          return null;
+        }
+
+        console.info(`Loaded field injection config from ${deploymentConfig}.json`);
         return config;
       } catch (error) {
-        console.warn('FIELD_INJECTION_CONFIG: Failed to parse JSON:', error.message);
+        console.warn(`Failed to load field injection config from ${configPath}:`, error.message);
         return null;
       }
     })()
