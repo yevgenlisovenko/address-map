@@ -37,14 +37,29 @@ export async function initializeDatabase() {
       dbConfig.driver = 'msnodesqlv8';
       // No user/password needed - uses Windows credentials
 
-      // Verify msnodesqlv8 is available
+      // Verify msnodesqlv8 is available (REQUIRED for Windows Authentication)
       try {
         await import('msnodesqlv8');
         logger.info('msnodesqlv8 driver package is available');
       } catch (err) {
-        logger.warn('msnodesqlv8 package not found - connection may fail', {
+        logger.error('msnodesqlv8 package is required but not found', {
           error: err.message
         });
+        throw new DatabaseError(
+          'Windows Authentication requires the msnodesqlv8 package, but it is not installed.\n\n' +
+            'INSTALLATION STEPS:\n' +
+            '1. Install Windows Build Tools:\n' +
+            '   npm install --global windows-build-tools\n' +
+            '   (or install Visual Studio Build Tools manually)\n\n' +
+            '2. Install msnodesqlv8:\n' +
+            '   cd backend\n' +
+            '   npm install msnodesqlv8\n\n' +
+            '3. Restart the backend server\n\n' +
+            'For detailed troubleshooting, see: backend/WINDOWS_AUTH_TROUBLESHOOTING.md\n\n' +
+            'Original error: ' +
+            err.message,
+          err
+        );
       }
     } else {
       // SQL Server Authentication - use default Tedious driver
@@ -72,26 +87,12 @@ export async function initializeDatabase() {
     });
     return pool;
   } catch (error) {
-    // Special handling for missing msnodesqlv8 driver
-    if (
-      config.database.options.trustedConnection &&
-      (error.message?.includes('msnodesqlv8') || error.message?.includes('Unable to load driver'))
-    ) {
-      logger.error('Windows Authentication requires msnodesqlv8 package:', {
-        message: error.message,
-        solution: 'Run: npm install msnodesqlv8 (Windows only)'
-      });
-      throw new DatabaseError(
-        'Windows Authentication (DB_TRUSTED_CONNECTION=true) requires the msnodesqlv8 package. ' +
-          'Please run: npm install msnodesqlv8',
-        error
-      );
-    }
-
+    // Log connection error with details
     logger.error('Database connection error:', {
       message: error.message,
       code: error.code,
-      server: config.database.server
+      server: config.database.server,
+      authMethod: config.database.options.trustedConnection ? 'Windows Authentication' : 'SQL Server Authentication'
     });
     throw new DatabaseError('Failed to connect to database', error);
   }
