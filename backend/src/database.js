@@ -1,9 +1,9 @@
-import sql from 'mssql';
 import { config } from './config.js';
 import logger from './utils/logger.js';
 import { DatabaseError } from './utils/errors.js';
 
 let pool = null;
+let sql = null; // Will be dynamically imported based on authentication type
 
 /**
  * Initialize database connection pool
@@ -15,6 +15,32 @@ export async function initializeDatabase() {
   }
 
   try {
+    // Import the correct SQL driver based on authentication type
+    // Windows Authentication requires msnodesqlv8 driver (Windows OS only)
+    // SQL Server Authentication uses default Tedious driver (cross-platform)
+    if (config.database.options.trustedConnection) {
+      logger.info('Using Windows Authentication (msnodesqlv8 driver)');
+      try {
+        const module = await import('mssql/msnodesqlv8');
+        sql = module.default;
+      } catch (importError) {
+        const error = new DatabaseError(
+          'Windows Authentication requires the msnodesqlv8 package, which is only available on Windows OS. ' +
+          'Either install on Windows, or use SQL Server Authentication (DB_TRUSTED_CONNECTION=false).',
+          importError
+        );
+        logger.error('Failed to load msnodesqlv8 driver:', {
+          message: importError.message,
+          platform: process.platform
+        });
+        throw error;
+      }
+    } else {
+      logger.info('Using SQL Server Authentication (Tedious driver)');
+      const module = await import('mssql');
+      sql = module.default;
+    }
+
     // Build database config - omit user/password if using Windows Authentication
     const dbConfig = {
       server: config.database.server,
