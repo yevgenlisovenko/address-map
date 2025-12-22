@@ -1,9 +1,9 @@
+import sql from 'mssql';
 import { config } from './config.js';
 import logger from './utils/logger.js';
 import { DatabaseError } from './utils/errors.js';
 
 let pool = null;
-let sql = null; // Will be dynamically imported based on authentication type
 
 /**
  * Initialize database connection pool
@@ -15,33 +15,7 @@ export async function initializeDatabase() {
   }
 
   try {
-    // Import the correct SQL driver based on authentication type
-    // Windows Authentication requires msnodesqlv8 driver (Windows OS only)
-    // SQL Server Authentication uses default Tedious driver (cross-platform)
-    if (config.database.options.trustedConnection) {
-      logger.info('Using Windows Authentication (msnodesqlv8 driver)');
-      try {
-        const module = await import('mssql/msnodesqlv8');
-        sql = module.default;
-      } catch (importError) {
-        const error = new DatabaseError(
-          'Windows Authentication requires the msnodesqlv8 package, which is only available on Windows OS. ' +
-          'Either install on Windows, or use SQL Server Authentication (DB_TRUSTED_CONNECTION=false).',
-          importError
-        );
-        logger.error('Failed to load msnodesqlv8 driver:', {
-          message: importError.message,
-          platform: process.platform
-        });
-        throw error;
-      }
-    } else {
-      logger.info('Using SQL Server Authentication (Tedious driver)');
-      const module = await import('mssql');
-      sql = module.default;
-    }
-
-    // Build database config - omit user/password if using Windows Authentication
+    // Build database config
     const dbConfig = {
       server: config.database.server,
       port: config.database.port,
@@ -50,8 +24,15 @@ export async function initializeDatabase() {
       pool: config.database.pool
     };
 
-    // Add SQL Server Authentication credentials if not using Windows Authentication
-    if (!config.database.options.trustedConnection) {
+    // Configure authentication method
+    if (config.database.options.trustedConnection) {
+      // Windows Authentication - use msnodesqlv8 driver
+      logger.info('Using Windows Authentication (msnodesqlv8 driver)');
+      dbConfig.driver = 'msnodesqlv8';
+      // No user/password needed - uses Windows credentials
+    } else {
+      // SQL Server Authentication - use default Tedious driver
+      logger.info('Using SQL Server Authentication (Tedious driver)');
       dbConfig.user = config.database.user;
       dbConfig.password = config.database.password;
     }
@@ -64,6 +45,22 @@ export async function initializeDatabase() {
     });
     return pool;
   } catch (error) {
+    // Special handling for missing msnodesqlv8 driver
+    if (
+      config.database.options.trustedConnection &&
+      (error.message?.includes('msnodesqlv8') || error.message?.includes('Unable to load driver'))
+    ) {
+      logger.error('Windows Authentication requires msnodesqlv8 package:', {
+        message: error.message,
+        solution: 'Run: npm install msnodesqlv8 (Windows only)'
+      });
+      throw new DatabaseError(
+        'Windows Authentication (DB_TRUSTED_CONNECTION=true) requires the msnodesqlv8 package. ' +
+          'Please run: npm install msnodesqlv8',
+        error
+      );
+    }
+
     logger.error('Database connection error:', {
       message: error.message,
       code: error.code,
