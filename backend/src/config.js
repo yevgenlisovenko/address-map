@@ -22,25 +22,41 @@ export const config = {
     requestDelay: 1000,
     userAgent: 'Real-time-Map-App/1.0'
   },
-  database: {
-    enabled: process.env.DB_ENABLED === 'true' || false,
-    server: process.env.DB_SERVER,
-    port: parseInt(process.env.DB_PORT) || 1433,
-    database: process.env.DB_DATABASE,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    options: {
-      encrypt: process.env.DB_ENCRYPT === 'true' || true,
-      trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' || false,
-      trustedConnection: process.env.DB_TRUSTED_CONNECTION === 'true' || false,
-      enableArithAbort: true
-    },
-    pool: {
-      max: 10,
-      min: 0,
-      idleTimeoutMillis: 30000
+  database: (() => {
+    const dbConfig = {
+      enabled: process.env.DB_ENABLED === 'true' || false,
+      server: process.env.DB_SERVER,
+      port: parseInt(process.env.DB_PORT) || 1433,
+      database: process.env.DB_DATABASE,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      options: {
+        encrypt: process.env.DB_ENCRYPT === 'true' || true,
+        trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' || false,
+        trustedConnection: process.env.DB_TRUSTED_CONNECTION === 'true' || false,
+        enableArithAbort: true
+      },
+      pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000
+      }
+    };
+
+    // Debug logging for database configuration
+    if (dbConfig.enabled) {
+      console.info('=== Database Configuration Debug ===');
+      console.info('DB_TRUSTED_CONNECTION env var:', `"${process.env.DB_TRUSTED_CONNECTION}"`);
+      console.info('trustedConnection parsed value:', dbConfig.options.trustedConnection);
+      console.info('DB_USER env var:', process.env.DB_USER ? '(set)' : '(not set)');
+      console.info('DB_PASSWORD env var:', process.env.DB_PASSWORD ? '(set)' : '(not set)');
+      console.info('Server:', dbConfig.server);
+      console.info('Database:', dbConfig.database);
+      console.info('====================================');
     }
-  },
+
+    return dbConfig;
+  })(),
   polling: {
     enabled: process.env.POLLING_ENABLED === 'true' || false,
     interval: parseInt(process.env.POLLING_INTERVAL) || 15000, // 15 seconds

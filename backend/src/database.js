@@ -24,18 +24,45 @@ export async function initializeDatabase() {
       pool: config.database.pool
     };
 
+    // Debug logging - show exact config values
+    logger.info('=== Database Connection Attempt ===');
+    logger.info('trustedConnection option:', config.database.options.trustedConnection);
+    logger.info('DB_USER from config:', config.database.user ? '(set)' : '(not set)');
+    logger.info('DB_PASSWORD from config:', config.database.password ? '(set)' : '(not set)');
+
     // Configure authentication method
     if (config.database.options.trustedConnection) {
       // Windows Authentication - use msnodesqlv8 driver
       logger.info('Using Windows Authentication (msnodesqlv8 driver)');
       dbConfig.driver = 'msnodesqlv8';
       // No user/password needed - uses Windows credentials
+
+      // Verify msnodesqlv8 is available
+      try {
+        await import('msnodesqlv8');
+        logger.info('msnodesqlv8 driver package is available');
+      } catch (err) {
+        logger.warn('msnodesqlv8 package not found - connection may fail', {
+          error: err.message
+        });
+      }
     } else {
       // SQL Server Authentication - use default Tedious driver
       logger.info('Using SQL Server Authentication (Tedious driver)');
       dbConfig.user = config.database.user;
       dbConfig.password = config.database.password;
     }
+
+    // Log final config (without sensitive data)
+    logger.info('Final connection config:', {
+      server: dbConfig.server,
+      port: dbConfig.port,
+      database: dbConfig.database,
+      driver: dbConfig.driver || '(default/tedious)',
+      hasUser: !!dbConfig.user,
+      hasPassword: !!dbConfig.password,
+      trustedConnection: dbConfig.options.trustedConnection
+    });
 
     pool = await sql.connect(dbConfig);
     logger.info('Database connection established', {
