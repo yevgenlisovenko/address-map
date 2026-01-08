@@ -15,7 +15,7 @@ export async function initializeDatabase() {
   }
 
   try {
-    // Build database config
+    // Build database config - omit user/password if using Windows Authentication
     const dbConfig = {
       server: config.database.server,
       port: config.database.port,
@@ -24,60 +24,11 @@ export async function initializeDatabase() {
       pool: config.database.pool
     };
 
-    // Debug logging - show exact config values
-    logger.info('=== Database Connection Attempt ===');
-    logger.info('trustedConnection option:', config.database.options.trustedConnection);
-    logger.info('DB_USER from config:', config.database.user ? '(set)' : '(not set)');
-    logger.info('DB_PASSWORD from config:', config.database.password ? '(set)' : '(not set)');
-
-    // Configure authentication method
-    if (config.database.options.trustedConnection) {
-      // Windows Authentication - use msnodesqlv8 driver
-      logger.info('Using Windows Authentication (msnodesqlv8 driver)');
-      dbConfig.driver = 'msnodesqlv8';
-      // No user/password needed - uses Windows credentials
-
-      // Verify msnodesqlv8 is available (REQUIRED for Windows Authentication)
-      try {
-        await import('msnodesqlv8');
-        logger.info('msnodesqlv8 driver package is available');
-      } catch (err) {
-        logger.error('msnodesqlv8 package is required but not found', {
-          error: err.message
-        });
-        throw new DatabaseError(
-          'Windows Authentication requires the msnodesqlv8 package, but it is not installed.\n\n' +
-            'INSTALLATION STEPS:\n' +
-            '1. Install Windows Build Tools:\n' +
-            '   npm install --global windows-build-tools\n' +
-            '   (or install Visual Studio Build Tools manually)\n\n' +
-            '2. Install msnodesqlv8:\n' +
-            '   cd backend\n' +
-            '   npm install msnodesqlv8\n\n' +
-            '3. Restart the backend server\n\n' +
-            'For detailed troubleshooting, see: backend/WINDOWS_AUTH_TROUBLESHOOTING.md\n\n' +
-            'Original error: ' +
-            err.message,
-          err
-        );
-      }
-    } else {
-      // SQL Server Authentication - use default Tedious driver
-      logger.info('Using SQL Server Authentication (Tedious driver)');
+    // Add SQL Server Authentication credentials if not using Windows Authentication
+    if (!config.database.options.trustedConnection) {
       dbConfig.user = config.database.user;
       dbConfig.password = config.database.password;
     }
-
-    // Log final config (without sensitive data)
-    logger.info('Final connection config:', {
-      server: dbConfig.server,
-      port: dbConfig.port,
-      database: dbConfig.database,
-      driver: dbConfig.driver || '(default/tedious)',
-      hasUser: !!dbConfig.user,
-      hasPassword: !!dbConfig.password,
-      trustedConnection: dbConfig.options.trustedConnection
-    });
 
     pool = await sql.connect(dbConfig);
     logger.info('Database connection established', {
@@ -87,12 +38,10 @@ export async function initializeDatabase() {
     });
     return pool;
   } catch (error) {
-    // Log connection error with details
     logger.error('Database connection error:', {
       message: error.message,
       code: error.code,
-      server: config.database.server,
-      authMethod: config.database.options.trustedConnection ? 'Windows Authentication' : 'SQL Server Authentication'
+      server: config.database.server
     });
     throw new DatabaseError('Failed to connect to database', error);
   }

@@ -29,9 +29,6 @@
     "socket.io": "^4.6.1",
     "winston": "^3.18.3"
   },
-  "optionalDependencies": {
-    "msnodesqlv8": "^5.1.3"
-  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",
