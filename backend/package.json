@@ -7,6 +7,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
+    "start:instance-1": "node -r dotenv/config src/server.js dotenv_config_path=.env.instance-1",
+    "start:instance-2": "node -r dotenv/config src/server.js dotenv_config_path=.env.instance-2",
+    "dev:instance-1": "node --watch -r dotenv/config src/server.js dotenv_config_path=.env.instance-1",
+    "dev:instance-2": "node --watch -r dotenv/config src/server.js dotenv_config_path=.env.instance-2",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.js\"",

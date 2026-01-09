@@ -90,7 +90,7 @@ const transports = [
 
   // File transport for errors
   new winston.transports.File({
-    filename: path.join(__dirname, "../../logs/error.log"),
+    filename: path.join(config.logging.logDir, "error.log"),
     level: "error",
     format: logFormat,
     maxsize: 10 * 1024 * 1024, // 10MB
@@ -100,7 +100,7 @@ const transports = [
 
   // File transport for all logs
   new winston.transports.File({
-    filename: path.join(__dirname, "../../logs/combined.log"),
+    filename: path.join(config.logging.logDir, "combined.log"),
     format: logFormat,
     maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
@@ -150,23 +150,22 @@ logger.info("Logger initialized", {
 // Handle uncaught exceptions and unhandled rejections
 logger.exceptions.handle(
   new winston.transports.File({
-    filename: path.join(__dirname, "../../logs/exceptions.log"),
+    filename: path.join(config.logging.logDir, "exceptions.log"),
     format: logFormat,
   })
 );
 
 logger.rejections.handle(
   new winston.transports.File({
-    filename: path.join(__dirname, "../../logs/rejections.log"),
+    filename: path.join(config.logging.logDir, "rejections.log"),
     format: logFormat,
   })
 );
 
 // Create logs directory if it doesn't exist
 import fs from "fs";
-const logsDir = path.join(__dirname, "../../logs");
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+if (!fs.existsSync(config.logging.logDir)) {
+  fs.mkdirSync(config.logging.logDir, { recursive: true });
 }
 
 export default logger;

@@ -8,12 +8,13 @@ import fsSync from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from './utils/logger.js';
+import { config } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// File path for persisting state highlights
-const STATE_FILE_PATH = path.join(__dirname, '../data/state-highlights.json');
+// File path for persisting state highlights (configurable via STATE_HIGHLIGHTS_PATH)
+const STATE_FILE_PATH = config.stateHighlight.persistPath;
 
 // In-memory storage: Map of state abbreviation -> color
 const stateHighlights = new Map();
