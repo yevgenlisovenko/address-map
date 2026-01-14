@@ -12,6 +12,8 @@ lerna-debug.log*
 .env.*.local
 .env.production
 .env.development
+.env.instance-1
+.env.instance-2
 
 # Build Output
 dist/
