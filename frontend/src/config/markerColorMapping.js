@@ -1,8 +1,10 @@
 /**
  * Color mapping configuration for markers
- * Maps property values to marker colors
+ * Supports deployment-specific configurations via VITE_DEPLOYMENT_CONFIG environment variable
  */
 
+import L from 'leaflet';
+import { logger } from '../utils/logger';
 import blueMarkerIconImage from "../assets/markerIcons/marker-icon-2x-blue.png";
 import goldMarkerIconImage from "../assets/markerIcons/marker-icon-2x-gold.png";
 import redMarkerIconImage from "../assets/markerIcons/marker-icon-2x-red.png";
@@ -12,97 +14,427 @@ import yellowMarkerIconImage from "../assets/markerIcons/marker-icon-2x-yellow.p
 import violetMarkerIconImage from "../assets/markerIcons/marker-icon-2x-violet.png";
 import greyMarkerIconImage from "../assets/markerIcons/marker-icon-2x-grey.png";
 import blackMarkerIconImage from "../assets/markerIcons/marker-icon-2x-black.png";
+import ho3MarkerIconImage from "../assets/markerIcons/marker-icon-HO3.png";
+import ho4MarkerIconImage from "../assets/markerIcons/marker-icon-HO4.png";
+import ho6MarkerIconImage from "../assets/markerIcons/marker-icon-HO6.png";
+import hf9MarkerIconImage from "../assets/markerIcons/marker-icon-HF9.png";
+import blueHMarkerIconImage from "../assets/markerIcons/marker-icon-blue-H.png";
+import greenPMarkerIconImage from "../assets/markerIcons/marker-icon-green-P.png";
+import redAMarkerIconImage from "../assets/markerIcons/marker-icon-red-A.png";
+import violetOMarkerIconImage from "../assets/markerIcons/marker-icon-violet-O.png";
+import yellowGMarkerIconImage from "../assets/markerIcons/marker-icon-yellow-G.png";
+import markerShadowImage from "../assets/markerIcons/marker-shadow.png";
 
-const blueMarkerIcon = new L.Icon({
-  iconUrl: blueMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-const goldMarkerIcon = new L.Icon({
-  iconUrl: goldMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-const redMarkerIcon = new L.Icon({
-  iconUrl: redMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-const greenMarkerIcon = new L.Icon({
-  iconUrl: greenMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-const orangeMarkerIcon = new L.Icon({
-  iconUrl: orangeMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-const yellowMarkerIcon = new L.Icon({
-  iconUrl: yellowMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-const violetMarkerIcon = new L.Icon({
-  iconUrl: violetMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-const greyMarkerIcon = new L.Icon({
-  iconUrl: greyMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-const blackMarkerIcon = new L.Icon({
-  iconUrl: blackMarkerIconImage,
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+// Import deployment configs
+import defaultConfig from './deployments/default.config.js';
+import clientAConfig from './deployments/client-a.config.js';
+
+/**
+ * Factory function to create a Leaflet marker icon
+ * @param {string} iconUrl - URL to the marker icon image
+ * @param {string} className - Optional CSS class name(s) for animation support
+ * @returns {L.Icon} Configured Leaflet icon
+ */
+const createMarkerIcon = (iconUrl, className = 'marker-default') => {
+  return new L.Icon({
+    iconUrl,
+    shadowUrl: markerShadowImage,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
+    className: className,
+  });
+};
+
+// Create marker icons using the factory
+const blueMarkerIcon = createMarkerIcon(blueMarkerIconImage);
+const goldMarkerIcon = createMarkerIcon(goldMarkerIconImage);
+const redMarkerIcon = createMarkerIcon(redMarkerIconImage);
+const greenMarkerIcon = createMarkerIcon(greenMarkerIconImage);
+const orangeMarkerIcon = createMarkerIcon(orangeMarkerIconImage);
+const yellowMarkerIcon = createMarkerIcon(yellowMarkerIconImage);
+const violetMarkerIcon = createMarkerIcon(violetMarkerIconImage);
+const greyMarkerIcon = createMarkerIcon(greyMarkerIconImage);
+const blackMarkerIcon = createMarkerIcon(blackMarkerIconImage);
+
+const ho3MarkerIcon = createMarkerIcon(ho3MarkerIconImage);
+const ho4MarkerIcon = createMarkerIcon(ho4MarkerIconImage);
+const ho6MarkerIcon = createMarkerIcon(ho6MarkerIconImage);
+const hf9MarkerIcon = createMarkerIcon(hf9MarkerIconImage);
+
+const blueHMarkerIcon = createMarkerIcon(blueHMarkerIconImage);
+const greenPMarkerIcon = createMarkerIcon(greenPMarkerIconImage);
+const redAMarkerIcon = createMarkerIcon(redAMarkerIconImage);
+const violetOMarkerIcon = createMarkerIcon(violetOMarkerIconImage);
+const yellowGMarkerIcon = createMarkerIcon(yellowGMarkerIconImage);
 
 // Export grey as the default marker
 export const defaultMarkerIcon = greyMarkerIcon;
 
-export const PROPERTY_MARKERS_MAP = {
-  formCode: {
-    HO3: blueMarkerIcon,
-    HO4: yellowMarkerIcon,
-    HO6: greenMarkerIcon,
-    HF9: redMarkerIcon,
+// Export default icon URL for list display
+export const defaultMarkerIconUrl = greyMarkerIconImage;
+
+/**
+ * Icon Registry - Maps string IDs to actual icon objects
+ * Used to transform deployment configs into runtime icon objects
+ */
+const ICON_REGISTRY = {
+  // Form-specific icons
+  ho3: { icon: ho3MarkerIcon, url: ho3MarkerIconImage },
+  ho4: { icon: ho4MarkerIcon, url: ho4MarkerIconImage },
+  ho6: { icon: ho6MarkerIcon, url: ho6MarkerIconImage },
+  hf9: { icon: hf9MarkerIcon, url: hf9MarkerIconImage },
+
+  // Partner-specific icons
+  blueH: { icon: blueHMarkerIcon, url: blueHMarkerIconImage },
+  greenP: { icon: greenPMarkerIcon, url: greenPMarkerIconImage },
+  redA: { icon: redAMarkerIcon, url: redAMarkerIconImage },
+  violetO: { icon: violetOMarkerIcon, url: violetOMarkerIconImage },
+  yellowG: { icon: yellowGMarkerIcon, url: yellowGMarkerIconImage },
+
+  // Generic color icons
+  blue: { icon: blueMarkerIcon, url: blueMarkerIconImage },
+  gold: { icon: goldMarkerIcon, url: goldMarkerIconImage },
+  red: { icon: redMarkerIcon, url: redMarkerIconImage },
+  green: { icon: greenMarkerIcon, url: greenMarkerIconImage },
+  orange: { icon: orangeMarkerIcon, url: orangeMarkerIconImage },
+  yellow: { icon: yellowMarkerIcon, url: yellowMarkerIconImage },
+  violet: { icon: violetMarkerIcon, url: violetMarkerIconImage },
+  grey: { icon: greyMarkerIcon, url: greyMarkerIconImage },
+  black: { icon: blackMarkerIcon, url: blackMarkerIconImage },
+};
+
+/**
+ * Available deployment configurations
+ */
+const DEPLOYMENT_CONFIGS = {
+  default: defaultConfig,
+  'client-a': clientAConfig,
+};
+
+/**
+ * Load deployment configuration based on environment variable
+ */
+const deploymentName = import.meta.env.VITE_DEPLOYMENT_CONFIG || 'default';
+const deploymentConfig = DEPLOYMENT_CONFIGS[deploymentName] || DEPLOYMENT_CONFIGS.default;
+
+if (!DEPLOYMENT_CONFIGS[deploymentName] && deploymentName !== 'default') {
+  logger.warn(`Deployment config "${deploymentName}" not found, using default`);
+}
+
+// Export full deployment config for use by other components (e.g., MapLegend)
+export const DEPLOYMENT_CONFIG = deploymentConfig;
+
+// Extract marker icon mapping from deployment config
+// Support both new structure (markerIconMapping property) and old structure (root level)
+const rawConfig = deploymentConfig.markerIconMapping || deploymentConfig;
+
+/**
+ * Transform raw config by mapping icon IDs to actual icon objects
+ */
+function transformConfig(rawConfig) {
+  const transformed = {};
+
+  for (const [propertyName, valueMap] of Object.entries(rawConfig)) {
+    transformed[propertyName] = {};
+
+    for (const [propertyValue, config] of Object.entries(valueMap)) {
+      const iconData = ICON_REGISTRY[config.icon];
+
+      if (!iconData) {
+        logger.error(`Unknown icon ID: "${config.icon}" in deployment config for ${propertyName}.${propertyValue}`);
+        continue;
+      }
+
+      transformed[propertyName][propertyValue] = {
+        icon: iconData.icon,
+        url: iconData.url,
+        label: config.label,
+        iconId: config.icon,  // Preserve original icon ID for legend grouping
+      };
+    }
+  }
+
+  return transformed;
+}
+
+// Export icon URLs for list display
+export const MARKER_ICON_URLS = {
+  blue: blueMarkerIconImage,
+  gold: goldMarkerIconImage,
+  red: redMarkerIconImage,
+  green: greenMarkerIconImage,
+  orange: orangeMarkerIconImage,
+  yellow: yellowMarkerIconImage,
+  violet: violetMarkerIconImage,
+  grey: greyMarkerIconImage,
+  black: blackMarkerIconImage,
+  ho3: ho3MarkerIconImage,
+  ho4: ho4MarkerIconImage,
+  ho6: ho6MarkerIconImage,
+  hf9: hf9MarkerIconImage,
+  blueH: blueHMarkerIconImage,
+  greenP: greenPMarkerIconImage,
+  redA: redAMarkerIconImage,
+  violetO: violetOMarkerIconImage,
+  yellowG: yellowGMarkerIconImage,
+};
+
+/**
+ * Unified icon configuration mapping
+ * Loaded from deployment-specific config and transformed with actual icon objects
+ *
+ * To customize for different deployments:
+ * 1. Create a new config file in ./deployments/[name].config.js
+ * 2. Add it to DEPLOYMENT_CONFIGS above
+ * 3. Set VITE_DEPLOYMENT_CONFIG=[name] in your .env file
+ */
+export const PROPERTY_ICON_CONFIG = transformConfig(rawConfig);
+
+// Backward compatibility aliases (deprecated - use PROPERTY_ICON_CONFIG instead)
+export const PROPERTY_MARKERS_MAP = PROPERTY_ICON_CONFIG;
+export const PROPERTY_ICON_URLS = PROPERTY_ICON_CONFIG;
+
+// Cache for marker icon lookups - improves performance by avoiding repeated property iterations
+const iconCache = new Map();
+
+/**
+ * Generate a stable cache key from marker properties
+ * Only includes properties that affect icon selection
+ * @param {Object} marker - Marker object with properties
+ * @returns {string} Cache key
+ */
+function getIconCacheKey(marker) {
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return 'default';
+  }
+
+  // Build key from properties that exist in PROPERTY_ICON_CONFIG
+  // This ensures we only include properties that affect icon selection
+  const relevantProps = [];
+  for (const propName of Object.keys(PROPERTY_ICON_CONFIG)) {
+    const value = marker.properties[propName];
+    if (value !== undefined) {
+      relevantProps.push(`${propName}:${value}`);
+    }
+  }
+
+  return relevantProps.length > 0 ? relevantProps.join('|') : 'default';
+}
+
+/**
+ * Get the appropriate Leaflet marker icon based on marker properties
+ * Cached for performance - subsequent calls with same properties return cached result
+ * Used for rendering markers on the map
+ * @param {Object} marker - Marker object with properties
+ * @returns {L.Icon} Leaflet icon object
+ */
+export function getMarkerIcon(marker) {
+  // Check cache first
+  const cacheKey = getIconCacheKey(marker);
+  if (iconCache.has(cacheKey)) {
+    return iconCache.get(cacheKey);
+  }
+
+  // Check if marker has properties
+  let icon = defaultMarkerIcon;
+  if (marker.properties && Object.keys(marker.properties).length > 0) {
+    // Loop through PROPERTY_ICON_CONFIG keys to find matching property
+    for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
+      // Check if marker has this property
+      if (marker.properties[propertyName] !== undefined) {
+        const propertyValue = marker.properties[propertyName];
+        const iconData = valueToIconMap[propertyValue];
+
+        // Get icon from unified config
+        const foundIcon = iconData?.icon;
+
+        // Use found icon if mapping exists
+        if (foundIcon) {
+          icon = foundIcon;
+          break;
+        }
+      }
+    }
+  }
+
+  // Cache the result for future lookups
+  iconCache.set(cacheKey, icon);
+  return icon;
+}
+
+/**
+ * Get the marker icon URL based on marker properties
+ * Used for displaying marker icons in lists and other UI elements
+ * @param {Object} marker - Marker object with properties
+ * @returns {string} Icon image URL
+ */
+export function getMarkerIconUrl(marker) {
+  // Check if marker has properties
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return defaultMarkerIconUrl;
+  }
+
+  // Loop through PROPERTY_ICON_CONFIG keys to find matching property
+  for (const [propertyName, valueToUrlMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
+    // Check if marker has this property
+    if (marker.properties[propertyName] !== undefined) {
+      const propertyValue = marker.properties[propertyName];
+      const urlData = valueToUrlMap[propertyValue];
+
+      // Get URL from unified config
+      const url = urlData?.url;
+
+      // Return URL if mapping found
+      if (url) {
+        return url;
+      }
+    }
+  }
+
+  // No mapping found, return default
+  return defaultMarkerIconUrl;
+}
+
+/**
+ * Export createMarkerIcon for creating icons with custom className (e.g., for animations)
+ */
+export { createMarkerIcon };
+
+/**
+ * Get the marker type identifier based on marker properties
+ * Uses the same property matching logic as getMarkerIcon
+ * @param {Object} marker - Marker object with properties
+ * @returns {string} Type identifier (icon ID) or 'default'
+ */
+export function getMarkerType(marker) {
+  // Check if marker has properties
+  if (!marker.properties || Object.keys(marker.properties).length === 0) {
+    return 'default';
+  }
+
+  // Loop through PROPERTY_ICON_CONFIG keys to find matching property
+  for (const [propertyName, valueToIconMap] of Object.entries(PROPERTY_ICON_CONFIG)) {
+    // Check if marker has this property
+    if (marker.properties[propertyName] !== undefined) {
+      const propertyValue = marker.properties[propertyName];
+      const iconData = valueToIconMap[propertyValue];
+
+      // Return the icon ID as the type identifier
+      if (iconData?.iconId) {
+        return iconData.iconId;
+      }
+    }
+  }
+
+  return 'default';
+}
+
+/**
+ * Marker Type Configuration for Clustering
+ * Maps icon IDs to display colors and labels
+ * Used for type-aware clustering visualization
+ */
+export const MARKER_TYPE_CONFIG = {
+  // Form-specific types
+  ho3: {
+    color: '#3486BF',      // Blue
+    rgb: { r: 51, g: 136, b: 255 },
+    label: 'HO3',
+  },
+  ho4: {
+    color: '#F9C33C',      // Yellow
+    rgb: { r: 255, g: 136, b: 0 },
+    label: 'HO4',
+  },
+  ho6: {
+    color: '#52B065',      // Green
+    rgb: { r: 136, g: 204, b: 0 },
+    label: 'HO6',
+  },
+  hf9: {
+    color: '#CC3F30',      // Red
+    rgb: { r: 204, g: 51, b: 136 },
+    label: 'HF9',
+  },
+
+  // Partner-specific types
+  blueH: {
+    color: '#3486BF',
+    rgb: { r: 51, g: 136, b: 255 },
+    label: 'Partner H',
+  },
+  greenP: {
+    color: '#52B065',
+    rgb: { r: 0, g: 204, b: 68 },
+    label: 'Partner P',
+  },
+  redA: {
+    color: '#CC3F30',
+    rgb: { r: 255, g: 68, b: 68 },
+    label: 'Partner A',
+  },
+  violetO: {
+    color: '#8A31DA',
+    rgb: { r: 204, g: 68, b: 204 },
+    label: 'Partner O',
+  },
+  yellowG: {
+    color: '#F9C33C',
+    rgb: { r: 255, g: 204, b: 0 },
+    label: 'Partner G',
+  },
+
+  // Generic color types
+  blue: {
+    color: '#3388ff',
+    rgb: { r: 51, g: 136, b: 255 },
+    label: 'Blue',
+  },
+  gold: {
+    color: '#ffd700',
+    rgb: { r: 255, g: 215, b: 0 },
+    label: 'Gold',
+  },
+  red: {
+    color: '#ff4444',
+    rgb: { r: 255, g: 68, b: 68 },
+    label: 'Red',
+  },
+  green: {
+    color: '#44ff44',
+    rgb: { r: 68, g: 255, b: 68 },
+    label: 'Green',
+  },
+  orange: {
+    color: '#ff8800',
+    rgb: { r: 255, g: 136, b: 0 },
+    label: 'Orange',
+  },
+  yellow: {
+    color: '#ffff00',
+    rgb: { r: 255, g: 255, b: 0 },
+    label: 'Yellow',
+  },
+  violet: {
+    color: '#cc44cc',
+    rgb: { r: 204, g: 68, b: 204 },
+    label: 'Violet',
+  },
+  grey: {
+    color: '#888888',
+    rgb: { r: 136, g: 136, b: 136 },
+    label: 'Grey',
+  },
+  black: {
+    color: '#333333',
+    rgb: { r: 51, g: 51, b: 51 },
+    label: 'Black',
+  },
+  default: {
+    color: '#888888',
+    rgb: { r: 136, g: 136, b: 136 },
+    label: 'Default',
   },
 };

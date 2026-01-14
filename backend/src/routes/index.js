@@ -9,6 +9,8 @@ import addressRoutes from './address.routes.js';
 import coordinatesRoutes from './coordinates.routes.js';
 import highlightRoutes from './highlight.routes.js';
 import pollingRoutes from './polling.routes.js';
+import configRoutes from './config.routes.js';
+import aiRoutes from './ai.routes.js';
 
 const router = express.Router();
 
@@ -21,5 +23,7 @@ router.use('/', addressRoutes);
 router.use('/', coordinatesRoutes);
 router.use('/', highlightRoutes);
 router.use('/', pollingRoutes);
+router.use('/config', configRoutes);
+router.use('/ai', aiRoutes);
 
 export default router;

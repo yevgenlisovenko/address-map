@@ -1,0 +1,232 @@
+/* Info Panel Styles */
+.info-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 5px;
+  z-index: 1000;
+  min-width: 220px;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: right 0.3s ease;
+  overflow: hidden;
+}
+
+.info-panel.sidebar-open {
+  bottom: 5px;
+  right: 303px;
+}
+
+/* Close button in top-right corner */
+.info-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(102, 126, 234, 0.15);
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 10px;
+  color: #667eea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.info-close-button:hover {
+  background: rgba(102, 126, 234, 0.25);
+}
+
+/* Content */
+.info-panel-content {
+  position: relative;
+  padding: 12px 14px;
+  padding-right: 38px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Info Section */
+.info-section {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.info-section-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-section-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.info-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666;
+}
+
+.info-section-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* Filters List */
+.info-filters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.info-filter-item {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 4px 8px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.filter-property {
+  font-weight: 600;
+  color: #444;
+}
+
+.filter-values {
+  color: #666;
+  word-break: break-word;
+}
+
+/* Statistics list in InfoPanel */
+.info-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.info-stat-item {
+  font-size: 13px;
+  color: #555;
+  padding: 4px 0;
+}
+
+.info-stat-item .stat-label {
+  font-weight: 600;
+  color: #666;
+}
+
+.info-stat-item .stat-value {
+  font-weight: 700;
+  color: #333;
+}
+
+/* Connection Status Section */
+.info-section-connection {
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 2px;
+}
+
+.info-connection-status {
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connection-indicator {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.info-connection-status.connected {
+  color: #28a745;
+}
+
+.info-connection-status.connected .connection-indicator {
+  color: #28a745;
+  animation: pulse 2s infinite;
+}
+
+.info-connection-status.disconnected {
+  color: #dc3545;
+}
+
+.info-connection-status.disconnected .connection-indicator {
+  color: #dc3545;
+}
+
+/* Connection tooltip */
+.info-connection-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.connection-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.connection-tooltip div {
+  margin: 2px 0;
+  color: #333;
+}
+
+/* Pulse animation for connected status */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-panel {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .info-panel.sidebar-open {
+    right: 10px;
+  }
+}

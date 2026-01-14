@@ -7,8 +7,6 @@ import { Server } from 'socket.io';
 import { config } from '../config.js';
 import { SOCKET_EVENTS } from '../utils/constants.js';
 import { setupConnectionHandler } from './handlers/connection.handler.js';
-import { setupAddressHandler } from './handlers/address.handler.js';
-import { setupCoordinatesHandler } from './handlers/coordinates.handler.js';
 import { setupInitialStateHandler } from './handlers/initialState.handler.js';
 import logger from '../utils/logger.js';
 
@@ -29,8 +27,6 @@ export const initializeSocket = (httpServer) => {
   io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
     // Setup all event handlers for this socket
     setupConnectionHandler(io, socket);
-    setupAddressHandler(io, socket);
-    setupCoordinatesHandler(io, socket);
     setupInitialStateHandler(io, socket);
   });
 

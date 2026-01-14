@@ -126,6 +126,45 @@ NODE_ENV=production
 
 # Frontend (build-time)
 VITE_BACKEND_URL=http://localhost:3001
+VITE_DEPLOYMENT_CONFIG=default
+```
+
+### Deployment Configuration
+
+The frontend supports multiple deployment configurations via the `VITE_DEPLOYMENT_CONFIG` environment variable. This controls:
+- **Marker icon mappings** - Which property to use for marker colors (formCode, partnerName, etc.)
+- **Statistics configuration** - Which properties to track, aggregations to calculate
+- **Filter configuration** - Which filters to display (static dropdowns, dynamic dropdowns, text inputs)
+
+**Available configurations:**
+- `default` - Uses formCode-based marker icons (HO3, HO4, HO6, HF9), tracks state and formCode
+- `client-a` - Uses partnerName-based marker icons, tracks state and partnerName
+
+**To build with a specific configuration:**
+
+```bash
+# Build with default configuration
+docker compose build frontend
+
+# Build with client-a configuration
+VITE_DEPLOYMENT_CONFIG=client-a docker compose build frontend
+docker compose up -d
+
+# Or set in .env file
+echo "VITE_DEPLOYMENT_CONFIG=client-a" >> .env
+docker compose build frontend
+```
+
+**Multi-Origin CORS Support:**
+
+The backend supports multiple CORS origins using comma-separated values:
+
+```env
+# Single origin
+CORS_ORIGIN=http://localhost:3000
+
+# Multiple origins
+CORS_ORIGIN=http://localhost:3000,http://localhost:5173,http://localhost:8080
 ```
 
 ### Port Mapping

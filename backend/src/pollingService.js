@@ -1,6 +1,7 @@
 import { config } from "./config.js";
 import { executeQuery, transformRowToPin } from "./database.js";
 import logger from './utils/logger.js';
+import { pinStorageManager } from './pinStorageManager.js';
 
 let pollingInterval = null;
 let lastPollId = null;
@@ -116,6 +117,9 @@ async function pollDatabase() {
 
           // Broadcast to all connected clients
           ioInstance.emit("add-pin", pin);
+
+          // Store pin for historical data
+          pinStorageManager.addPin(pin);
 
           logger.info('Pin emitted from polling', {
             id: row["id"],

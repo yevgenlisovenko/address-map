@@ -17,3 +17,24 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+/* Leaflet tooltip: override Leaflet's white-space: nowrap to allow multi-line content */
+.leaflet-tooltip {
+  white-space: normal !important;
+  max-width: 350px;  /* Prevent extremely wide tooltips */
+  width: max-content;  /* Width matches longest line of content */
+}
+
+/* Style div elements inside tooltips for better spacing */
+.leaflet-tooltip div {
+  line-height: 1.4;  /* Control spacing between lines */
+  margin: 2px 0;     /* Small spacing between div elements */
+}
+
+.leaflet-tooltip div:first-child {
+  margin-top: 0;     /* No top margin on first line */
+}
+
+.leaflet-tooltip div:last-child {
+  margin-bottom: 0;  /* No bottom margin on last line */
+}

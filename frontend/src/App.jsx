@@ -1,199 +1,49 @@
-import { useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
-import Map from './components/Map';
-import Info from './components/Info';
-import ConnectionStatus from './components/ConnectionStatus';
-import AddressCoordinatesInput from './components/AddressCoordinatesInput';
-import MarkersList from './components/MarkersList';
-import Stats from './components/Stats';
+import {
+  AppConfigProvider,
+  SocketProvider,
+  UIStateProvider,
+  FilterStateProvider,
+  MapInteractionProvider,
+  useAppConfig
+} from './contexts';
+import { useDocumentMeta } from './hooks/useDocumentMeta';
+import { useMarkerHighlight } from './hooks/useMarkerHighlight';
+import LoadingSpinner from './components/common/LoadingSpinner';
+import ErrorMessage from './components/common/ErrorMessage';
+import AppLayout from './components/layout/AppLayout';
+import 'leaflet/dist/leaflet.css';
 import './App.css';
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-const DEFAULT_PINS_TO_SHOW = 10; // Configurable
+import './styles/newMarkerHighlight.css';
 
 function App() {
-  const [markers, setMarkers] = useState([]);
-  const [socket, setSocket] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState('');
-  const [status, setStatus] = useState('');
-  const [showAllPins, setShowAllPins] = useState(false);
-  const [pinsToShow] = useState(DEFAULT_PINS_TO_SHOW);
-  const [showAddressForm, setShowAddressForm] = useState(false);
-  const [inputMode, setInputMode] = useState('address');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [label, setLabel] = useState('');
-  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-  const [stateHighlightData, setStateHighlightData] = useState({
-    colors: {},
-    groups: []
-  });
-
-  // Set document title from environment variable
-  useEffect(() => {
-    const appTitle = import.meta.env.VITE_APP_TITLE;
-    if (appTitle) {
-      document.title = appTitle;
-    }
-
-    // Set favicon if specified
-    const appFavicon = import.meta.env.VITE_APP_FAVICON;
-    if (appFavicon) {
-      const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
-      link.type = 'image/x-icon';
-      link.rel = 'icon';
-      link.href = appFavicon;
-      if (!document.querySelector("link[rel~='icon']")) {
-        document.head.appendChild(link);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    // Initialize Socket.IO connection
-    const socketInstance = io(BACKEND_URL);
-
-    socketInstance.on('connect', () => {
-      console.log('Connected to server');
-      setIsConnected(true);
-      setStatus('Connected to server');
-
-      // Request initial state highlights from server
-      socketInstance.emit('request-initial-state');
-    });
-
-    socketInstance.on('disconnect', () => {
-      console.log('Disconnected from server');
-      setIsConnected(false);
-      setStatus('Disconnected from server');
-    });
-
-    // Listen for new pins
-    socketInstance.on('add-pin', (data) => {
-      console.log('New pin received:', data);
-      setMarkers((prev) => [...prev, data]);
-      setStatus(`Pin added: ${data.displayName}`);
-    });
-
-    // Listen for state highlight updates
-    socketInstance.on('state-highlights-update', (data) => {
-      console.log('State highlights updated:', data);
-      setStateHighlightData(data);
-      const count = Object.keys(data.colors || {}).length;
-      setStatus(count > 0 ? `${count} states highlighted` : 'State highlights cleared');
-    });
-
-    // Listen for errors
-    socketInstance.on('error', (error) => {
-      console.error('Error:', error);
-      setStatus(`Error: ${error.message}`);
-    });
-
-    setSocket(socketInstance);
-
-    // Cleanup on unmount
-    return () => {
-      socketInstance.disconnect();
-    };
-  }, []);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!address.trim()) {
-      setStatus('Please enter an address');
-      return;
-    }
-
-    if (!socket || !isConnected) {
-      setStatus('Not connected to server');
-      return;
-    }
-
-    // Send address to server
-    socket.emit('new-address', { address });
-    setStatus(`Geocoding: ${address}...`);
-    setAddress('');
-  };
-
-  const handleCoordinatesSubmit = (e) => {
-    e.preventDefault();
-
-    if (!latitude.trim() || !longitude.trim()) {
-      setStatus('Please enter latitude and longitude');
-      return;
-    }
-
-    if (!socket || !isConnected) {
-      setStatus('Not connected to server');
-      return;
-    }
-
-    // Send coordinates to server
-    socket.emit('new-coordinates', {
-      lat: latitude,
-      lon: longitude,
-      label: label.trim() || undefined
-    });
-    setStatus(`Adding pin at: ${latitude}, ${longitude}...`);
-    setLatitude('');
-    setLongitude('');
-    setLabel('');
-  };
-
   return (
-    <div className="app">
-      <button
-        className="sidebar-toggle-button"
-        onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-      >
-        {isSidebarVisible ? '▶' : '◀'}
-      </button>
-
-      {isSidebarVisible && (
-        <div className="sidebar">
-          {/* <h1>Real-time Map</h1> */}
-
-          <ConnectionStatus isConnected={isConnected} />
-
-          {/* <AddressCoordinatesInput
-            showAddressForm={showAddressForm}
-            inputMode={inputMode}
-            address={address}
-            latitude={latitude}
-            longitude={longitude}
-            label={label}
-            status={status}
-            isConnected={isConnected}
-            onToggleForm={() => setShowAddressForm(!showAddressForm)}
-            onInputModeChange={setInputMode}
-            onAddressChange={setAddress}
-            onLatitudeChange={setLatitude}
-            onLongitudeChange={setLongitude}
-            onLabelChange={setLabel}
-            onAddressSubmit={handleSubmit}
-            onCoordinatesSubmit={handleCoordinatesSubmit}
-          /> */}
-
-          <MarkersList
-            markers={markers}
-            showAllPins={showAllPins}
-            pinsToShow={pinsToShow}
-            onToggleShowAll={() => setShowAllPins(!showAllPins)}
-          />
-
-          <Stats markers={markers} />
-
-          {/* <Info /> */}
-        </div>
-      )}
-
-      <div className="map-container">
-        <Map markers={markers} sidebarVisible={isSidebarVisible} stateHighlightData={stateHighlightData} />
-      </div>
-    </div>
+    <AppConfigProvider>
+      <SocketProvider>
+        <UIStateProvider>
+          <FilterStateProvider>
+            <MapInteractionProvider>
+              <AppContent />
+            </MapInteractionProvider>
+          </FilterStateProvider>
+        </UIStateProvider>
+      </SocketProvider>
+    </AppConfigProvider>
   );
+}
+
+function AppContent() {
+  // Document meta and marker highlight hooks
+  useDocumentMeta();
+  useMarkerHighlight();
+
+  // Access config and loading states
+  const { loading, error } = useAppConfig();
+
+  // Loading and error states
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return <AppLayout />;
 }
 
 export default App;

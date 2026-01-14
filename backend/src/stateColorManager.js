@@ -3,16 +3,18 @@
  * Handles in-memory storage and processing of state highlight colors
  */
 
-import fs from 'fs';
+import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from './utils/logger.js';
+import { config } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// File path for persisting state highlights
-const STATE_FILE_PATH = path.join(__dirname, '../data/state-highlights.json');
+// File path for persisting state highlights (configurable via STATE_HIGHLIGHTS_PATH)
+const STATE_FILE_PATH = config.stateHighlight.persistPath;
 
 // In-memory storage: Map of state abbreviation -> color
 const stateHighlights = new Map();
@@ -176,15 +178,27 @@ export function getHighlightedStateCount() {
 /**
  * Save current state configuration to file
  * Persists state highlights across server restarts
+ * Uses atomic write pattern to prevent data corruption
  */
-function saveStateToFile() {
+async function saveStateToFile() {
   try {
     const data = {
       colorConfig: currentColorConfig,
       savedAt: new Date().toISOString()
     };
 
-    fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(data, null, 2), 'utf8');
+    // Atomic write pattern: write to temp file, then rename
+    const tempPath = `${STATE_FILE_PATH}.tmp`;
+
+    // Ensure directory exists
+    const dir = path.dirname(STATE_FILE_PATH);
+    await fs.mkdir(dir, { recursive: true });
+
+    // Write to temp file
+    await fs.writeFile(tempPath, JSON.stringify(data, null, 2), 'utf8');
+
+    // Atomic rename (overwrites target if exists)
+    await fs.rename(tempPath, STATE_FILE_PATH);
 
     logger.debug('State highlights saved to file', {
       filePath: STATE_FILE_PATH,
@@ -207,7 +221,7 @@ function saveStateToFile() {
 export function loadStateFromFile() {
   try {
     // Check if file exists
-    if (!fs.existsSync(STATE_FILE_PATH)) {
+    if (!fsSync.existsSync(STATE_FILE_PATH)) {
       logger.debug('No state highlights file found, starting with empty state', {
         filePath: STATE_FILE_PATH
       });
@@ -215,7 +229,7 @@ export function loadStateFromFile() {
     }
 
     // Read and parse file
-    const fileContent = fs.readFileSync(STATE_FILE_PATH, 'utf8');
+    const fileContent = fsSync.readFileSync(STATE_FILE_PATH, 'utf8');
     const data = JSON.parse(fileContent);
 
     // Validate data structure

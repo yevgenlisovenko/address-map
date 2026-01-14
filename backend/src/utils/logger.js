@@ -32,6 +32,10 @@ const colors = {
 // Tell winston about the custom colors
 winston.addColors(colors);
 
+// Get service name and environment from config
+const serviceName = config.service?.name || 'real-time-map';
+const environment = config.service?.environment || 'dev';
+
 // Define log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
@@ -39,7 +43,7 @@ const logFormat = winston.format.combine(
   winston.format.splat(),
   winston.format.printf((info) => {
     const { timestamp, level, message, stack, ...meta } = info;
-    let log = `${timestamp} [${level.toUpperCase()}]: ${message}`;
+    let log = `[${serviceName}] [${environment}] ${timestamp} [${level.toUpperCase()}]: ${message}`;
 
     // Add stack trace for errors
     if (stack) {
@@ -48,7 +52,26 @@ const logFormat = winston.format.combine(
 
     // Add metadata if present
     if (Object.keys(meta).length > 0) {
-      log += ` ${JSON.stringify(meta)}`;
+      try {
+        // Handle circular references with a replacer function
+        const seen = new WeakSet();
+        log += ` ${JSON.stringify(meta, (key, value) => {
+          // Handle circular references
+          if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+              return '[Circular]';
+            }
+            seen.add(value);
+          }
+          // Filter out non-serializable values
+          if (typeof value === 'function') {
+            return '[Function]';
+          }
+          return value;
+        })}`;
+      } catch (error) {
+        log += ` [Metadata serialization failed]`;
+      }
     }
 
     return log;
@@ -67,21 +90,21 @@ const transports = [
 
   // File transport for errors
   new winston.transports.File({
-    filename: path.join(__dirname, "../../logs/error.log"),
+    filename: path.join(config.logging.logDir, "error.log"),
     level: "error",
     format: logFormat,
     maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
-    rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
+    tailable: true,
   }),
 
   // File transport for all logs
   new winston.transports.File({
-    filename: path.join(__dirname, "../../logs/combined.log"),
+    filename: path.join(config.logging.logDir, "combined.log"),
     format: logFormat,
     maxsize: 10 * 1024 * 1024, // 10MB
     maxFiles: 10,
-    rotationFormat: () => "_" + new Date().toISOString().replace(/[:.]/g, "-"),
+    tailable: true,
   }),
 ];
 
@@ -120,30 +143,29 @@ const logger = winston.createLogger({
 // Log the logger initialization (will only show if level allows info or higher)
 logger.info("Logger initialized", {
   level: logger.level,
-  environment: process.env.NODE_ENV || "development",
+  environment: process.env.NODE_ENV || "dev",
   configuredLevel: config.logging.level,
 });
 
 // Handle uncaught exceptions and unhandled rejections
 logger.exceptions.handle(
   new winston.transports.File({
-    filename: path.join(__dirname, "../../logs/exceptions.log"),
+    filename: path.join(config.logging.logDir, "exceptions.log"),
     format: logFormat,
   })
 );
 
 logger.rejections.handle(
   new winston.transports.File({
-    filename: path.join(__dirname, "../../logs/rejections.log"),
+    filename: path.join(config.logging.logDir, "rejections.log"),
     format: logFormat,
   })
 );
 
 // Create logs directory if it doesn't exist
 import fs from "fs";
-const logsDir = path.join(__dirname, "../../logs");
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+if (!fs.existsSync(config.logging.logDir)) {
+  fs.mkdirSync(config.logging.logDir, { recursive: true });
 }
 
 export default logger;

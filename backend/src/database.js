@@ -15,15 +15,20 @@ export async function initializeDatabase() {
   }
 
   try {
+    // Build database config - omit user/password if using Windows Authentication
     const dbConfig = {
       server: config.database.server,
       port: config.database.port,
       database: config.database.database,
-      user: config.database.user,
-      password: config.database.password,
       options: config.database.options,
       pool: config.database.pool
     };
+
+    // Add SQL Server Authentication credentials if not using Windows Authentication
+    if (!config.database.options.trustedConnection) {
+      dbConfig.user = config.database.user;
+      dbConfig.password = config.database.password;
+    }
 
     pool = await sql.connect(dbConfig);
     logger.info('Database connection established', {
@@ -83,6 +88,56 @@ export async function executeQuery(query, params = {}) {
 }
 
 /**
+ * Process field injection - enrich properties with derived fields from lookup maps
+ * @param {Object} properties - Properties object to enrich (mutated in-place)
+ * @param {Object} fieldInjectionConfig - Field injection configuration from config
+ */
+function processFieldInjection(properties, fieldInjectionConfig) {
+  // Skip if no configuration
+  if (!fieldInjectionConfig || !fieldInjectionConfig.lookups) {
+    return;
+  }
+
+  try {
+    const lookups = fieldInjectionConfig.lookups;
+
+    // Process each lookup definition
+    for (const [sourceField, lookupDef] of Object.entries(lookups)) {
+      // Validate lookup definition
+      if (!lookupDef.targetField || !lookupDef.map) {
+        logger.warn(`Field injection: Invalid lookup definition for "${sourceField}", skipping`);
+        continue;
+      }
+
+      // Get source value from properties
+      const sourceValue = properties[sourceField];
+
+      // Skip if source field is missing or null
+      if (sourceValue === undefined || sourceValue === null) {
+        continue;
+      }
+
+      // Convert source value to string for map lookup (handles numbers, etc.)
+      const lookupKey = String(sourceValue);
+
+      // Look up in map, use default value if not found
+      const injectedValue = lookupDef.map[lookupKey] ?? lookupDef.defaultValue;
+
+      // Inject the field (even if undefined - allows explicit null injection)
+      if (injectedValue !== undefined) {
+        properties[lookupDef.targetField] = injectedValue;
+      }
+    }
+  } catch (error) {
+    logger.error('Field injection error:', {
+      message: error.message,
+      stack: error.stack
+    });
+    // Continue without injection on error
+  }
+}
+
+/**
  * Transform database row to pin format
  */
 export function transformRowToPin(row) {
@@ -95,6 +150,7 @@ export function transformRowToPin(row) {
   let properties = {};
   for (const [key, value] of Object.entries(row)) {
     if (
+      key !== mapping.id &&
       key !== mapping.latitude &&
       key !== mapping.longitude &&
       key !== mapping.label &&
@@ -103,6 +159,9 @@ export function transformRowToPin(row) {
       properties[key] = value;
     }
   }
+
+  // Apply field injection if configured
+  processFieldInjection(properties, config.polling.fieldInjection);
 
   // Safe label construction with fallbacks
   let label;
@@ -114,11 +173,11 @@ export function transformRowToPin(row) {
     const state = row['state'] || row['State'] || '';
 
     if (city && state) {
-      label = `${city.trim()}, ${state.trim()}`;
+      label = `${city.toUpperCase()}, ${state.toUpperCase()}`;
     } else if (city) {
-      label = city.trim();
+      label = city.toUpperCase();
     } else if (state) {
-      label = state.trim();
+      label = state.toUpperCase();
     } else {
       // Fallback to coordinates
       label = `${lat}, ${lon}`;
@@ -126,6 +185,7 @@ export function transformRowToPin(row) {
   }
 
   return {
+    id: row[mapping.id],
     type: 'coordinates',
     lat,
     lon,
