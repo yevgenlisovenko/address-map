@@ -1,35 +1,40 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
 import PinTimeSelector from '../pins/PinTimeSelector';
 import MarkersList from '../pins/MarkersList';
 import Stats from '../stats/Stats';
 import PropertyFilter from '../filters/PropertyFilter';
 import AI from '../ai/AI';
+import NamedErrorBoundary from '../common/NamedErrorBoundary';
+import SidebarSectionFallback from '../common/fallbacks/SidebarSectionFallback';
 import { useAppConfig, useSocketContext } from '../../contexts';
+import { useUIState } from '../../contexts/UIStateContext';
+import { useFilterState } from '../../contexts/FilterStateContext';
+import { useMapInteraction } from '../../contexts/MapInteractionContext';
+import { useFilteredMarkers } from '../../hooks/useFilteredMarkers';
 import './Sidebar.css';
 
-export default function Sidebar({
-  isVisible,
-  selectedTimeWindow,
-  onTimeWindowChange,
-  onCustomTimeSubmit,
-  markers,
-  visibleMarkers,
-  showAllPins,
-  pinsToShow,
-  onToggleShowAll,
-  onMarkerClick,
-  propertyFilters,
-  onPropertyFilterChange,
-  focusedState
-}) {
-  // Get config and connection status from contexts
+export default function Sidebar() {
+  // Get state from contexts
   const { config } = useAppConfig();
-  const { isConnected } = useSocketContext();
+  const { isConnected, markers } = useSocketContext();
+  const { isSidebarVisible } = useUIState();
+  const {
+    selectedTimeWindow,
+    timeSelectionMode,
+    customStartTime,
+    onTimeWindowChange,
+    onCustomTimeSubmit,
+    propertyFilters,
+    onPropertyFilterChange,
+    focusedState
+  } = useFilterState();
+  const { onMarkerClick } = useMapInteraction();
+  const visibleMarkers = useFilteredMarkers();
+
   const [activeTab, setActiveTab] = useState('pins');
 
   return (
-    <div className={`sidebar ${isVisible ? 'visible' : 'hidden'}`}>
+    <div className={`sidebar ${isSidebarVisible ? 'visible' : 'hidden'}`}>
       {/* Tab Navigation */}
       <div className="sidebar-tabs">
         <button
@@ -63,20 +68,27 @@ export default function Sidebar({
       {/* Pins Tab Content */}
       <div className={`pins-tab-content ${activeTab === 'pins' ? 'active-tab' : ''}`}>
         <div className="pins-tab-scrollable">
-          <MarkersList
-            markers={visibleMarkers}
-            showAllPins={showAllPins}
-            pinsToShow={pinsToShow}
-            onToggleShowAll={onToggleShowAll}
-            onMarkerClick={onMarkerClick}
-          />
+          <NamedErrorBoundary
+            name="MarkersList"
+            fallback={<SidebarSectionFallback sectionName="Markers List" icon="📍" />}
+          >
+            <MarkersList
+              markers={visibleMarkers}
+              onMarkerClick={onMarkerClick}
+            />
+          </NamedErrorBoundary>
         </div>
       </div>
 
       {/* Stats Tab Content */}
       <div className={`stats-tab-content ${activeTab === 'stats' ? 'active-tab' : ''}`}>
         <div className="stats-tab-scrollable">
-          <Stats markers={visibleMarkers} />
+          <NamedErrorBoundary
+            name="Stats"
+            fallback={<SidebarSectionFallback sectionName="Statistics" icon="📊" />}
+          >
+            <Stats markers={visibleMarkers} />
+          </NamedErrorBoundary>
         </div>
       </div>
 
@@ -87,6 +99,8 @@ export default function Sidebar({
             <PinTimeSelector
               config={config}
               selectedTimeWindow={selectedTimeWindow}
+              timeSelectionMode={timeSelectionMode}
+              customStartTime={customStartTime}
               onPresetChange={onTimeWindowChange}
               onCustomTimeSubmit={onCustomTimeSubmit}
               isConnected={isConnected}
@@ -107,26 +121,15 @@ export default function Sidebar({
       {config?.ai?.enabled && (
         <div className={`ai-tab-content ${activeTab === 'ai' ? 'active-tab' : ''}`}>
           <div className="ai-tab-scrollable">
-            <AI visibleMarkers={visibleMarkers} />
+            <NamedErrorBoundary
+              name="AI"
+              fallback={<SidebarSectionFallback sectionName="AI Analysis" icon="🤖" />}
+            >
+              <AI visibleMarkers={visibleMarkers} />
+            </NamedErrorBoundary>
           </div>
         </div>
       )}
     </div>
   );
 }
-
-Sidebar.propTypes = {
-  isVisible: PropTypes.bool.isRequired,
-  selectedTimeWindow: PropTypes.string.isRequired,
-  onTimeWindowChange: PropTypes.func.isRequired,
-  onCustomTimeSubmit: PropTypes.func.isRequired,
-  markers: PropTypes.array.isRequired,
-  visibleMarkers: PropTypes.array.isRequired,
-  showAllPins: PropTypes.bool.isRequired,
-  pinsToShow: PropTypes.number.isRequired,
-  onToggleShowAll: PropTypes.func.isRequired,
-  onMarkerClick: PropTypes.func,
-  propertyFilters: PropTypes.object,
-  onPropertyFilterChange: PropTypes.func.isRequired,
-  focusedState: PropTypes.string,
-};

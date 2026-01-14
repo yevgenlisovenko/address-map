@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './PinTimeSelector.css';
 
 const PinTimeSelector = ({
   config,
   selectedTimeWindow,
+  timeSelectionMode,
+  customStartTime,
   onPresetChange,
   onCustomTimeSubmit,
   isConnected
@@ -12,6 +14,26 @@ const PinTimeSelector = ({
   const [mode, setMode] = useState('preset');
   const [customTime, setCustomTime] = useState('');
   const [error, setError] = useState('');
+
+  // Sync local state with context state on mount and when context changes
+  useEffect(() => {
+    if (timeSelectionMode) {
+      setMode(timeSelectionMode);
+    }
+
+    // If custom mode and timestamp exists, format it for datetime-local input
+    if (timeSelectionMode === 'custom' && customStartTime) {
+      // Convert timestamp to datetime-local format (YYYY-MM-DDTHH:mm)
+      const date = new Date(customStartTime);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      setCustomTime(formattedDateTime);
+    }
+  }, [timeSelectionMode, customStartTime]);
 
   const handleModeChange = (newMode) => {
     setMode(newMode);
@@ -150,6 +172,8 @@ PinTimeSelector.propTypes = {
     }).isRequired,
   }),
   selectedTimeWindow: PropTypes.string.isRequired,
+  timeSelectionMode: PropTypes.oneOf(['preset', 'custom']).isRequired,
+  customStartTime: PropTypes.number, // Timestamp in milliseconds, can be null
   onPresetChange: PropTypes.func.isRequired,
   onCustomTimeSubmit: PropTypes.func.isRequired,
   isConnected: PropTypes.bool.isRequired,

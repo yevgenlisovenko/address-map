@@ -44,18 +44,24 @@
   color: white;
 }
 
-.markers-list ul {
-  list-style: none;
+/* Virtual list container */
+.markers-virtual-list {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  height: 100%;
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 10px;
   background: white;
+  margin-bottom: 15px;
 }
 
-.markers-list li {
+/* Virtual list items wrapper */
+.markers-virtual-list > div {
+  padding: 0 10px;
+}
+
+.markers-virtual-list li {
+  list-style: none;
   padding: 8px 10px;
   border-bottom: 1px solid #eee;
   font-size: 13px;
@@ -63,17 +69,17 @@
   transition: background-color 0.2s;
 }
 
-.markers-list li:hover {
+.markers-virtual-list li:hover {
   background-color: #f9f9f9;
 }
 
-.markers-list li.expanded {
+.markers-virtual-list li.expanded {
   background-color: #f0f8ff;
   border-left: 3px solid #646cff;
   padding-left: 7px;
 }
 
-.markers-list li:last-child {
+.markers-virtual-list li:last-child {
   border-bottom: none;
 }
 
@@ -153,24 +159,6 @@
 .markers-list small {
   color: #666;
   font-size: 11px;
-}
-
-.markers-list .show-more-button {
-  flex-shrink: 0;
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding: 8px;
-  background: #646cff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.markers-list .show-more-button:hover {
-  background: #535bf2;
 }
 
 /* Empty State */

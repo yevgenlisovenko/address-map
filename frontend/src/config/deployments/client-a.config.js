@@ -235,6 +235,24 @@ export default {
       enabled: true,
       duration: 5000,  // How long (ms) the highlight remains
       style: 'blink-bright'    // Visual style: 'glow', 'bright', 'shadow', 'blink', 'blink-bright', 'glow-pulse', or 'fade-pulse'
+    },
+
+    // Marker clustering settings (improves performance with large datasets)
+    clustering: {
+      enabled: false,                   // Enable/disable marker clustering
+      maxClusterRadius: 80,             // Max pixel distance for markers to cluster (40-120)
+      disableClusteringAtZoom: 15,      // Zoom level to stop clustering (show all individual markers)
+      showCoverageOnHover: false,       // Show cluster bounds on hover
+      spiderfyOnMaxZoom: true,          // Spread overlapping markers at max zoom
+      animate: true,                    // Animate cluster split/merge on zoom
+      chunkedLoading: true,             // Split rendering into chunks (performance)
+
+      // Type-aware clustering (uses marker type for cluster visualization)
+      typeAware: {
+        enabled: true,                  // Enable type-aware cluster icons
+        showMixedBadge: true,           // Show "+N" badge when cluster contains multiple types
+        showTooltipBreakdown: true,     // Show type breakdown on cluster hover
+      }
     }
   },
 };

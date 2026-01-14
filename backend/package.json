@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
+    "start:instance-2": "node -r dotenv/config src/server.js dotenv_config_path=.env.instance-2.local",
+    "dev:instance-2": "node --watch -r dotenv/config src/server.js dotenv_config_path=.env.instance-2.local",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.js\"",

@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,6 +32,7 @@ export const config = {
     options: {
       encrypt: process.env.DB_ENCRYPT === 'true' || true,
       trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true' || false,
+      trustedConnection: process.env.DB_TRUSTED_CONNECTION === 'true' || false,
       enableArithAbort: true
     },
     pool: {
@@ -50,10 +52,40 @@ export const config = {
       longitude: process.env.POLLING_COL_LON || 'longitude',
       label: process.env.POLLING_COL_LABEL || 'label',
       properties: process.env.POLLING_COL_PROPERTIES || null // Optional: JSON column name
-    }
+    },
+    // Field injection configuration - load from deployment-specific JSON file
+    fieldInjection: (() => {
+      const deploymentConfig = process.env.DEPLOYMENT_CONFIG || 'default';
+      const configPath = path.join(__dirname, '..', 'config', 'field-injection', `${deploymentConfig}.json`);
+
+      try {
+        // Check if file exists
+        if (!fs.existsSync(configPath)) {
+          console.warn(`Field injection config file not found: ${configPath}`);
+          return null;
+        }
+
+        // Read and parse JSON file
+        const fileContent = fs.readFileSync(configPath, 'utf8');
+        const config = JSON.parse(fileContent);
+
+        // Validate structure
+        if (!config.lookups || typeof config.lookups !== 'object') {
+          console.warn(`Field injection config invalid structure in ${configPath}: missing "lookups" object`);
+          return null;
+        }
+
+        console.info(`Loaded field injection config from ${deploymentConfig}.json`);
+        return config;
+      } catch (error) {
+        console.warn(`Failed to load field injection config from ${configPath}:`, error.message);
+        return null;
+      }
+    })()
   },
   stateHighlight: {
-    defaultColor: process.env.DEFAULT_STATE_COLOR || '#FF0000' // Red
+    defaultColor: process.env.DEFAULT_STATE_COLOR || '#FF0000', // Red
+    persistPath: process.env.STATE_HIGHLIGHTS_PATH || path.join(__dirname, '../data/state-highlights.json')
   },
   pinStorage: {
     maxAge: parseInt(process.env.PIN_MAX_AGE) || 24 * 60 * 60 * 1000, // 24 hours (ms)
@@ -127,6 +159,7 @@ export const config = {
     // Log level priority: error (0) > warn (1) > info (2) > http (3) > debug (4)
     // Default: 'debug' in development, 'info' in production
     // Can be overridden with LOG_LEVEL environment variable
-    level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug')
+    level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
+    logDir: process.env.LOG_DIR || path.join(__dirname, '../logs')
   }
 };

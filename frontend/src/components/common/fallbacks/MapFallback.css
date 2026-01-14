@@ -1,0 +1,129 @@
+.map-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 40px 20px;
+}
+
+.map-fallback-content {
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.map-fallback-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.map-fallback h2 {
+  font-size: 24px;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+
+.map-fallback-message {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.map-fallback-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.map-fallback-button {
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.map-fallback-button.primary {
+  background: #646cff;
+  color: white;
+}
+
+.map-fallback-button.primary:hover {
+  background: #535bf2;
+}
+
+.map-fallback-button.secondary {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.map-fallback-button.secondary:hover {
+  background: #e8e8e8;
+}
+
+.map-fallback-markers {
+  margin-top: 30px;
+  text-align: left;
+}
+
+.map-fallback-markers h3 {
+  font-size: 18px;
+  color: #333;
+  margin: 0 0 15px 0;
+}
+
+.map-fallback-markers-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.map-fallback-markers-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.map-fallback-markers-list th {
+  background: #f5f5f5;
+  padding: 10px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 2px solid #ddd;
+  position: sticky;
+  top: 0;
+}
+
+.map-fallback-markers-list td {
+  padding: 10px;
+  font-size: 13px;
+  color: #666;
+  border-bottom: 1px solid #eee;
+}
+
+.map-fallback-markers-list tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.map-fallback-more {
+  text-align: center;
+  padding: 10px;
+  color: #999;
+  font-size: 13px;
+  font-style: italic;
+}

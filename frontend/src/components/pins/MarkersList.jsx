@@ -1,5 +1,6 @@
-import { useState, useEffect, memo, useMemo } from "react";
+import { useState, memo, useMemo, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
+import { List, useDynamicRowHeight } from 'react-window';
 import MarkerPopup from "../map/MarkerPopup";
 import { getMarkerIconUrl } from "../../config/markerColorMapping";
 import "./MarkersList.css";
@@ -94,31 +95,49 @@ MarkerListItem.propTypes = {
 
 export default function MarkersList({
   markers,
-  showAllPins,
-  pinsToShow,
-  onToggleShowAll,
   onMarkerClick,
 }) {
   const [expandedPinId, setExpandedPinId] = useState(null);
+  const listRef = useRef();
 
-  // Reset expanded state when toggling "Show All"
-  useEffect(() => {
-    setExpandedPinId(null);
-  }, [showAllPins]);
+  // Use dynamic row height hook for automatic height calculation
+  const dynamicRowHeight = useDynamicRowHeight({
+    defaultRowHeight: 60  // Base collapsed height
+  });
 
-  const handleToggleExpand = (marker) => {
-    // Toggle expansion: if same item clicked, collapse; otherwise expand new item
-    setExpandedPinId(expandedPinId === marker.id ? null : marker.id);
-  };
+  const handleToggleExpand = useCallback((marker) => {
+    const newExpandedId = expandedPinId === marker.id ? null : marker.id;
+    setExpandedPinId(newExpandedId);
+    // No need to manually reset size cache - useDynamicRowHeight's ResizeObserver handles it
+  }, [expandedPinId]);
 
-  const handleLocationClick = (marker, event) => {
+  const handleLocationClick = useCallback((marker, event) => {
     // Stop propagation to prevent triggering expand/collapse
     event.stopPropagation();
     // Notify parent to pan map to this marker
     if (onMarkerClick) {
       onMarkerClick(marker);
     }
-  };
+  }, [onMarkerClick]);
+
+  // Render function for each row in virtual list
+  const Row = useCallback(({ index, style, markers, expandedPinId, handleToggleExpand, handleLocationClick }) => {
+    const marker = markers[index];
+
+    return (
+      <div
+        style={style}
+        data-react-window-dynamic-list-item-index={index}
+      >
+        <MarkerListItem
+          marker={marker}
+          isExpanded={expandedPinId === marker.id}
+          onToggleExpand={() => handleToggleExpand(marker)}
+          onLocationClick={(e) => handleLocationClick(marker, e)}
+        />
+      </div>
+    );
+  }, []);
 
   // Show empty state when no markers
   if (markers.length === 0) {
@@ -143,25 +162,22 @@ export default function MarkersList({
       <div className="markers-header">
         <h3>Pins ({markers.length})</h3>
       </div>
-      <ul>
-        {(showAllPins
-          ? markers
-          : markers.slice(0, pinsToShow)
-        ).map((marker) => (
-          <MarkerListItem
-            key={marker.id}
-            marker={marker}
-            isExpanded={expandedPinId === marker.id}
-            onToggleExpand={() => handleToggleExpand(marker)}
-            onLocationClick={(e) => handleLocationClick(marker, e)}
-          />
-        ))}
-      </ul>
-      {markers.length > pinsToShow && (
-        <button className="show-more-button" onClick={onToggleShowAll}>
-          {showAllPins ? "Show Less" : `Show All (${markers.length})`}
-        </button>
-      )}
+
+      <List
+        listRef={listRef}
+        rowComponent={Row}
+        rowCount={markers.length}
+        rowHeight={dynamicRowHeight}
+        rowProps={{
+          markers,
+          expandedPinId,
+          handleToggleExpand,
+          handleLocationClick
+        }}
+        style={{ width: "100%" }}
+        className="markers-virtual-list"
+        overscanCount={5}
+      />
     </div>
   );
 }
@@ -179,8 +195,5 @@ MarkersList.propTypes = {
       properties: PropTypes.object,
     })
   ).isRequired,
-  showAllPins: PropTypes.bool.isRequired,
-  pinsToShow: PropTypes.number.isRequired,
-  onToggleShowAll: PropTypes.func.isRequired,
   onMarkerClick: PropTypes.func,
 };
