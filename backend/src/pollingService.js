@@ -2,6 +2,7 @@ import { config } from "./config.js";
 import { executeQuery, transformRowToPin } from "./database.js";
 import logger from './utils/logger.js';
 import { pinStorageManager } from './pinStorageManager.js';
+import { SOCKET_EVENTS } from './utils/constants.js';
 
 let pollingInterval = null;
 let lastPollId = null;
@@ -115,14 +116,21 @@ async function pollDatabase() {
         try {
           const pin = transformRowToPin(row);
 
-          // Broadcast to all connected clients
-          ioInstance.emit("add-pin", pin);
+          // Store pin and get action (added or replaced)
+          const result = pinStorageManager.addOrReplacePin(pin);
 
-          // Store pin for historical data
-          pinStorageManager.addPin(pin);
+          // Broadcast to all connected clients
+          if (result.action === 'replaced') {
+            ioInstance.emit(SOCKET_EVENTS.UPDATE_PIN, result.pin);
+            logger.debug(`Pin ${pin.id} replaced (database poll)`);
+          } else {
+            ioInstance.emit(SOCKET_EVENTS.ADD_PIN, result.pin);
+            logger.debug(`Pin ${pin.id} added (database poll)`);
+          }
 
           logger.info('Pin emitted from polling', {
             id: row["id"],
+            action: result.action,
             displayName: pin.displayName,
             lat: pin.lat,
             lon: pin.lon

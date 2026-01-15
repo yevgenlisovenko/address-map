@@ -9,6 +9,7 @@ class PinStorageManager {
   constructor(config) {
     this.pins = []; // Chronological: oldest → newest
     this.startIndex = 0; // Points to first valid pin
+    this.pinIndexMap = new Map(); // ID -> index mapping for O(1) duplicate detection
     this.maxAge = config.maxAge; // Maximum age: 24 hours
     this.compactionThreshold = config.compactionThreshold;
     this.persistPath = config.persistPath;
@@ -22,16 +23,45 @@ class PinStorageManager {
   }
 
   /**
-   * Add new pin - O(1)
-   * Always adds to end (newest position)
+   * Normalize ID to string for consistent Map keys
+   * Handles both string and number IDs
    */
-  addPin(pin) {
+  normalizeId(id) {
+    return String(id);
+  }
+
+  /**
+   * Add new pin or replace existing one with same ID - O(1)
+   * Uses ID Map for O(1) duplicate detection
+   * @param {Object} pin - Pin to add/replace
+   * @returns {Object} Result { action: 'added'|'replaced', pin: pinWithTimestamp }
+   */
+  addOrReplacePin(pin) {
     const pinWithTimestamp = {
       ...pin,
       timestamp: pin.timestamp || new Date().toISOString(),
     };
 
+    const normalizedId = this.normalizeId(pin.id);
+    let action = 'added';
+
+    // Check if pin with this ID already exists
+    if (this.pinIndexMap.has(normalizedId)) {
+      const oldIndex = this.pinIndexMap.get(normalizedId);
+
+      // Mark old pin as deleted (null it out)
+      if (this.pins[oldIndex] !== null) {
+        this.pins[oldIndex] = null;
+        action = 'replaced';
+        logger.debug(`Replacing pin with ID: ${pin.id}`);
+      }
+    }
+
+    // Add new pin to end (newest position)
     this.pins.push(pinWithTimestamp);
+
+    // Update index map
+    this.pinIndexMap.set(normalizedId, this.pins.length - 1);
 
     // Auto-compact if waste is excessive
     if (this.startIndex > this.compactionThreshold) {
@@ -40,26 +70,56 @@ class PinStorageManager {
 
     // Debounced persist
     this.debouncedPersist();
+
+    return { action, pin: pinWithTimestamp };
+  }
+
+  /**
+   * Add new pin - O(1)
+   * DEPRECATED: Alias to addOrReplacePin for backward compatibility
+   * Always adds to end (newest position)
+   */
+  addPin(pin) {
+    return this.addOrReplacePin(pin);
   }
 
   /**
    * Remove expired pins - O(1) amortized
    * Moves startIndex forward without array modification
+   * Also counts null entries (replaced pins) for compaction triggering
    */
   cleanupOldPins() {
     const cutoffTime = Date.now() - this.maxAge;
+    let expiredCount = 0;
+    let nullCount = 0;
 
-    // Scan from startIndex forward until we find valid pin
-    while (this.startIndex < this.pins.length) {
-      const pinTime = new Date(this.pins[this.startIndex].timestamp).getTime();
-      if (pinTime >= cutoffTime) break;
-      this.startIndex++;
+    // Scan from startIndex forward to count expired and null pins
+    for (let i = this.startIndex; i < this.pins.length; i++) {
+      const pin = this.pins[i];
+
+      if (pin === null) {
+        nullCount++;
+        continue;
+      }
+
+      const pinTime = new Date(pin.timestamp).getTime();
+      if (pinTime < cutoffTime) {
+        expiredCount++;
+      } else {
+        break; // Pins are chronological, no more expired after this
+      }
     }
 
-    // Compact if threshold exceeded
-    if (this.startIndex > this.compactionThreshold) {
+    // Move startIndex forward past expired pins
+    this.startIndex += expiredCount;
+
+    // Trigger compaction if too many deleted (expired + null)
+    const totalDeleted = expiredCount + nullCount;
+    if (totalDeleted >= this.compactionThreshold) {
       this.compact();
     }
+
+    logger.debug(`Cleanup complete: ${expiredCount} expired, ${nullCount} replaced (${totalDeleted} total deleted)`);
 
     return this.pins.length - this.startIndex;
   }
@@ -114,14 +174,38 @@ class PinStorageManager {
 
   /**
    * Compact array - O(n)
-   * Removes expired prefix when waste exceeds threshold
+   * Removes expired prefix and null entries when waste exceeds threshold
+   * Rebuilds ID Map for consistency
    */
   compact() {
-    if (this.startIndex > 0) {
-      this.pins = this.pins.slice(this.startIndex);
-      this.startIndex = 0;
-      this.persistToFile(); // Persist after compaction
-    }
+    logger.info(`Compacting storage: ${this.pins.length} pins, startIndex: ${this.startIndex}`);
+
+    // Get active span (skip expired prefix)
+    const activeSpan = this.pins.slice(this.startIndex);
+    const now = Date.now();
+    const cutoffTime = now - this.maxAge;
+
+    // Filter out null entries (replaced pins) and expired pins
+    const compactedPins = activeSpan.filter((pin) => {
+      if (pin === null) return false; // Remove replaced pins
+      const pinTime = new Date(pin.timestamp).getTime();
+      return pinTime >= cutoffTime; // Keep only non-expired
+    });
+
+    // Rebuild ID index map
+    this.pinIndexMap.clear();
+    compactedPins.forEach((pin, index) => {
+      this.pinIndexMap.set(this.normalizeId(pin.id), index);
+    });
+
+    // Replace pins array
+    this.pins = compactedPins;
+    this.startIndex = 0;
+
+    logger.info(`Compaction complete: ${this.pins.length} pins remaining`);
+
+    // Persist after compaction
+    this.persistToFile();
   }
 
   /**
@@ -216,6 +300,7 @@ class PinStorageManager {
 
   /**
    * Load pins from disk on startup
+   * Builds ID Map for loaded pins
    */
   async loadFromFile() {
     try {
@@ -225,6 +310,14 @@ class PinStorageManager {
       if (parsed.pins && Array.isArray(parsed.pins)) {
         this.pins = parsed.pins;
         this.startIndex = 0;
+
+        // Build ID index map from loaded pins
+        this.pinIndexMap.clear();
+        this.pins.forEach((pin, index) => {
+          this.pinIndexMap.set(this.normalizeId(pin.id), index);
+        });
+
+        logger.debug(`Built ID index map with ${this.pinIndexMap.size} entries`);
 
         // Cleanup old pins immediately after loading
         const validCount = this.cleanupOldPins();

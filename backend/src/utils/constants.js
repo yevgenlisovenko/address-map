@@ -7,6 +7,7 @@ export const SOCKET_EVENTS = {
   CONNECTION: 'connection',
   DISCONNECT: 'disconnect',
   ADD_PIN: 'add-pin',
+  UPDATE_PIN: 'update-pin',
   REQUEST_PINS: 'request-pins',
   INITIAL_PINS: 'initial-pins',
   STATE_HIGHLIGHTS_UPDATE: 'state-highlights-update',

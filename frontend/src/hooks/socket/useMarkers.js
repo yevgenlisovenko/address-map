@@ -28,6 +28,28 @@ export const useMarkers = (socket) => {
       setStatus(`Pin added: ${data.displayName}`);
     };
 
+    const handleUpdatePin = (data) => {
+      logger.log('Pin updated:', data);
+
+      setMarkers((prev) => {
+        const existingIndex = prev.findIndex(m => m.id === data.id);
+
+        if (existingIndex === -1) {
+          // Defensive: pin not found, add it (handles reconnection edge cases)
+          logger.warn('Update for non-existent pin, adding instead:', data.id);
+          return [{ ...data, __isNew: true }, ...prev];
+        }
+
+        // Remove old marker and prepend updated one (move to newest position)
+        const updated = [...prev];
+        updated.splice(existingIndex, 1);
+        // Add __isNew flag to trigger animation
+        return [{ ...data, __isNew: true }, ...updated];
+      });
+
+      setStatus(`Pin updated: ${data.displayName}`);
+    };
+
     const handleError = (error) => {
       logger.error('Socket error:', error);
       setStatus(`Error: ${error.message}`);
@@ -37,12 +59,14 @@ export const useMarkers = (socket) => {
     // Register event listeners
     socket.on('initial-pins', handleInitialPins);
     socket.on('add-pin', handleAddPin);
+    socket.on('update-pin', handleUpdatePin);
     socket.on('error', handleError);
 
     // Cleanup event listeners on unmount or socket change
     return () => {
       socket.off('initial-pins', handleInitialPins);
       socket.off('add-pin', handleAddPin);
+      socket.off('update-pin', handleUpdatePin);
       socket.off('error', handleError);
     };
   }, [socket]);

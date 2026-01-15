@@ -8,6 +8,7 @@ import { geocodeAddress } from '../geocode.js';
 import { ERROR_MESSAGES, PIN_TYPES, SOCKET_EVENTS } from '../utils/constants.js';
 import { pinStorageManager } from '../pinStorageManager.js';
 import { validatePinId } from '../validation.js';
+import logger from '../utils/logger.js';
 
 /**
  * Submit a new address for geocoding
@@ -43,12 +44,19 @@ export const submitAddress = asyncHandler(async (req, res) => {
     timestamp: new Date().toISOString()
   };
 
+  // Store pin and get action (added or replaced)
+  const result = pinStorageManager.addOrReplacePin(pin);
+
   // Get io instance from app and broadcast to all connected clients
   const io = req.app.get('io');
-  io.emit(SOCKET_EVENTS.ADD_PIN, pin);
 
-  // Store pin for historical data
-  pinStorageManager.addPin(pin);
+  if (result.action === 'replaced') {
+    io.emit(SOCKET_EVENTS.UPDATE_PIN, result.pin);
+    logger.info(`Pin ${pin.id} replaced (address geocoded)`);
+  } else {
+    io.emit(SOCKET_EVENTS.ADD_PIN, result.pin);
+    logger.info(`Pin ${pin.id} added (address geocoded)`);
+  }
 
   res.json({
     success: true,
